@@ -1,0 +1,23 @@
+// Copyright (c) 2026 Suphawit Watthanataetakun
+// Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+// See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
+
+import { {{pascalCase name}} } from './{{kebabCase name}}';
+
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+
+const meta: Meta<typeof {{pascalCase name}}> = {
+  title:
+    '{{pascalCase layer}}{{#if slice}}/{{pascalCase slice}}{{else}}{{#if sharedSection}}/{{pascalCase sharedSection}}{{/if}}{{/if}}/{{pascalCase name}}',
+  component: {{pascalCase name}},
+  tags: ['autodocs'],
+  args: {},
+};
+
+export default meta;
+
+type Story = StoryObj<typeof {{pascalCase name}}>;
+
+export const Playground: Story = {
+  args: {},
+};

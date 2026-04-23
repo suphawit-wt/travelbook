@@ -1,0 +1,17 @@
+FROM node:24.15-slim
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+RUN pnpm install
+
+COPY . .
+
+EXPOSE 8080
+
+ENV NODE_ENV=development
+
+CMD ["pnpm", "dev", "-p", "8080"]

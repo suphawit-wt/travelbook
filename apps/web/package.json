@@ -1,0 +1,41 @@
+{
+  "name": "travelbook-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Travelbook Web - Booking Hotels for Travel Web App",
+  "license": "CC-BY-NC-ND-4.0",
+  "author": "Suphawit Watthanataetakun",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev --turbo",
+    "format": "prettier src tests --write",
+    "format:check": "prettier src tests --check",
+    "generate": "plop --plopfile ./.plop/plopfile.mjs",
+    "lint": "eslint src --cache",
+    "lint:fix": "eslint src --fix --cache",
+    "release": "standard-version",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "prettier": "@vercel/style-guide/prettier",
+  "dependencies": {
+    "next": "^14.2.35",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@typescript-eslint/parser": "^7.18.0",
+    "@vercel/style-guide": "^6.0.0",
+    "eslint": "^8",
+    "eslint-config-next": "^14.2.35",
+    "eslint-plugin-header": "^3.1.1",
+    "plop": "^4.0.5",
+    "prettier": "^3.8.3",
+    "prettier-plugin-packagejson": "^3.0.2",
+    "standard-version": "^9.5.0",
+    "typescript": "^5"
+  }
+}

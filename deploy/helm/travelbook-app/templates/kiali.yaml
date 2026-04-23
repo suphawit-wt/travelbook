@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kiali-viewer-token
+  namespace: istio-system
+  annotations:
+    kubernetes.io/service-account.name: "kiali-viewer"
+type: kubernetes.io/service-account-token
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: kiali-route
+  namespace: istio-system
+spec:
+  parentRefs:
+  - name: travelbook-gateway
+    namespace: {{ .Values.namespace }}
+  hostnames:
+  - "kiali.{{ .Values.domain }}"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: kiali
+      port: 20001

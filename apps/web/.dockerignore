@@ -1,0 +1,165 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+.devcontainer/
+.husky/
+.plop/
+.storybook/
+.git/
+.gitignore
+.gitattributes
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.log
+
+# dependencies
+node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+/.pnp
+.pnp.js
+.pnpm-store/
+.yarn/install-state.gz
+
+# Tests and testing output (not needed in production images)
+coverage/
+.nyc_output/
+__tests__/
+__mocks__/
+jest/
+cypress/
+cypress/screenshots/
+cypress/videos/
+playwright-report/
+test-results/
+.vitest/
+vitest.config.*
+jest.config.*
+cypress.config.*
+playwright.config.*
+*.test.*
+*.spec.*
+
+# next.js
+.next/
+out/
+dist/
+build/
+.vercel/
+
+# terraform
+terraform/
+.terraform/
+*.tf
+*.tfstate
+*.tfstate.*
+crash.log
+crash..log
+*.tfvars
+*.tfvars.json
+*.tfplan
+.terraformrc
+terraform.rc
+override.tf
+*_override.tf
+
+# Environment variables (only commit template files)
+.env
+.env*.local
+.env.development
+.env.test
+.env.production.local
+
+# Documentation
+*.md
+docs/
+
+# CI/CD configuration files
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+Jenkinsfile
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# vercel
+.vercel
+
+# Cache directories and temporary data
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.turbo/
+.tmp/
+# Cache directories and temporary data
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.swc/
+.turbo/
+.tmp/
+.temp/
+
+# TypeScript build metadata
+*.tsbuildinfo
+
+# Sensitive or unnecessary configuration files
+*.pem
+.editorconfig
+.prettierrc*
+prettier.config.*
+.eslintrc*
+eslint.config.*
+.stylelintrc*
+stylelint.config.*
+.babelrc*
+*.iml
+*.ipr
+*.iws
+
+# OS-specific junk
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# AI/ML tool metadata and configs
+.cursor/
+.cursorrules
+.copilot/
+.copilotignore
+.github/copilot/
+.gemini/
+.anthropic/
+.kiro
+.claude
+AGENTS.md
+.agents/
+
+# AI-generated temp files
+*.aider*
+*.copilot*
+*.chatgpt*
+*.claude*
+*.gemini*
+*.openai*
+*.anthropic*

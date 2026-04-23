@@ -1,0 +1,5 @@
+namespace: travelbook
+
+tls:
+  enabled: true
+  secretName: travelbook-tls-cert

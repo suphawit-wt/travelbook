@@ -1,0 +1,30 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: travelbook-gateway
+  namespace: {{ .Values.namespace }}
+spec:
+  gatewayClassName: istio
+  listeners:
+  - name: http
+    port: 80
+    protocol: HTTP
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            gateway-access: "true"
+  - name: https
+    port: 443
+    protocol: HTTPS
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: travelbook-tls-cert
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            gateway-access: "true"

@@ -1,0 +1,28 @@
+// Copyright (c) 2026 Suphawit Watthanataetakun
+// Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+// See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
+
+{{#if hasTypes}}import type { {{pascalCase name}}Props } from './{{kebabCase name}}.types';{{/if}}
+{{#if hasStyled}}import { Wrapper } from './{{kebabCase name}}.styled';{{/if}}
+
+export const {{pascalCase name}} = ({{#if hasTypes}}{ children, ...props }: {{pascalCase name}}Props{{/if}}) => {
+  return (
+    {{#if hasStyled}}
+    <Wrapper{{#if hasTypes}} {...props}{{/if}}>
+      {{#if hasTypes}}
+      {children ?? '{{pascalCase name}}'}
+      {{else}}
+      {{pascalCase name}}
+      {{/if}}
+    </Wrapper>
+    {{else}}
+    <div{{#if hasTypes}} {...props}{{/if}}>
+      {{#if hasTypes}}
+      {children ?? '{{pascalCase name}}'}
+      {{else}}
+      {{pascalCase name}}
+      {{/if}}
+    </div>
+    {{/if}}
+  );
+};

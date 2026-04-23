@@ -1,0 +1,31 @@
+# Waypoint Proxy for Layer 7 mesh policy enforcement
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: waypoint
+  namespace: {{ .Values.namespace }}
+  labels:
+    istio.io/waypoint-for: service
+spec:
+  gatewayClassName: istio-waypoint
+  listeners:
+  - name: mesh
+    port: 15008
+    protocol: HBONE
+---
+# Strict L7 Authorization Policy enforcing HTTPS redirect/security rules
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: vault-rbac
+  namespace: {{ .Values.namespace }}
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: waypoint
+  action: ALLOW
+  rules:
+  - to:
+    - operation:
+        methods: ["GET", "POST", "PUT", "DELETE"]

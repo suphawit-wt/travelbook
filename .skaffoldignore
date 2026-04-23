@@ -1,0 +1,20 @@
+# .skaffoldignore
+
+node_modules
+.pnpm-store
+.next
+
+# Ignore Helm temporary build artifacts
+deploy/helm/**/*.tgz
+deploy/helm/**/charts/
+
+# Ignore Go build outputs and Air temp folders
+**/tmp/
+bin/
+*.out
+*.exe
+
+# Ignore version control and IDE files
+.git/
+.idea/
+.vscode/

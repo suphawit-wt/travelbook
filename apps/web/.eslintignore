@@ -1,0 +1,10 @@
+# .eslintignore
+node_modules
+.next
+dist
+build
+coverage
+.pnpm-store
+!.storybook
+**/*.stories.ts
+**/*.stories.tsx

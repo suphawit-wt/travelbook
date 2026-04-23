@@ -1,0 +1,8 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: travelbook-stack
+
+requires:
+  - configs: ["web"]
+    path: apps/web/skaffold.yaml

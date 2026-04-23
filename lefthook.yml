@@ -1,0 +1,45 @@
+colors: true
+
+pre-commit:
+  parallel: true
+  commands:
+    golangci-lint-fix:
+      tags: go lint
+      glob: "*.go"
+      run: golangci-lint run --fix {staged_files}
+      stage_fixed: true
+
+    prettier-web:
+      tags: frontend style
+      root: "apps/web"
+      glob: "*.{js,jsx,ts,tsx,json,css,md}"
+      run: pnpm exec prettier --write {staged_files}
+      stage_fixed: true
+
+    eslint-web:
+      tags: frontend lint
+      root: "apps/web"
+      glob: "*.{js,jsx,ts,tsx}"
+      run: pnpm exec eslint --fix {staged_files}
+      stage_fixed: true
+
+pre-push:
+  parallel: true
+  commands:
+    go-lint-full:
+      tags: go lint
+      run: golangci-lint run ./...
+
+    go-test:
+      tags: go test
+      run: go test -race -short ./...
+
+    web-lint-full:
+      tags: frontend lint
+      root: "apps/web"
+      run: pnpm run lint
+
+commit-msg:
+  commands:
+    commitlint:
+      run: npx commitlint --edit {1}
