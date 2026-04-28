@@ -3,6 +3,8 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 import { APP } from '@/shared/constants';
+import { StyledComponentsRegistry } from '@/shared/providers';
+import { GlobalStyles } from '@/shared/styles/globals';
 
 import type { Metadata } from 'next/types';
 import type { FC, PropsWithChildren } from 'react';
@@ -50,7 +52,12 @@ export const metadata: Metadata = {
 const RootLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <StyledComponentsRegistry>
+          <GlobalStyles />
+          {children}
+        </StyledComponentsRegistry>
+      </body>
     </html>
   );
 };
