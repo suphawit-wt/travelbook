@@ -2,8 +2,10 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
+import { dir } from 'i18next';
+
 import { APP } from '@/shared/constants';
-import { StyledComponentsRegistry } from '@/shared/providers';
+import { CookiesProvider, StyledComponentsRegistry } from '@/shared/providers';
 import { GlobalStyles } from '@/shared/styles/globals';
 
 import type { Metadata } from 'next/types';
@@ -49,14 +51,25 @@ export const metadata: Metadata = {
   },
 };
 
-const RootLayout: FC<PropsWithChildren> = ({ children }) => {
+interface RootLayoutProps {
+  params: {
+    lng: string;
+  };
+}
+
+const RootLayout: FC<PropsWithChildren<RootLayoutProps>> = ({
+  params,
+  children,
+}) => {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning dir={dir(params.lng)} lang={params.lng}>
       <body>
-        <StyledComponentsRegistry>
-          <GlobalStyles />
-          {children}
-        </StyledComponentsRegistry>
+        <CookiesProvider>
+          <StyledComponentsRegistry>
+            <GlobalStyles />
+            {children}
+          </StyledComponentsRegistry>
+        </CookiesProvider>
       </body>
     </html>
   );
