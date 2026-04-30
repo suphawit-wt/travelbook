@@ -8,4 +8,5 @@ export * from './heading';
 export * from './icon';
 export * from './label';
 export * from './separator';
+export * from './skeleton';
 export * from './text';
