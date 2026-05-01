@@ -6,6 +6,7 @@ export * from './badge';
 export * from './container';
 export * from './heading';
 export * from './icon';
+export * from './image';
 export * from './label';
 export * from './separator';
 export * from './skeleton';
