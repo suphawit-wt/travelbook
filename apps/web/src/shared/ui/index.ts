@@ -12,4 +12,5 @@ export * from './label';
 export * from './link';
 export * from './separator';
 export * from './skeleton';
+export * from './star-rating';
 export * from './text';
