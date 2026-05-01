@@ -3,6 +3,7 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 export * from './badge';
+export * from './breadcrumbs';
 export * from './container';
 export * from './heading';
 export * from './icon';
