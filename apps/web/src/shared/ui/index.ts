@@ -16,4 +16,5 @@ export * from './select';
 export * from './separator';
 export * from './skeleton';
 export * from './star-rating';
+export * from './stepper';
 export * from './text';
