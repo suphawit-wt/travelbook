@@ -19,6 +19,7 @@
   },
   "prettier": "@vercel/style-guide/prettier",
   "dependencies": {
+    "@radix-ui/react-tooltip": "^1.2.8",
     "accept-language": "^3.0.20",
     "framer-motion": "^12.38.0",
     "i18next": "^26.0.8",
