@@ -18,3 +18,4 @@ export * from './skeleton';
 export * from './star-rating';
 export * from './stepper';
 export * from './text';
+export * from './tooltip';
