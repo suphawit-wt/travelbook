@@ -11,6 +11,7 @@ export * from './container';
 export * from './heading';
 export * from './icon';
 export * from './icon-button';
+export * from './icon-button-link';
 export * from './image';
 export * from './label';
 export * from './link';
