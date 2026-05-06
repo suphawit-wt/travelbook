@@ -10,6 +10,7 @@ export * from './card';
 export * from './container';
 export * from './heading';
 export * from './icon';
+export * from './icon-button';
 export * from './image';
 export * from './label';
 export * from './link';
