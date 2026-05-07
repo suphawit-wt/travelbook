@@ -2,6 +2,7 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
+import { Provider as TooltipProvider } from '@radix-ui/react-tooltip';
 import { dir } from 'i18next';
 
 import { APP } from '@/shared/constants';
@@ -67,7 +68,9 @@ const RootLayout: FC<PropsWithChildren<RootLayoutProps>> = ({
         <CookiesProvider>
           <StyledComponentsRegistry>
             <GlobalStyles />
-            {children}
+            <TooltipProvider delayDuration={500} skipDelayDuration={0}>
+              {children}
+            </TooltipProvider>
           </StyledComponentsRegistry>
         </CookiesProvider>
       </body>
