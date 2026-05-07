@@ -10,6 +10,7 @@ export * from './button-link';
 export * from './card';
 export * from './checkbox';
 export * from './container';
+export * from './dialog';
 export * from './heading';
 export * from './icon';
 export * from './icon-button';
