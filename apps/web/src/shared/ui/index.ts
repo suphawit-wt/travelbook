@@ -11,6 +11,7 @@ export * from './card';
 export * from './checkbox';
 export * from './container';
 export * from './dialog';
+export * from './drawer';
 export * from './heading';
 export * from './icon';
 export * from './icon-button';
