@@ -34,7 +34,8 @@
     "react-cookie": "^8.1.0",
     "react-dom": "^18",
     "react-i18next": "^17.0.6",
-    "styled-components": "^6.4.1"
+    "styled-components": "^6.4.1",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@types/node": "^24",
