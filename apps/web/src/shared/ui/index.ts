@@ -14,6 +14,7 @@ export * from './dialog';
 export * from './drawer';
 export * from './dropdown-menu';
 export * from './heading';
+export * from './hover-card';
 export * from './icon';
 export * from './icon-button';
 export * from './icon-button-link';
