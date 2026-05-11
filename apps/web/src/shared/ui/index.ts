@@ -23,6 +23,7 @@ export * from './label';
 export * from './link';
 export * from './logo';
 export * from './popover';
+export * from './progress';
 export * from './select';
 export * from './separator';
 export * from './skeleton';
