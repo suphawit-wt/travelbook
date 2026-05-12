@@ -24,6 +24,7 @@ export * from './link';
 export * from './logo';
 export * from './popover';
 export * from './progress';
+export * from './radio-button';
 export * from './select';
 export * from './separator';
 export * from './skeleton';
