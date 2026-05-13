@@ -30,6 +30,7 @@ export * from './radio-group';
 export * from './select';
 export * from './separator';
 export * from './skeleton';
+export * from './slider';
 export * from './star-rating';
 export * from './stepper';
 export * from './text';
