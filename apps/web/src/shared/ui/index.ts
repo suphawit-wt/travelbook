@@ -33,5 +33,6 @@ export * from './skeleton';
 export * from './slider';
 export * from './star-rating';
 export * from './stepper';
+export * from './switch';
 export * from './text';
 export * from './tooltip';
