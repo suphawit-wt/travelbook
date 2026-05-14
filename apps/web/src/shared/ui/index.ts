@@ -19,6 +19,7 @@ export * from './icon';
 export * from './icon-button';
 export * from './icon-button-link';
 export * from './image';
+export * from './input';
 export * from './label';
 export * from './link';
 export * from './logo';
