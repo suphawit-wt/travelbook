@@ -24,6 +24,7 @@ export * from './input-otp';
 export * from './label';
 export * from './link';
 export * from './logo';
+export * from './number-input';
 export * from './popover';
 export * from './progress';
 export * from './radio-button';
