@@ -1,5 +1,48 @@
 {
   "status": {
     "notFound": "Not found"
+  },
+  "header": {
+    "topBar": {
+      "help": {
+        "tooltip": "Contact Customer Service"
+      },
+      "listProperty": "List your property",
+      "register": "Register",
+      "signIn": "Sign in"
+    }
+  },
+
+  "mobile": {
+    "nav": "Navigation Menu",
+
+    "menu": {
+      "app": "Download mobile app",
+      "genius": "Genius loyalty program",
+      "listProperty": "List your property"
+    },
+
+    "support": {
+      "title": "Help and support",
+      "contact": "Contact Customer Service",
+      "partner": "Partner dispute"
+    },
+
+    "inspiration": {
+      "title": "Inspiration",
+      "deals": "Seasonal and holiday deals",
+      "articles": "Travel articles"
+    },
+
+    "settings": {
+      "title": "Settings and legal",
+      "about": "About {{appName}}",
+      "careers": "Careers",
+      "affiliate": "Become an affiliate",
+      "press": "Press center",
+      "privacy": "Privacy & cookies",
+      "terms": "Terms & conditions",
+      "legal": "Legal"
+    }
   }
 }
