@@ -4,6 +4,7 @@
 
 import { Provider as TooltipProvider } from '@radix-ui/react-tooltip';
 import { dir } from 'i18next';
+import { ThemeProvider } from 'next-themes';
 
 import { APP } from '@/shared/constants';
 import { CookiesProvider, StyledComponentsRegistry } from '@/shared/providers';
@@ -68,9 +69,11 @@ const RootLayout: FC<PropsWithChildren<RootLayoutProps>> = ({
         <CookiesProvider>
           <StyledComponentsRegistry>
             <GlobalStyles />
-            <TooltipProvider delayDuration={500} skipDelayDuration={0}>
-              {children}
-            </TooltipProvider>
+            <ThemeProvider enableSystem={false}>
+              <TooltipProvider delayDuration={500} skipDelayDuration={0}>
+                {children}
+              </TooltipProvider>
+            </ThemeProvider>
           </StyledComponentsRegistry>
         </CookiesProvider>
       </body>
