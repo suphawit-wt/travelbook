@@ -10,6 +10,15 @@
       "listProperty": "List your property",
       "register": "Register",
       "signIn": "Sign in"
+    },
+
+    "nav": {
+      "stays": "Stays",
+      "flights": "Flights",
+      "flightHotel": "Flight + Hotel",
+      "carRentals": "Car rentals",
+      "attractions": "Attractions",
+      "airportTaxis": "Airport Taxis"
     }
   },
 

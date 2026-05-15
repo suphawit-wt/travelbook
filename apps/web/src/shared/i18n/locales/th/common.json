@@ -10,6 +10,15 @@
       "listProperty": "ลงทะเบียนที่พักของท่าน",
       "register": "สมัคร",
       "signIn": "เข้าสู่ระบบ"
+    },
+
+    "nav": {
+      "stays": "การเข้าพัก",
+      "flights": "เที่ยวบิน",
+      "flightHotel": "เที่ยวบิน + โรงแรม",
+      "carRentals": "รถเช่า",
+      "attractions": "สิ่งที่น่าสนใจ",
+      "airportTaxis": "แท็กซี่สนามบิน"
     }
   },
 
