@@ -2,6 +2,13 @@
   "status": {
     "notFound": "Not found"
   },
+
+  "theme": {
+    "tooltip": "Change theme",
+    "switchToLight": "Switch to Light Theme",
+    "switchToDark": "Switch to Dark Theme"
+  },
+
   "header": {
     "topBar": {
       "help": {

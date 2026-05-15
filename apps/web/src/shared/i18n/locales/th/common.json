@@ -2,6 +2,13 @@
   "status": {
     "notFound": "ไม่พบเพจที่คุณค้นหา"
   },
+
+  "theme": {
+    "tooltip": "เปลี่ยนธีม",
+    "switchToLight": "เปลี่ยนเป็นธีมสว่าง",
+    "switchToDark": "เปลี่ยนเป็นธีมมืด"
+  },
+
   "header": {
     "topBar": {
       "help": {
