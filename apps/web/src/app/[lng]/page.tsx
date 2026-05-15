@@ -7,7 +7,7 @@ import { Header } from '@/widgets';
 const Home = () => {
   return (
     <>
-      <Header />
+      <Header showSiteNav />
       <main>Hello, Travelbook</main>
     </>
   );
