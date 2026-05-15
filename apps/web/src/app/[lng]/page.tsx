@@ -2,8 +2,15 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
+import { Header } from '@/widgets';
+
 const Home = () => {
-  return <main>Hello, Travelbook</main>;
+  return (
+    <>
+      <Header />
+      <main>Hello, Travelbook</main>
+    </>
+  );
 };
 
 export default Home;
