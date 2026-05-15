@@ -7,6 +7,7 @@
 import { CircleUserRound, HelpCircle } from 'lucide-react';
 
 import { MobileNav } from '@/entities/nav/ui/mobile-nav';
+import { ThemeSwitch } from '@/features/theme/ui/theme-switch';
 import { useTranslation } from '@/shared/i18n/hooks/use-translation';
 import { ButtonLink, IconButtonLink, Link, Logo } from '@/shared/ui';
 
@@ -23,6 +24,10 @@ export const HeaderBar = () => {
 
       <Nav $showOnly="desktop">
         <ul>
+          <li>
+            <ThemeSwitch />
+          </li>
+
           <li>
             <IconButtonLink
               $pressEffect="scale"

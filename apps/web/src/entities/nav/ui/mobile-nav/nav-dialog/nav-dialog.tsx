@@ -21,6 +21,7 @@ import {
   UserRoundSearch,
 } from 'lucide-react';
 
+import { ThemeSwitch } from '@/features/theme/ui/theme-switch';
 import { APP } from '@/shared/constants/app';
 import { useTranslation } from '@/shared/i18n/hooks/use-translation';
 import { ButtonLink, Text } from '@/shared/ui';
@@ -124,6 +125,10 @@ export const NavDialog: FC<NavDialogProps> = (props) => {
     <Wrapper>
       <nav>
         <ul>
+          <li>
+            <ThemeSwitch showTitle />
+          </li>
+
           <li>
             <ButtonLink
               $size="sm"
