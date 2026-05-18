@@ -3,6 +3,14 @@
     "notFound": "Not found"
   },
 
+  "language": {
+    "tooltip": "Select your language",
+    "dialog": {
+      "title": "Select your language",
+      "all": "All languages"
+    }
+  },
+
   "theme": {
     "tooltip": "Change theme",
     "switchToLight": "Switch to Light Theme",
