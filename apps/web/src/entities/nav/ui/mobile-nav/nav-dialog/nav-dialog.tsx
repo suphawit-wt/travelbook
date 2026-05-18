@@ -21,6 +21,7 @@ import {
   UserRoundSearch,
 } from 'lucide-react';
 
+import { LanguageSelector } from '@/features/i18n/ui/language-selector';
 import { ThemeSwitch } from '@/features/theme/ui/theme-switch';
 import { APP } from '@/shared/constants/app';
 import { useTranslation } from '@/shared/i18n/hooks/use-translation';
@@ -121,10 +122,25 @@ export const NavDialog: FC<NavDialogProps> = (props) => {
     },
   ];
 
+  if (props.variant === 'auth') {
+    return (
+      <Wrapper>
+        <ul>
+          <li>
+            <LanguageSelector showTitle />
+          </li>
+        </ul>
+      </Wrapper>
+    );
+  }
+
   return (
     <Wrapper>
       <nav>
         <ul>
+          <li>
+            <LanguageSelector showTitle />
+          </li>
           <li>
             <ThemeSwitch showTitle />
           </li>
