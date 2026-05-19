@@ -7,7 +7,11 @@ import { dir } from 'i18next';
 import { ThemeProvider } from 'next-themes';
 
 import { APP } from '@/shared/constants';
-import { CookiesProvider, StyledComponentsRegistry } from '@/shared/providers';
+import {
+  CookiesProvider,
+  StoreProvider,
+  StyledComponentsRegistry,
+} from '@/shared/providers';
 import { GlobalStyles } from '@/shared/styles/globals';
 
 import type { Metadata } from 'next/types';
@@ -67,14 +71,16 @@ const RootLayout: FC<PropsWithChildren<RootLayoutProps>> = ({
     <html suppressHydrationWarning dir={dir(params.lng)} lang={params.lng}>
       <body>
         <CookiesProvider>
-          <StyledComponentsRegistry>
-            <GlobalStyles />
-            <ThemeProvider enableSystem={false}>
-              <TooltipProvider delayDuration={500} skipDelayDuration={0}>
-                {children}
-              </TooltipProvider>
-            </ThemeProvider>
-          </StyledComponentsRegistry>
+          <StoreProvider>
+            <StyledComponentsRegistry>
+              <GlobalStyles />
+              <ThemeProvider enableSystem={false}>
+                <TooltipProvider delayDuration={500} skipDelayDuration={0}>
+                  {children}
+                </TooltipProvider>
+              </ThemeProvider>
+            </StyledComponentsRegistry>
+          </StoreProvider>
         </CookiesProvider>
       </body>
     </html>
