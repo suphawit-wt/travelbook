@@ -21,6 +21,7 @@ import {
   UserRoundSearch,
 } from 'lucide-react';
 
+import { CurrencySelector } from '@/features/currency/ui/currency-selector';
 import { LanguageSelector } from '@/features/i18n/ui/language-selector';
 import { ThemeSwitch } from '@/features/theme/ui/theme-switch';
 import { APP } from '@/shared/constants/app';
@@ -138,6 +139,9 @@ export const NavDialog: FC<NavDialogProps> = (props) => {
     <Wrapper>
       <nav>
         <ul>
+          <li>
+            <CurrencySelector showTitle />
+          </li>
           <li>
             <LanguageSelector showTitle />
           </li>

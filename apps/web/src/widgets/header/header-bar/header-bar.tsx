@@ -7,6 +7,7 @@
 import { CircleUserRound, HelpCircle } from 'lucide-react';
 
 import { MobileNav } from '@/entities/nav/ui/mobile-nav';
+import { CurrencySelector } from '@/features/currency/ui/currency-selector';
 import { LanguageSelector } from '@/features/i18n/ui/language-selector';
 import { ThemeSwitch } from '@/features/theme/ui/theme-switch';
 import { useTranslation } from '@/shared/i18n/hooks/use-translation';
@@ -25,6 +26,10 @@ export const HeaderBar = () => {
 
       <Nav $showOnly="desktop">
         <ul>
+          <li>
+            <CurrencySelector />
+          </li>
+
           <li>
             <LanguageSelector />
           </li>
