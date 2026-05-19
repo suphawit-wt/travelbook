@@ -4,4 +4,8 @@
 
 import { combineReducers } from '@reduxjs/toolkit';
 
-export const rootReducer = combineReducers({});
+import { userPreferencesReducer } from '@/features/user/store/user-preferences.slice';
+
+export const rootReducer = combineReducers({
+  userPreferences: userPreferencesReducer,
+});
