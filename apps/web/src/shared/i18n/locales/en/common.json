@@ -3,6 +3,19 @@
     "notFound": "Not found"
   },
 
+  "currency": {
+    "tooltip": "Select your currency",
+    "dialog": {
+      "title": "Select your currency",
+      "description": "Where applicable, prices will be converted to—and shown in—the currency you select. The currency you pay in may differ based on your reservation, and a service fee may also apply.",
+      "all": "All currencies",
+      "items": {
+        "USD": "U.S. Dollar",
+        "THB": "Thai Baht"
+      }
+    }
+  },
+
   "language": {
     "tooltip": "Select your language",
     "dialog": {
