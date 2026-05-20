@@ -2,13 +2,14 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
-import { Header } from '@/widgets';
+import { Footer, Header } from '@/widgets';
 
 const Home = () => {
   return (
     <>
       <Header showSiteNav />
       <main>Hello, Travelbook</main>
+      <Footer />
     </>
   );
 };
