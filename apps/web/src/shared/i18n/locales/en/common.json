@@ -50,6 +50,118 @@
     }
   },
 
+  "footer": {
+    "legal": {
+      "agreement": "By signing in or creating an account, you agree with our <0>Terms & Conditions</0> and <1>Privacy Statement</1>.",
+      "rights": "All rights reserved.",
+      "copyright": "Copyright (1996-{{currentYear}}) - {{appName}}"
+    },
+
+    "booking": {
+      "about": "About {{appName}}",
+      "help": "Contact Customer Service",
+      "terms": "Terms & conditions",
+      "privacy": "Privacy & cookies"
+    },
+
+    "links": {
+      "locations": {
+        "countries": "Countries",
+        "regions": "Regions",
+        "cities": "Cities",
+        "districts": "Districts",
+        "airports": "Airports"
+      },
+      "properties": {
+        "hotels": "Hotels",
+        "apartments": "Apartments",
+        "resorts": "Resorts",
+        "villas": "Villas",
+        "hostels": "Hostels",
+        "guestHouses": "Guest Houses",
+        "vacationHomes": "Vacation Homes",
+        "unique": "Unique places to stay",
+        "interest": "Places of interest",
+        "bedAndBreakfast": "B&Bs"
+      },
+      "explore": {
+        "destinations": "All destinations",
+        "flights": "All flight destinations",
+        "cars": "All car rental locations",
+        "vacations": "All vacation destinations",
+        "discover": "Discover",
+        "reviews": "Reviews",
+        "monthlyStays": "Discover monthly stays"
+      }
+    },
+
+    "sections": {
+      "support": {
+        "title": "Support",
+        "links": {
+          "covid": "Coronavirus (COVID-19) FAQs",
+          "trips": "Manage your trips",
+          "contact": "Contact Customer Service",
+          "safety": "Safety Resource Center"
+        }
+      },
+
+      "discover": {
+        "title": "Discover",
+        "links": {
+          "genius": "Genius loyalty program",
+          "deals": "Seasonal and holiday deals",
+          "articles": "Travel articles",
+          "business": "{{appName}} for Business",
+          "awards": "Traveller Review Awards",
+          "cars": "Car rental",
+          "flights": "Flight finder",
+          "restaurants": "Restaurant reservations",
+          "affiliate": "{{appName}} for Travel Agents"
+        }
+      },
+
+      "legal": {
+        "title": "Terms and settings",
+        "links": {
+          "privacy": "Privacy & cookies",
+          "terms": "Terms & conditions",
+          "complaints": "Partner dispute",
+          "modernSlavery": "Modern Slavery Statement",
+          "humanRights": "Human Rights Statement"
+        }
+      },
+
+      "partner": {
+        "title": "Partner",
+        "links": {
+          "admin": "Extranet login",
+          "help": "Partner help",
+          "join": "List your property",
+          "affiliate": "Become an affiliate"
+        }
+      },
+
+      "about": {
+        "title": "About",
+        "links": {
+          "about": "About {{appName}}",
+          "howWeWork": "How We Work",
+          "sustainability": "Sustainability",
+          "press": "Press center",
+          "careers": "Careers",
+          "investor": "Investor relations",
+          "contact": "Corporate contact"
+        }
+      }
+    },
+
+    "info": {
+      "description": "{{appName}} is part of {{appCompanyName}}, the world leader in online travel and related services.",
+      "copyright": "Copyright © 1996-{{currentYear}} {{appName}}™. All rights reserved."
+    }
+  },
+
   "mobile": {
     "nav": "Navigation Menu",
 
