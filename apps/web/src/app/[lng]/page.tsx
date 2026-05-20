@@ -2,15 +2,14 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
-import { Footer, Header } from '@/widgets';
+import { DefaultLayout } from '@/layouts';
+import { Container } from '@/shared/ui';
 
 const Home = () => {
   return (
-    <>
-      <Header showSiteNav />
-      <main>Hello, Travelbook</main>
-      <Footer />
-    </>
+    <DefaultLayout>
+      <Container>Hello, Travelbook</Container>
+    </DefaultLayout>
   );
 };
 
