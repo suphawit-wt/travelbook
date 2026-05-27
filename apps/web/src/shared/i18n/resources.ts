@@ -4,10 +4,12 @@
 
 import common from './locales/en/common.json';
 import home from './locales/en/home.json';
+import search from './locales/en/search.json';
 
 export const resources = {
   en: {
     common,
     home,
+    search,
   },
 } as const;

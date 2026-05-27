@@ -1,0 +1,26 @@
+{
+  "form": {
+    "destination": {
+      "placeholder": "Where are you going?",
+      "errors": {
+        "required": "Enter a destination to start searching."
+      }
+    },
+
+    "occupancy": {
+      "summary": "{{adults}} adults · {{children}} children · {{rooms}} rooms",
+      "adults": "Adults",
+      "children": "Children",
+      "rooms": "Rooms",
+      "apartmentHint": "Looking for a vacation home or apartment?",
+      "pets": "Traveling with pets?"
+    },
+
+    "extras": {
+      "showFlights": "Show me flights for my travel dates"
+    },
+
+    "changeSearch": "Change Search",
+    "cta": "Search"
+  }
+}
