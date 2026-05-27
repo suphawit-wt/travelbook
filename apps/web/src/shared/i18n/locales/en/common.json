@@ -3,6 +3,29 @@
     "notFound": "Not found"
   },
 
+  "actions": {
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "close": "Close",
+    "done": "Done",
+    "search": "Search",
+    "apply": "Apply",
+    "more": "More",
+    "readMore": "Read more",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "showAll": "Show all {{count, number}}",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details"
+  },
+
+  "dates": {
+    "checkIn": "Check-in date",
+    "checkOut": "Check-out date"
+  },
+
   "currency": {
     "tooltip": "Select your currency",
     "dialog": {

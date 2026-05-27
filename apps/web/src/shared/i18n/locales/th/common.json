@@ -3,6 +3,29 @@
     "notFound": "ไม่พบเพจที่คุณค้นหา"
   },
 
+  "actions": {
+    "save": "บันทึก",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "cancel": "ยกเลิก",
+    "close": "ปิด",
+    "done": "เสร็จสิ้น",
+    "search": "ค้นหา",
+    "apply": "ใช้งาน",
+    "more": "เพิ่มเติม",
+    "readMore": "อ่านเพิ่มเติม",
+    "showMore": "แสดงมากขึ้น",
+    "showLess": "แสดงน้อยลง",
+    "showAll": "แสดงทั้ง {{count, number}} รายการ",
+    "showDetails": "แสดงรายละเอียด",
+    "hideDetails": "ซ่อนรายละเอียด"
+  },
+
+  "dates": {
+    "checkIn": "วันเช็คอิน",
+    "checkOut": "วันเช็คเอาท์"
+  },
+
   "currency": {
     "tooltip": "เลือกสกุลเงิน",
     "dialog": {
