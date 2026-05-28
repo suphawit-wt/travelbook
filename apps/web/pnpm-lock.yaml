@@ -104,6 +104,9 @@ importers:
       styled-components:
         specifier: ^6.4.1
         version: 6.4.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      swiper:
+        specifier: ^12.2.0
+        version: 12.2.0
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3537,6 +3540,10 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+
+  swiper@12.2.0:
+    resolution: {integrity: sha512-K8uXsBZU6ME97Ia3xbBge8IRCnR1lOmIILzvY/jGVic7dSTQ530s3uO8RvXbPUtkkXLWIwmZLRPbtDxRWVAFdg==}
+    engines: {node: '>= 4.7.0'}
 
   text-extensions@1.9.0:
     resolution: {integrity: sha512-wiBrwC1EhBelW12Zy26JeOUkQ5mRu+5o8rpsJk5+2t+Y5vE7e842qtZDQ2g1NpX/29HdyFeJ4nSIhI47ENSxlQ==}
@@ -7497,6 +7504,8 @@ snapshots:
       has-flag: 4.0.0
 
   supports-preserve-symlinks-flag@1.0.0: {}
+
+  swiper@12.2.0: {}
 
   text-extensions@1.9.0: {}
 
