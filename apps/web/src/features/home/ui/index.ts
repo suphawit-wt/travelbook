@@ -4,3 +4,4 @@
 
 export * from './hero';
 export * from './offers';
+export * from './property-type';
