@@ -4,5 +4,22 @@
     "headingLine2": "on your next adventure",
     "subHeading": "Experience the joy of an entire place to yourself",
     "cta": "Book a vacation rental"
+  },
+
+  "offers": {
+    "heading": "Offers",
+    "description": "Promotions, deals, and special offers for you",
+
+    "item1": {
+      "title": "Fly away to your dream vacation",
+      "description": "Get inspired - compare and book flights with flexibility",
+      "cta": "Search for flights"
+    },
+
+    "item2": {
+      "title": "Seize the moment!",
+      "description": "Save {{discount, number}}% or more when you book and stay before {{date}}",
+      "cta": "Find Getaway Deals"
+    }
   }
 }
