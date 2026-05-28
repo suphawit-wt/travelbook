@@ -3,3 +3,4 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 export * from './hero';
+export * from './offers';
