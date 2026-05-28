@@ -1,0 +1,9 @@
+{
+  "type": {
+    "hotel": "Hotels",
+    "apartment": "Apartments",
+    "resort": "Resorts",
+    "villa": "Villas",
+    "cabin": "Cabins"
+  }
+}

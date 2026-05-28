@@ -21,5 +21,9 @@
       "description": "Save {{discount, number}}% or more when you book and stay before {{date}}",
       "cta": "Find Getaway Deals"
     }
+  },
+
+  "propertyType": {
+    "heading": "Browse by property type"
   }
 }
