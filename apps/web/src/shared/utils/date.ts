@@ -2,6 +2,7 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
+import { format, parseISO } from 'date-fns';
 import { enGB, enUS, th } from 'date-fns/locale';
 
 import type { Language } from '@/shared/types/store';
@@ -12,6 +13,64 @@ const localeMap: Record<Language, Locale> = {
   th,
 };
 
+const dateShortFormatMap: Record<Language, string> = {
+  en: 'MMM d',
+  gb: 'MMM d',
+  th: 'd MMM',
+};
+
+const dateFullFormatMap: Record<Language, string> = {
+  en: 'MMMM d, yyyy',
+  gb: 'MMMM d, yyyy',
+  th: 'd MMMM yyyy',
+};
+
+const dateFullWithWeekdayFormatMap: Record<Language, string> = {
+  en: 'EEE, MMM d, yyyy',
+  gb: 'EEE, MMM d, yyyy',
+  th: 'EEEE d MMM yyyy',
+};
+
 export const getDateLocale = (language: Language): Locale => {
   return localeMap[language];
+};
+
+export const formatLocalizedDate = (
+  date: Date,
+  language: Language,
+  type: 'short' | 'full' | 'fullWithWeekday',
+): string => {
+  if (type === 'short') {
+    return format(date, dateShortFormatMap[language], {
+      locale: localeMap[language],
+    });
+  } else if (type === 'full') {
+    return format(date, dateFullFormatMap[language], {
+      locale: localeMap[language],
+    });
+  }
+  return format(date, dateFullWithWeekdayFormatMap[language], {
+    locale: localeMap[language],
+  });
+};
+
+export const formatLocalizedDateString = (
+  dateString: string,
+  language: Language,
+  type: 'short' | 'full' | 'fullWithWeekday',
+): string => {
+  const date = parseISO(dateString);
+
+  if (type === 'short') {
+    return format(date, dateShortFormatMap[language], {
+      locale: localeMap[language],
+    });
+  } else if (type === 'full') {
+    return format(date, dateFullFormatMap[language], {
+      locale: localeMap[language],
+    });
+  }
+  return format(date, dateFullWithWeekdayFormatMap[language], {
+    locale: localeMap[language],
+  });
 };
