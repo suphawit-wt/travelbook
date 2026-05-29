@@ -3,7 +3,10 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 import type { PropertyServiceInterface } from './property.service.interface';
-import type { PropertyType } from './property.service.types';
+import type {
+  PropertyType,
+  TrendingDestination,
+} from './property.service.types';
 
 export class PropertyServiceMock implements PropertyServiceInterface {
   async getPropertyTypes(): Promise<PropertyType[]> {
@@ -37,6 +40,43 @@ export class PropertyServiceMock implements PropertyServiceInterface {
         title: 'cabin',
         image: '/assets/images/property/cabins.jpeg',
         link: 'cabins',
+      },
+    ];
+
+    return Promise.resolve(data);
+  }
+
+  async getTrendingDestinations(): Promise<TrendingDestination[]> {
+    const data: TrendingDestination[] = [
+      {
+        id: 'bangkok',
+        name: 'Bangkok',
+        image: '/assets/images/destinations/bangkok.jpg',
+        country: '🇹🇭',
+      },
+      {
+        id: 'chiang-mai',
+        name: 'Chiang Mai',
+        image: '/assets/images/destinations/chiang_mai.jpg',
+        country: '🇹🇭',
+      },
+      {
+        id: 'tokyo',
+        name: 'Tokyo',
+        image: '/assets/images/destinations/tokyo.jpg',
+        country: '🇯🇵',
+      },
+      {
+        id: 'osaka',
+        name: 'Osaka',
+        image: '/assets/images/destinations/osaka.jpg',
+        country: '🇯🇵',
+      },
+      {
+        id: 'pattaya',
+        name: 'Pattaya',
+        image: '/assets/images/destinations/pattaya.jpg',
+        country: '🇹🇭',
       },
     ];
 

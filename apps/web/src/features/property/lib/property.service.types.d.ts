@@ -8,3 +8,10 @@ export interface PropertyType {
   image: string;
   link: string;
 }
+
+export interface TrendingDestination {
+  id: string;
+  name: string;
+  image: string;
+  country: string;
+}
