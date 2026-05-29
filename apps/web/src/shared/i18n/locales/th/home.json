@@ -25,5 +25,10 @@
 
   "propertyType": {
     "heading": "ค้นหาตามประเภทที่พัก"
+  },
+
+  "trendingDestinations": {
+    "heading": "จุดหมายที่กำลังมาแรง",
+    "description": "ตัวเลือกยอดนิยมที่สุดสำหรับผู้เดินทางจากไทย"
   }
 }

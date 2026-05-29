@@ -25,5 +25,10 @@
 
   "propertyType": {
     "heading": "Browse by property type"
+  },
+
+  "trendingDestinations": {
+    "heading": "Trending destinations",
+    "description": "Most popular choices for travelers from Thailand"
   }
 }
