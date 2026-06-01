@@ -15,3 +15,19 @@ export interface TrendingDestination {
   image: string;
   country: string;
 }
+
+export interface DestinationTrip {
+  id: string;
+  name: string;
+  distance: number;
+  image: string;
+  link: string;
+}
+
+export interface EasyTripPlanner {
+  beachList: DestinationTrip[];
+  romanceList: DestinationTrip[];
+  outdoorsList: DestinationTrip[];
+  cityList: DestinationTrip[];
+  relaxList: DestinationTrip[];
+}

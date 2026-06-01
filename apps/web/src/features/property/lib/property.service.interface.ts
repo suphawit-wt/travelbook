@@ -3,6 +3,7 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 import type {
+  EasyTripPlanner,
   PropertyType,
   TrendingDestination,
 } from './property.service.types';
@@ -10,4 +11,5 @@ import type {
 export interface PropertyServiceInterface {
   getPropertyTypes: () => Promise<PropertyType[]>;
   getTrendingDestinations: () => Promise<TrendingDestination[]>;
+  getEasyTripPlans: () => Promise<EasyTripPlanner>;
 }
