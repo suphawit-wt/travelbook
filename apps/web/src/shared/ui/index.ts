@@ -40,5 +40,6 @@ export * from './star-rating';
 export * from './stepper';
 export * from './swiper';
 export * from './switch';
+export * from './tabs';
 export * from './text';
 export * from './tooltip';
