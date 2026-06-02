@@ -21,6 +21,17 @@
     "hideDetails": "Hide details"
   },
 
+  "units": {
+    "time": {
+      "seconds": "seconds"
+    },
+    "distance": {
+      "meters": "{{distance}} m",
+      "kilometers": "{{distance}} km",
+      "kilometersAway": "{{distance}} km away"
+    }
+  },
+
   "dates": {
     "checkIn": "Check-in date",
     "checkOut": "Check-out date"

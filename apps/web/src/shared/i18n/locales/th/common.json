@@ -21,6 +21,17 @@
     "hideDetails": "ซ่อนรายละเอียด"
   },
 
+  "units": {
+    "time": {
+      "seconds": "วินาที"
+    },
+    "distance": {
+      "meters": "{{distance}} ม.",
+      "kilometers": "{{distance}} กม.",
+      "kilometersAway": "ห่างออกไป {{distance}} กม."
+    }
+  },
+
   "dates": {
     "checkIn": "วันเช็คอิน",
     "checkOut": "วันเช็คเอาท์"

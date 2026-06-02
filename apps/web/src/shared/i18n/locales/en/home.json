@@ -30,5 +30,18 @@
   "trendingDestinations": {
     "heading": "Trending destinations",
     "description": "Most popular choices for travelers from Thailand"
+  },
+
+  "easyTripPlanner": {
+    "heading": "Quick and easy trip planner",
+    "description": "Pick a vibe and explore the top destinations in Thailand",
+
+    "tabs": {
+      "beach": "Beach",
+      "romance": "Romance",
+      "outdoors": "Outdoors",
+      "city": "City",
+      "relax": "Relax"
+    }
   }
 }
