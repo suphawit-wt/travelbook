@@ -5,4 +5,5 @@
 export * from './hero';
 export * from './offers';
 export * from './property-type';
+export * from './quick-easy-trip-planner';
 export * from './trending-destinations';
