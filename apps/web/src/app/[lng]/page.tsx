@@ -6,6 +6,7 @@ import {
   Hero,
   Offers,
   PropertyType,
+  QuickEasyTripPlanner,
   TrendingDestinations,
 } from '@/features/home/ui';
 import { PropertyServiceMock } from '@/features/property/lib/property.service.mock';
@@ -17,6 +18,7 @@ const Home = async () => {
 
   const propertyTypes = await propertyService.getPropertyTypes();
   const trendingDestinations = await propertyService.getTrendingDestinations();
+  const easyTripPlans = await propertyService.getEasyTripPlans();
 
   return (
     <DefaultLayout>
@@ -25,6 +27,7 @@ const Home = async () => {
         <Offers />
         <PropertyType propertyTypes={propertyTypes} />
         <TrendingDestinations destinations={trendingDestinations} />
+        <QuickEasyTripPlanner plans={easyTripPlans} />
       </Container>
     </DefaultLayout>
   );
