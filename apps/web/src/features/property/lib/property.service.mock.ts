@@ -8,6 +8,7 @@ import type {
   EasyTripPlanner,
   PropertyType,
   TrendingDestination,
+  TripArticle,
 } from './property.service.types';
 
 export class PropertyServiceMock implements PropertyServiceInterface {
@@ -507,6 +508,51 @@ export class PropertyServiceMock implements PropertyServiceInterface {
       cityList,
       outdoorsList,
     };
+
+    return Promise.resolve(data);
+  }
+
+  async getInspirationArticles(): Promise<TripArticle[]> {
+    const data: TripArticle[] = [
+      {
+        id: 'best-hotels-los-angeles',
+        title: '5 of the best hotels in Los Angeles',
+        description:
+          'From Hollywood to Beverly Hills discover 5 of the best hotels in Los Angeles for your stay',
+        image: '/assets/images/articles/article_01.webp',
+        link: 'articles/best-hotels-los-angeles',
+      },
+      {
+        id: 'best-orlando-hotels-families',
+        title: 'The 6 best Orlando hotels for families',
+        description:
+          'Discover the best Orlando hotels for families for your vacation.',
+        image: '/assets/images/articles/article_02.webp',
+        link: 'articles/best-orlando-hotels-families',
+      },
+      {
+        id: 'best-ski-towns',
+        title: '5 best ski towns around the world',
+        description:
+          'Discover a winter wonderland in these charming ski destinations',
+        image: '/assets/images/articles/article_03.webp',
+        link: 'articles/best-ski-towns',
+      },
+      {
+        id: 'usa-thanksgiving-holiday-homes',
+        title: '5 vacation homes for a Thanksgiving getaway',
+        description: 'Enjoy Thanksgiving dinner at these vacation homes.',
+        image: '/assets/images/articles/article_04.webp',
+        link: 'articles/usa-thanksgiving-holiday-homes',
+      },
+      {
+        id: 'bangkok-rooftop-bars',
+        title: '6 incredible Bangkok rooftop bars',
+        description: 'Amazing city views, cocktails, and world-class cuisine.',
+        image: '/assets/images/articles/article_05.webp',
+        link: 'articles/bangkok-rooftop-bars',
+      },
+    ];
 
     return Promise.resolve(data);
   }

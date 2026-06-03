@@ -31,3 +31,11 @@ export interface EasyTripPlanner {
   cityList: DestinationTrip[];
   relaxList: DestinationTrip[];
 }
+
+export interface TripArticle {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  link: string;
+}

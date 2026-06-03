@@ -6,10 +6,12 @@ import type {
   EasyTripPlanner,
   PropertyType,
   TrendingDestination,
+  TripArticle,
 } from './property.service.types';
 
 export interface PropertyServiceInterface {
   getPropertyTypes: () => Promise<PropertyType[]>;
   getTrendingDestinations: () => Promise<TrendingDestination[]>;
   getEasyTripPlans: () => Promise<EasyTripPlanner>;
+  getInspirationArticles: () => Promise<TripArticle[]>;
 }
