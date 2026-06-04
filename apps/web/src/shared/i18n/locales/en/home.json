@@ -43,5 +43,9 @@
       "city": "City",
       "relax": "Relax"
     }
+  },
+
+  "inspirationNextTrip": {
+    "heading": "Get inspiration for your next trip"
   }
 }
