@@ -2,6 +2,7 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
+export * from './get-inspiration-for-next-trip';
 export * from './hero';
 export * from './offers';
 export * from './property-type';
