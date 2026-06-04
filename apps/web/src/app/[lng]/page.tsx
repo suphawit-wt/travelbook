@@ -3,6 +3,7 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 import {
+  GetInspirationForNextTrip,
   Hero,
   Offers,
   PropertyType,
@@ -19,6 +20,7 @@ const Home = async () => {
   const propertyTypes = await propertyService.getPropertyTypes();
   const trendingDestinations = await propertyService.getTrendingDestinations();
   const easyTripPlans = await propertyService.getEasyTripPlans();
+  const tripArticles = await propertyService.getInspirationArticles();
 
   return (
     <DefaultLayout>
@@ -28,6 +30,7 @@ const Home = async () => {
         <PropertyType propertyTypes={propertyTypes} />
         <TrendingDestinations destinations={trendingDestinations} />
         <QuickEasyTripPlanner plans={easyTripPlans} />
+        <GetInspirationForNextTrip articles={tripArticles} />
       </Container>
     </DefaultLayout>
   );
