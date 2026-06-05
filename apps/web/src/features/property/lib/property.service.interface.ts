@@ -4,6 +4,7 @@
 
 import type {
   EasyTripPlanner,
+  PropertyItem,
   PropertyType,
   TrendingDestination,
   TripArticle,
@@ -14,4 +15,5 @@ export interface PropertyServiceInterface {
   getTrendingDestinations: () => Promise<TrendingDestination[]>;
   getEasyTripPlans: () => Promise<EasyTripPlanner>;
   getInspirationArticles: () => Promise<TripArticle[]>;
+  getHomesGuestsLove: () => Promise<PropertyItem[]>;
 }
