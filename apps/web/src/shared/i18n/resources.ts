@@ -5,6 +5,7 @@
 import common from './locales/en/common.json';
 import home from './locales/en/home.json';
 import property from './locales/en/property.json';
+import reviews from './locales/en/reviews.json';
 import search from './locales/en/search.json';
 
 export const resources = {
@@ -13,5 +14,6 @@ export const resources = {
     home,
     search,
     property,
+    reviews,
   },
 } as const;

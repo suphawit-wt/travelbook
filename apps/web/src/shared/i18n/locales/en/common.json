@@ -32,6 +32,8 @@
     }
   },
 
+  "reviews": "reviews",
+
   "dates": {
     "checkIn": "Check-in date",
     "checkOut": "Check-out date"

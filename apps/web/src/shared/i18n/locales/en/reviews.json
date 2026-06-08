@@ -1,0 +1,10 @@
+{
+  "reviewInfo": {
+    "exceptional": "Exceptional",
+    "wonderful": "Wonderful",
+    "excellent": "Excellent",
+    "veryGood": "Very Good",
+    "good": "Good",
+    "reviewScore": "Review score"
+  }
+}
