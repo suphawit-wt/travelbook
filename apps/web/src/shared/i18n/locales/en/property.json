@@ -5,5 +5,33 @@
     "resort": "Resorts",
     "villa": "Villas",
     "cabin": "Cabins"
+  },
+
+  "beds": {
+    "king": "{{count, number}} king bed",
+    "queen": "{{count, number}} queen bed",
+    "twin": "{{count, number}} twin bed"
+  },
+
+  "card": {
+    "actions": {
+      "showOnMap": "Show on map",
+      "seeAvailability": "See availability"
+    },
+
+    "pricing": {
+      "startFrom": "Starting from",
+      "includesTaxes": "Includes taxes and fees",
+      "breakfastIncluded": "Breakfast included"
+    },
+
+    "occupancy": {
+      "nights_one": "{{count, number}} night",
+      "nights_other": "{{count, number}} nights",
+      "adults_one": ", {{count, number}} adult",
+      "adults_other": ", {{count, number}} adults",
+      "children_one": ", {{count, number}} child",
+      "children_other": ", {{count, number}} children"
+    }
   }
 }

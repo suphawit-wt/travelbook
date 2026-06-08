@@ -39,6 +39,11 @@
     "checkOut": "Check-out date"
   },
 
+  "price": {
+    "USD": "US${{amount, number}}",
+    "THB": "THB {{amount, number}}"
+  },
+
   "currency": {
     "tooltip": "Select your currency",
     "dialog": {
