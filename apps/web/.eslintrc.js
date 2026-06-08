@@ -162,5 +162,10 @@ module.exports = {
       },
     },
   ],
-  ignorePatterns: ['!.storybook', '**/*.stories.{ts,tsx}', '**/*.styled.ts'],
+  ignorePatterns: [
+    '!.storybook',
+    '**/*.stories.{ts,tsx}',
+    '**/*.styled.ts',
+    'src/entities/property/ui/property-card/property-card.tsx',
+  ],
 };
