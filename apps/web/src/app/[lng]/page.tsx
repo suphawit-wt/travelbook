@@ -5,6 +5,7 @@
 import {
   GetInspirationForNextTrip,
   Hero,
+  HomesGuestsLove,
   Offers,
   PropertyType,
   QuickEasyTripPlanner,
@@ -21,6 +22,7 @@ const Home = async () => {
   const trendingDestinations = await propertyService.getTrendingDestinations();
   const easyTripPlans = await propertyService.getEasyTripPlans();
   const tripArticles = await propertyService.getInspirationArticles();
+  const homesGuestsLove = await propertyService.getHomesGuestsLove();
 
   return (
     <DefaultLayout>
@@ -31,6 +33,7 @@ const Home = async () => {
         <TrendingDestinations destinations={trendingDestinations} />
         <QuickEasyTripPlanner plans={easyTripPlans} />
         <GetInspirationForNextTrip articles={tripArticles} />
+        <HomesGuestsLove properties={homesGuestsLove} />
       </Container>
     </DefaultLayout>
   );
