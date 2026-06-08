@@ -47,5 +47,13 @@
 
   "inspirationNextTrip": {
     "heading": "Get inspiration for your next trip"
+  },
+
+  "homeGuestLove": {
+    "heading": "Homes guests love"
+  },
+
+  "discoverHomes": {
+    "cta": "Discover homes"
   }
 }
