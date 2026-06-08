@@ -4,6 +4,7 @@
 
 export * from './get-inspiration-for-next-trip';
 export * from './hero';
+export * from './homes-guests-love';
 export * from './offers';
 export * from './property-type';
 export * from './quick-easy-trip-planner';
