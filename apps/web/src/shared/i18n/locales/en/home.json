@@ -54,6 +54,16 @@
   },
 
   "discoverHomes": {
+    "find": "Find",
+    "forYourNextTrip": "for your next trip",
+
+    "apartments": "apartments",
+    "villas": "villas",
+    "condoHotels": "condo hotels",
+    "vacationHomes": "vacation homes",
+    "cottages": "cottages",
+    "homes": "homes",
+
     "cta": "Discover homes"
   }
 }

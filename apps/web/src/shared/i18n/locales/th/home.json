@@ -54,6 +54,16 @@
   },
 
   "discoverHomes": {
+    "find": "ค้นหา",
+    "forYourNextTrip": "สำหรับทริปถัดไปของคุณ",
+
+    "apartments": "อพาร์ตเมนต์",
+    "villas": "วิลลา",
+    "condoHotels": "โรงแรมกึ่งคอนโด",
+    "vacationHomes": "บ้านพักตากอากาศ",
+    "cottages": "ค็อทเทจ",
+    "homes": "บ้านพัก",
+
     "cta": "ค้นหาที่พักสไตล์ที่อยู่อาศัย"
   }
 }
