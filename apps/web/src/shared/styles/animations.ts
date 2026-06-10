@@ -139,6 +139,106 @@ const slideRightAndFadeOut = keyframes`
 	}
 `;
 
+const discoverBannerDesktop = keyframes`
+  8% {
+    transform: translateY(0);
+  }
+
+  13% {
+    transform: translateY(-38px);
+  }
+
+  21% {
+    transform: translateY(-38px);
+  }
+
+  26% {
+    transform: translateY(-76px);
+  }
+
+  34% {
+    transform: translateY(-76px);
+  }
+
+  39% {
+    transform: translateY(-114px);
+  }
+
+  47% {
+    transform: translateY(-114px);
+  }
+
+  52% {
+    transform: translateY(-152px);
+  }
+
+  60% {
+    transform: translateY(-152px);
+  }
+
+  65% {
+    transform: translateY(-190px);
+  }
+
+  95% {
+    transform: translateY(-190px);
+  }
+
+  100% {
+    transform: translateY(-228px);
+  }
+`;
+
+const discoverBannerMobile = keyframes`
+  8% {
+    transform: translateY(0);
+  }
+
+  13% {
+    transform: translateY(-28px);
+  }
+
+  21% {
+    transform: translateY(-28px);
+  }
+
+  26% {
+    transform: translateY(-56px);
+  }
+
+  34% {
+    transform: translateY(-56px);
+  }
+
+  39% {
+    transform: translateY(-84px);
+  }
+
+  47% {
+    transform: translateY(-84px);
+  }
+
+  52% {
+    transform: translateY(-112px);
+  }
+
+  60% {
+    transform: translateY(-112px);
+  }
+
+  65% {
+    transform: translateY(-140px);
+  }
+
+  95% {
+    transform: translateY(-140px);
+  }
+
+  100% {
+    transform: translateY(-168px);
+  }
+`;
+
 export const animation = {
   fadeIn,
   fadeOut,
@@ -153,4 +253,6 @@ export const animation = {
   slideLeftAndFadeOut,
   slideRightAndFadeIn,
   slideRightAndFadeOut,
+  discoverBannerDesktop,
+  discoverBannerMobile,
 };
