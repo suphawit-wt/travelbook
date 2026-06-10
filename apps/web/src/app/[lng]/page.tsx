@@ -3,6 +3,7 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 import {
+  DiscoverHomes,
   GetInspirationForNextTrip,
   Hero,
   HomesGuestsLove,
@@ -34,6 +35,7 @@ const Home = async () => {
         <QuickEasyTripPlanner plans={easyTripPlans} />
         <GetInspirationForNextTrip articles={tripArticles} />
         <HomesGuestsLove properties={homesGuestsLove} />
+        <DiscoverHomes />
       </Container>
     </DefaultLayout>
   );
