@@ -12,3 +12,8 @@ export const selectCurrency = createSelector(
   selectUserPreferences,
   (userPreferences) => userPreferences.currency,
 );
+
+export const selectUserAvatar = createSelector(
+  selectUserPreferences,
+  (userPreferences) => userPreferences.avatar,
+);

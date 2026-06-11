@@ -26,10 +26,12 @@ const getInitialCurrency = (): Currency => {
 
 interface UserPreferencesState {
   currency: Currency;
+  avatar: string;
 }
 
 const initialState: UserPreferencesState = {
   currency: getInitialCurrency(),
+  avatar: '/assets/images/avatar/default.png',
 };
 
 const userPreferencesSlice = createSlice({
@@ -39,8 +41,11 @@ const userPreferencesSlice = createSlice({
     setCurrency(state, action: PayloadAction<Currency>) {
       state.currency = action.payload;
     },
+    setAvatar(state, action: PayloadAction<string>) {
+      state.avatar = action.payload;
+    },
   },
 });
 
-export const { setCurrency } = userPreferencesSlice.actions;
+export const { setCurrency, setAvatar } = userPreferencesSlice.actions;
 export const userPreferencesReducer = userPreferencesSlice.reducer;
