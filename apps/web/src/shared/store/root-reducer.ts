@@ -4,8 +4,10 @@
 
 import { combineReducers } from '@reduxjs/toolkit';
 
+import { authReducer } from '@/features/auth/store/auth.slice';
 import { userPreferencesReducer } from '@/features/user/store/user-preferences.slice';
 
 export const rootReducer = combineReducers({
+  auth: authReducer,
   userPreferences: userPreferencesReducer,
 });
