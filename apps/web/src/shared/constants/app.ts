@@ -9,3 +9,5 @@ export const APP = {
     name: 'Travelbook Holdings Inc.',
   },
 };
+
+export const USER_SESSION_COOKIE = 'user_refresh_token';
