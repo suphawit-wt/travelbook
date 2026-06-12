@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+      {{- if .Values.vault.enabled }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/auth-type: "kubernetes"
+        vault.hashicorp.com/auth-path: "auth/kubernetes"
+        vault.hashicorp.com/role: "travelbook-backend-role"
+        vault.hashicorp.com/namespace: "admin"
+        vault.hashicorp.com/agent-inject-token: "true"
+        vault.hashicorp.com/agent-run-as-user: "65532"
+        vault.hashicorp.com/agent-run-as-group: "65532"
+      {{- end }}
+    spec:
+      serviceAccountName: travelbook-api-sa
+      containers:
+        - name: auth-service
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          envFrom:
+            - configMapRef:
+                name: auth-service-config
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}

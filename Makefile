@@ -1,7 +1,7 @@
-.PHONY: init cluster cluster-down dev dev-web lint-web format-web
+.PHONY: init cluster cluster-down dev dev-web lint-web format-web dev-auth-service lint-auth-service test-auth-service
 
 init:
-	lefthook install && pnpm install
+	lefthook install
 
 cluster:
 	bash ./scripts/setup-dev.sh
@@ -20,3 +20,12 @@ lint-web:
 
 format-web:
 	cd apps/web && pnpm run format
+
+dev-auth-service:
+	skaffold dev -m auth-service
+
+lint-auth-service:
+	golangci-lint run --fix ./apps/auth-service/...
+
+test-auth-service:
+	go test -v ./apps/auth-service/...

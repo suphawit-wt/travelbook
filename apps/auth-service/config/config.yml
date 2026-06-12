@@ -1,0 +1,42 @@
+app:
+  name: Auth Service - Travelbook API
+  description: |
+    Auth Service handles authentication and authorization for the TravelBook ecosystem.
+
+    Features:
+    - User registration and login
+    - JWT token generation and validation
+
+    Authentication:
+    Use Bearer Token in Authorization header.
+
+    Example:
+    Authorization: Bearer <your_token>
+  version: '1.0.0'
+
+auth:
+  access_ttl: 15m
+  refresh_ttl: 168h
+
+security:
+  cors:
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+    allowed_headers:
+      - Origin
+      - Content-Type
+      - Authorization
+      - X-Currency
+    exposed_headers:
+      - Content-Length
+    allow_credentials: true
+    max_age: 3600
+
+email:
+  sender_email: no-reply@travelbook.suphawit.dev
+  sender_name: Travelbook

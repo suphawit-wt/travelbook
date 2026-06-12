@@ -1,0 +1,31 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: auth-service
+build:
+  local:
+    push: false
+    useBuildkit: true
+    concurrency: 0
+  artifacts:
+    - image: tb-registry/auth-service
+      context: ../..
+      docker:
+        dockerfile: apps/auth-service/Dockerfile.dev
+      sync:
+        manual:
+          - src: 'apps/auth-service/**/*.go'
+            dest: /app
+          - src: 'pkg/**/*.go'
+            dest: /app
+deploy:
+  helm:
+    releases:
+      - name: auth-service
+        chartPath: ../../deploy/helm/auth-service
+        valuesFiles:
+          - ../../deploy/helm/auth-service/values.yaml
+          - ../../deploy/helm/auth-service/values-dev.yaml
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_tb_registry_auth_service}}"
+          image.tag: "{{.IMAGE_TAG_tb_registry_auth_service}}"

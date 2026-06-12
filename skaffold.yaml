@@ -6,3 +6,5 @@ metadata:
 requires:
   - configs: ["web"]
     path: apps/web/skaffold.yaml
+  - configs: ["auth-service"]
+    path: apps/auth-service/skaffold.yaml
