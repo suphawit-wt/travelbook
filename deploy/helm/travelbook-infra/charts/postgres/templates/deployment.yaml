@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-db
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+      - name: tb-db
+        image: travelbook-postgres:18.4
+        imagePullPolicy: IfNotPresent
+        args:
+          - "-c"
+          - "config_file=/etc/postgresql/postgresql.conf"
+        livenessProbe:
+          exec:
+            command: ["pg_isready", "-U", "pguser", "-d", "tb_auth_db"]
+          initialDelaySeconds: 15
+          periodSeconds: 15
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-U", "pguser", "-d", "tb_auth_db"]
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        env:
+        - name: POSTGRES_USER
+          valueFrom: { secretKeyRef: { name: db-secrets, key: user } }
+        - name: POSTGRES_PASSWORD
+          valueFrom: { secretKeyRef: { name: db-secrets, key: password } }
+        - name: POSTGRES_DB
+          value: "tb_auth_db"
+        resources:
+          requests:
+            cpu: "250m"
+            memory: 256Mi
+          limits:
+            cpu: "500m"
+            memory: 512Mi
+        volumeMounts:
+        - name: db-storage
+          mountPath: /var/lib/postgresql
+        - name: init-scripts-volume
+          mountPath: /docker-entrypoint-initdb.d
+        - name: config-volume
+          mountPath: /etc/postgresql/postgresql.conf
+          subPath: postgresql.conf
+      volumes:
+      - name: db-storage
+        persistentVolumeClaim:
+          claimName: tb-db-pvc
+      - name: init-scripts-volume
+        configMap:
+          name: postgres-init-scripts
+          defaultMode: 0755
+      - name: config-volume
+        configMap:
+          name: postgres-config

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafbat-ui
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafbat-ui
+  template:
+    metadata:
+      labels:
+        app: kafbat-ui
+    spec:
+      containers:
+      - name: kafka-ui
+        image: kafbat/kafka-ui:v1.5.0
+        env:
+        - name: KAFKA_CLUSTERS_0_NAME
+          value: "local"
+        - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+          value: "kafka:9092"
+        - name: DYNAMIC_CONFIG_ENABLED
+          value: "true"
+        resources:
+          limits:
+            cpu: "400m"
+            memory: 512Mi
+          requests:
+            cpu: "150m"
+            memory: 256Mi
+        startupProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          failureThreshold: 30
+        livenessProbe:
+          tcpSocket: 
+            port: 8080
+          periodSeconds: 20
+          timeoutSeconds: 5
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          periodSeconds: 10
+          timeoutSeconds: 5

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: kafka
+description: Subchart for kafka
+type: application
+version: 0.1.0

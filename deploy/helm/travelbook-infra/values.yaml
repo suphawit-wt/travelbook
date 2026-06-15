@@ -1,0 +1,44 @@
+vault:
+  namespace: travelbook
+  enabled: true
+  vault:
+    rootToken: "root"
+
+postgres:
+  namespace: travelbook
+  enabled: true
+  db:
+    postgres:
+      user: pguser
+      password: pgPass3210
+
+redis:
+  namespace: travelbook
+  enabled: true
+  db:
+    redis:
+      password: redisPass12345
+
+cassandra:
+  namespace: travelbook
+  enabled: true
+
+kafka:
+  namespace: travelbook
+  enabled: true
+
+elasticsearch:
+  namespace: travelbook
+  enabled: true
+
+debezium:
+  namespace: travelbook
+  enabled: true
+
+kibana:
+  namespace: travelbook
+  enabled: true
+
+kafbat:
+  namespace: travelbook
+  enabled: true

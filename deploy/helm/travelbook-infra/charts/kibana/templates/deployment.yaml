@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+      - name: kibana
+        image: docker.elastic.co/kibana/kibana:9.4.3
+        env:
+        - name: ELASTICSEARCH_HOSTS
+          value: "http://elasticsearch:9200"
+        - name: NODE_OPTIONS
+          value: "--max-old-space-size=700"
+        resources:
+          limits:
+            cpu: "1.5"
+            memory: 1.5Gi
+          requests:
+            cpu: "500m"
+            memory: 1Gi
+        volumeMounts:
+        - name: kibana-data
+          mountPath: /usr/share/kibana/data
+        livenessProbe:
+          tcpSocket:
+            port: 5601
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/status
+            port: 5601
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          failureThreshold: 15
+      volumes:
+      - name: kibana-data
+        persistentVolumeClaim:
+          claimName: tb-kibana-pvc

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      containers:
+      - name: vault
+        image: hashicorp/vault:1.18
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            (
+              # 1. Export address and dynamic token FIRST
+              export VAULT_ADDR="http://127.0.0.1:8200"
+              export VAULT_TOKEN="$VAULT_DEV_ROOT_TOKEN_ID"
+
+              echo "Waiting for local Vault engine..."
+              until vault status > /dev/null 2>&1; do sleep 1; done
+              
+              echo "Configuring JWT KV Engine..."
+              vault secrets enable -path=jwt kv-v2 || true
+              
+              # 2. Safely write multiline keys
+              vault kv put jwt/user-access private="$USER_ACCESS_PRIVATE" public="$USER_ACCESS_PUBLIC"
+              vault kv put jwt/user-refresh private="$USER_REFRESH_PRIVATE" public="$USER_REFRESH_PUBLIC"
+              vault kv put jwt/partner-access private="$PARTNER_ACCESS_PRIVATE" public="$PARTNER_ACCESS_PUBLIC"
+              vault kv put jwt/partner-refresh private="$PARTNER_REFRESH_PRIVATE" public="$PARTNER_REFRESH_PUBLIC"
+              vault kv put jwt/partner-verify token="$PARTNER_VERIFY_TOKEN"
+              
+              echo "✅ Local Vault seeding complete."
+            ) &
+            exec vault server -dev
+        env:
+        - name: VAULT_DEV_ROOT_TOKEN_ID
+          valueFrom:
+            secretKeyRef:
+              name: vault-secrets
+              key: vault-token
+        - name: VAULT_DEV_LISTEN_ADDRESS
+          value: "0.0.0.0:8200"
+        - name: USER_ACCESS_PRIVATE
+          valueFrom: { secretKeyRef: { name: jwt-crypto-keys, key: user-access-private } }
+        - name: USER_ACCESS_PUBLIC
+          valueFrom: { secretKeyRef: { name: jwt-crypto-keys, key: user-access-public } }
+        - name: USER_REFRESH_PRIVATE
+          valueFrom: { secretKeyRef: { name: jwt-crypto-keys, key: user-refresh-private } }
+        - name: USER_REFRESH_PUBLIC
+          valueFrom: { secretKeyRef: { name: jwt-crypto-keys, key: user-refresh-public } }
+        - name: PARTNER_ACCESS_PRIVATE
+          valueFrom: { secretKeyRef: { name: jwt-crypto-keys, key: partner-access-private } }
+        - name: PARTNER_ACCESS_PUBLIC
+          valueFrom: { secretKeyRef: { name: jwt-crypto-keys, key: partner-access-public } }
+        - name: PARTNER_REFRESH_PRIVATE
+          valueFrom: { secretKeyRef: { name: jwt-crypto-keys, key: partner-refresh-private } }
+        - name: PARTNER_REFRESH_PUBLIC
+          valueFrom: { secretKeyRef: { name: jwt-crypto-keys, key: partner-refresh-public } }
+        - name: PARTNER_VERIFY_TOKEN
+          valueFrom: { secretKeyRef: { name: jwt-crypto-keys, key: partner-verify-token } }
+        securityContext:
+          capabilities:
+            add: ["IPC_LOCK"]
+        resources:
+          requests:
+            cpu: "200m"
+            memory: 128Mi
+          limits:
+            cpu: "250m"
+            memory: 256Mi

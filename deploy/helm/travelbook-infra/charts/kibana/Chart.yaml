@@ -1,0 +1,5 @@
+apiVersion: v2
+name: kibana
+description: Subchart for kibana
+type: application
+version: 0.1.0

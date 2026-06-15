@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debezium
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debezium
+  template:
+    metadata:
+      labels:
+        app: debezium
+    spec:
+      containers:
+      - name: debezium
+        image: quay.io/debezium/connect:3.5
+        env:
+        - name: BOOTSTRAP_SERVERS
+          value: "kafka:9092"
+        - name: GROUP_ID
+          value: "travelbook-cdc-group"
+        - name: CONFIG_STORAGE_TOPIC
+          value: "debezium_configs"
+        - name: OFFSET_STORAGE_TOPIC
+          value: "debezium_offsets"
+        - name: STATUS_STORAGE_TOPIC
+          value: "debezium_statuses"
+        - name: KAFKA_JVM_PERFORMANCE_OPTS
+          value: "-Xms512m -Xmx1g"
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: 1536Mi
+          requests:
+            cpu: "500m"
+            memory: 768Mi
+        volumeMounts:
+        - name: debezium-data
+          mountPath: /kafka/data
+        - name: debezium-config
+          mountPath: /kafka/config
+        - name: debezium-logs
+          mountPath: /kafka/logs
+        startupProbe:
+          httpGet:
+            path: /
+            port: 8083
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8083
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8083
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: debezium-data
+        emptyDir: {}
+      - name: debezium-config
+        emptyDir: {}
+      - name: debezium-logs
+        emptyDir: {}

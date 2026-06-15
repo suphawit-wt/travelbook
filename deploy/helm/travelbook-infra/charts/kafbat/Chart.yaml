@@ -1,0 +1,5 @@
+apiVersion: v2
+name: kafbat
+description: Subchart for kafbat
+type: application
+version: 0.1.0
