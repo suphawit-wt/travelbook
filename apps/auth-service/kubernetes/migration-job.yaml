@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+  namespace: travelbook
+type: Opaque
+stringData:
+  connection_string: "postgres://pguser:pgPass3210@db:5432/tb_auth_db?sslmode=disable"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: auth-db-migration-v1-0-0
+  namespace: travelbook
+  labels:
+    app.kubernetes.io/component: database-migration
+spec:
+  # Maximum retries before marking the Job as Failed
+  backoffLimit: 2
+  
+  # Total execution timeout (5 minutes)
+  activeDeadlineSeconds: 300
+  
+  # Automatically clean up completed Job and its Pods after 100 seconds
+  ttlSecondsAfterFinished: 100
+
+  template:
+    metadata:
+      labels:
+        app: auth-db-migrator
+    spec:
+      restartPolicy: Never # Never restart container internally; let Job controller handle retries
+      containers:
+      - name: goose-migrator
+        image: tb-auth-migrate:1.0.0
+        command: ["goose", "-dir", "/migrations", "postgres", "$(DB_CONN)", "up"]
+        env:
+        - name: DB_CONN
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: connection_string
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
