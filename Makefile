@@ -1,4 +1,4 @@
-.PHONY: init cluster cluster-down dev dev-web lint-web format-web dev-auth-service lint-auth-service test-auth-service
+.PHONY: init cluster cluster-down dev dev-web lint-web format-web dev-auth-service lint-auth-service test-auth-service swag-auth
 
 init:
 	lefthook install
@@ -29,3 +29,6 @@ lint-auth-service:
 
 test-auth-service:
 	go test -v ./apps/auth-service/...
+
+swag-auth:
+	swag init -d apps/auth-service -g cmd/http/main.go -o apps/auth-service/docs

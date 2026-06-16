@@ -13,8 +13,11 @@ import (
 	"syscall"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 
+	"github.com/suphawit-wt/travelbook/apps/auth-service/docs"
 	"github.com/suphawit-wt/travelbook/apps/auth-service/internal/auth"
 	"github.com/suphawit-wt/travelbook/apps/auth-service/internal/session"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/config"
@@ -28,6 +31,28 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/shared/jwtkey"
 )
 
+//	@title			Auth Service - Travelbook API
+//	@version		1.0.0
+//	@description	Auth Service handles authentication and authorization for the Travelbook ecosystem.
+//	@termsOfService	https://suphawit.dev/terms/
+
+//	@contact.name	Suphawit Watthanataetakun
+//	@contact.url	https://suphawit.dev/support
+//	@contact.email	support@suphwit.dev
+
+//	@license.name	Creative Commons Attribution-NonCommercial-NoDerivatives 4.0
+//	@license.url	https://creativecommons.org/licenses/by-nc-nd/4.0
+
+//	@host		api.travelbook.localhost
+//	@BasePath	/
+
+//	@securityDefinitions.apikey	Bearer
+//	@in							header
+//	@name						Authorization
+//	@description				Put **_ONLY_** your JWT Bearer token in textbox below
+
+// @externalDocs.description	OpenAPI
+// @externalDocs.url			https://swagger.io/resources/open-api/
 func main() {
 	if err := run(); err != nil {
 		log.Printf("fatal startup/runtime error: %v", err)
@@ -130,7 +155,7 @@ func run() error {
 	)
 	authHandler := auth.NewHandler(srv.Validator, cfg, jwtKeys, authService)
 
-	registerRoutes(srv.Router, authHandler)
+	registerRoutes(srv.Router, &cfg.App, authHandler)
 
 	serverLogger.Info("http server starting", zap.Int("port", int(cfg.Server.HTTP.Port)))
 
@@ -143,9 +168,18 @@ func run() error {
 	return nil
 }
 
-func registerRoutes(router *gin.Engine, authHandler auth.Handler) {
+func registerRoutes(router *gin.Engine, cfg *config.AppConfig, authHandler auth.Handler) {
 	v1 := router.Group("v1")
 	authV1 := v1.Group("auth")
+
+	switch cfg.Mode {
+	case "dev", "development", "local":
+		docs.SwaggerInfo.Title = cfg.Name
+		docs.SwaggerInfo.Description = cfg.Description
+		docs.SwaggerInfo.Version = cfg.Version
+
+		authV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	authV1User := authV1.Group("user")
 	authV1User.POST("/sign-in", authHandler.UserSignInWithEmail)
