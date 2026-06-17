@@ -9,11 +9,23 @@ definitions:
       statusCode:
         type: integer
     type: object
+  auth.ApiResponseWithData:
+    properties:
+      status:
+        type: string
+      statusCode:
+        type: integer
+    type: object
   auth.ErrResponse:
     properties:
       field:
         type: string
       message:
+        type: string
+    type: object
+  auth.TokenResponse:
+    properties:
+      accessToken:
         type: string
     type: object
   auth.UserSignInRequest:
@@ -23,6 +35,17 @@ definitions:
         type: string
     required:
     - email
+    type: object
+  auth.UserVerifyEmailRequest:
+    properties:
+      email:
+        maxLength: 254
+        type: string
+      otp:
+        type: string
+    required:
+    - email
+    - otp
     type: object
 externalDocs:
   description: OpenAPI
@@ -75,6 +98,50 @@ paths:
           schema:
             $ref: '#/definitions/auth.ApiResponse'
       summary: Sign in user
+      tags:
+      - Auth
+  /v1/auth/user/verify-email:
+    post:
+      consumes:
+      - application/json
+      description: Verify user using otp token by email verification
+      parameters:
+      - description: Verification payload (OTP token)
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/auth.UserVerifyEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/auth.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.TokenResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/auth.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/auth.ErrResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+      summary: Verify user email
       tags:
       - Auth
 securityDefinitions:

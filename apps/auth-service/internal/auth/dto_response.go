@@ -4,6 +4,11 @@
 
 package auth
 
+// TokenResponse containing the access token after successful email verification.
+type TokenResponse struct {
+	AccessToken string `json:"accessToken"`
+}
+
 // ApiResponse represents the standard structure for API responses, including status, status code, message, and optional error details.
 type ApiResponse struct {
 	Status     string        `json:"status"`

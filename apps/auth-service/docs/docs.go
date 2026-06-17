@@ -81,6 +81,82 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/auth/user/verify-email": {
+            "post": {
+                "description": "Verify user using otp token by email verification",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Verify user email",
+                "parameters": [
+                    {
+                        "description": "Verification payload (OTP token)",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.UserVerifyEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/auth.ApiResponseWithData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/auth.TokenResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/auth.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/auth.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -90,6 +166,17 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string"
+                },
+                "statusCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "auth.ApiResponseWithData": {
+            "type": "object",
+            "properties": {
                 "status": {
                     "type": "string"
                 },
@@ -109,6 +196,14 @@ const docTemplate = `{
                 }
             }
         },
+        "auth.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                }
+            }
+        },
         "auth.UserSignInRequest": {
             "type": "object",
             "required": [
@@ -118,6 +213,22 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "maxLength": 254
+                }
+            }
+        },
+        "auth.UserVerifyEmailRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "otp"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 254
+                },
+                "otp": {
+                    "type": "string"
                 }
             }
         }

@@ -8,3 +8,9 @@ package auth
 type UserSignInRequest struct {
 	Email string `json:"email" binding:"required,email,lte=254"`
 }
+
+// UserVerifyEmailRequest represents the expected payload for verifying a user's email with an OTP.
+type UserVerifyEmailRequest struct {
+	Email string `json:"email" binding:"required,email,lte=254"`
+	OTP   string `json:"otp"   binding:"required,alphanum,len=6"`
+}

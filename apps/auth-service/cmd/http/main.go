@@ -19,6 +19,7 @@ import (
 
 	"github.com/suphawit-wt/travelbook/apps/auth-service/docs"
 	"github.com/suphawit-wt/travelbook/apps/auth-service/internal/auth"
+	"github.com/suphawit-wt/travelbook/apps/auth-service/internal/outbox"
 	"github.com/suphawit-wt/travelbook/apps/auth-service/internal/session"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/config"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/database"
@@ -140,6 +141,7 @@ func run() error {
 		return fmt.Errorf("init http server: %w", err)
 	}
 
+	outboxRepo := outbox.NewRepositoryDB(pgPool)
 	sessionRepo := session.NewRepositoryDB(rdb)
 	authRepo := auth.NewRepositoryDB(pgPool)
 	authService := auth.NewService(
@@ -152,6 +154,7 @@ func run() error {
 		txManager,
 		authRepo,
 		sessionRepo,
+		outboxRepo,
 	)
 	authHandler := auth.NewHandler(srv.Validator, cfg, jwtKeys, authService)
 
@@ -183,6 +186,7 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, authHandler auth.
 
 	authV1User := authV1.Group("user")
 	authV1User.POST("/sign-in", authHandler.UserSignInWithEmail)
+	authV1User.POST("/verify-email", authHandler.UserVerifyEmail)
 
 	router.GET("/health", authHandler.HealthCheck)
 }
