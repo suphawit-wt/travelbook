@@ -7,6 +7,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -15,6 +16,11 @@ import (
 // Repository defines data access methods for managing user accounts, OAuth provider links, and email verification states.
 type Repository interface {
 	GetAccountByEmail(ctx context.Context, email string) (*Account, error)
+	CreateAccount(
+		ctx context.Context,
+		tx pgx.Tx,
+		acc *Account,
+	) (*Account, error)
 }
 
 type repositoryDB struct {
@@ -60,4 +66,38 @@ func (r *repositoryDB) GetAccountByEmail(ctx context.Context, email string) (*Ac
 	}
 
 	return &acc, nil
+}
+
+func (r *repositoryDB) CreateAccount(
+	ctx context.Context,
+	tx pgx.Tx,
+	acc *Account,
+) (*Account, error) {
+	query := `
+		INSERT INTO accounts (id, email, email_verified)
+		VALUES ($1, $2, $3)
+	`
+	_, err := tx.Exec(
+		ctx,
+		query,
+		acc.ID,
+		acc.Email,
+		acc.EmailVerified,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to insert account: %w", err)
+	}
+
+	queryInsertRole := `INSERT INTO account_roles (account_id, role) VALUES ($1, $2)`
+
+	if len(acc.Roles) > 0 {
+		for _, role := range acc.Roles {
+			_, err = tx.Exec(ctx, queryInsertRole, acc.ID, role)
+			if err != nil {
+				return nil, fmt.Errorf("failed to insert role %s: %w", role, err)
+			}
+		}
+	}
+
+	return acc, nil
 }
