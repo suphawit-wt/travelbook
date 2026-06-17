@@ -6,18 +6,30 @@ package auth
 
 import (
 	"context"
+	"crypto/rsa"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
 
+	"github.com/suphawit-wt/travelbook/apps/auth-service/internal/session"
+	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/secret"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
+	"github.com/suphawit-wt/travelbook/pkg/shared/dberr"
 	"github.com/suphawit-wt/travelbook/pkg/shared/events"
 )
+
+// KeyPair holds the private signing keys for a client type.
+type KeyPair struct {
+	AccessPrivateKey  *rsa.PrivateKey
+	RefreshPrivateKey *rsa.PrivateKey
+}
 
 func (s *service) generateAndSaveOTP(
 	ctx context.Context,
@@ -103,4 +115,201 @@ func (s *service) publishOTPEventWithRollback(
 	}
 
 	return nil
+}
+
+func (s *service) verifyOTP(ctx context.Context, email, otp string, logger *zaplog.Logger) error {
+	otpKey := "otp:user:email:" + email
+
+	verified, err := s.sessionRepo.VerifyOTP(ctx, otpKey, otp)
+	if err != nil {
+		if errors.Is(err, session.ErrTokenNotFound) {
+			logger.Warn(
+				"OTP verification failed: token expired or not found",
+				zap.String("email", email),
+			)
+			return errs.NewUnauthorizedError("OTP is invalid or has expired.")
+		}
+
+		logger.Error(
+			"failed to retrieve OTP from repository",
+			zap.String("email", email),
+			zap.Error(err),
+		)
+		return fmt.Errorf("authService.verifyOTP: %w", err)
+	}
+
+	if !verified {
+		logger.Warn("OTP verification failed: code mismatch", zap.String("email", email))
+		return errs.NewUnauthorizedError("Invalid OTP provided.")
+	}
+
+	return nil
+}
+
+func (s *service) getOrCreateUserAccount(
+	ctx context.Context,
+	email string,
+	logger *zaplog.Logger,
+) (*Account, error) {
+	acc, err := s.authRepo.GetAccountByEmail(ctx, email)
+	if err == nil {
+		return acc, nil
+	}
+
+	if !errors.Is(err, ErrAccountNotFound) {
+		return nil, err
+	}
+
+	var newAcc *Account
+	txErr := s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		accID, err := uuid.NewV7()
+		if err != nil {
+			return fmt.Errorf("failed to generate id uuid v7: %w", err)
+		}
+
+		createdAcc, createErr := s.authRepo.CreateAccount(
+			txCtx,
+			tx,
+			&Account{
+				ID:            accID,
+				Email:         email,
+				EmailVerified: true,
+				Roles:         []string{RoleCustomer.String()},
+			},
+		)
+		if createErr != nil {
+			return dberr.ValidatePostgresError(createErr)
+		}
+		newAcc = createdAcc
+
+		payloadMap := map[string]any{
+			"id":    newAcc.ID.String(),
+			"email": newAcc.Email,
+		}
+
+		jsonPayload, jsonErr := json.Marshal(payloadMap)
+		if jsonErr != nil {
+			return fmt.Errorf("failed to marshal outbox payload: %w", jsonErr)
+		}
+
+		return s.outboxRepo.Create(
+			txCtx,
+			tx,
+			"user",
+			newAcc.ID.String(),
+			"UserProfileCreated",
+			"dev.user.profile.create.v1",
+			jsonPayload,
+		)
+	})
+
+	if txErr != nil {
+		logger.Error("failed to create new user credential in transaction",
+			zap.String("email", email),
+			zap.Error(txErr),
+		)
+		return nil, fmt.Errorf("auth_service.getOrCreateUser: %w", txErr)
+	}
+
+	return newAcc, nil
+}
+
+func (s *service) createSessionAndTokens(
+	ctx context.Context,
+	acc *Account,
+	clientType ClientType,
+	keys KeyPair,
+	maxSessions int64,
+	ipAddress, userAgent string,
+	logger *zaplog.Logger,
+) (*Token, error) {
+	accID := acc.ID.String()
+	clientKey := strings.ToLower(clientType.String())
+	sessionID := uuid.New().String()
+	sessionKey := fmt.Sprintf("%s:%s:session:%s", clientKey, accID, sessionID)
+	accSessionsKey := fmt.Sprintf("%s:%s:sessions", clientKey, accID)
+
+	if err := s.sessionRepo.TrimSessionsByCapacity(
+		ctx,
+		accID,
+		accSessionsKey,
+		clientKey,
+		maxSessions,
+	); err != nil {
+		logger.Warn(
+			"failed to trim session capacity",
+			zap.String("account_id", accID),
+			zap.Error(err),
+		)
+	}
+
+	accessToken, err := s.jwtSvc.SignRS256(
+		accID,
+		sessionID,
+		acc.Email,
+		acc.Roles,
+		clientType.String(),
+		s.authCfg.AccessTTL,
+		s.authCfg.Audience,
+		keys.AccessPrivateKey,
+	)
+	if err != nil {
+		logger.Error("failed to sign access token", zap.String("account_id", accID), zap.Error(err))
+		return nil, err
+	}
+
+	refreshToken, err := s.jwtSvc.SignRS256(
+		accID,
+		sessionID,
+		acc.Email,
+		acc.Roles,
+		clientType.String(),
+		s.authCfg.RefreshTTL,
+		s.authCfg.Audience,
+		keys.RefreshPrivateKey,
+	)
+	if err != nil {
+		logger.Error(
+			"failed to sign refresh token",
+			zap.String("account_id", accID),
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	sessionMeta := session.Metadata{
+		SessionID: sessionID,
+		TokenHash: secret.HashToken(refreshToken),
+		IPAddress: ipAddress,
+		UserAgent: userAgent,
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt: time.Now().UTC().Format(time.RFC3339),
+	}
+
+	if err := s.sessionRepo.Create(
+		ctx,
+		sessionID,
+		sessionKey,
+		accSessionsKey,
+		&sessionMeta,
+		s.authCfg.RefreshTTL,
+	); err != nil {
+		logger.Error("failed to store device session in repository",
+			zap.String("account_id", accID),
+			zap.String("session_id", sessionID),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("authService.createSessionAndTokens: %w", err)
+	}
+
+	logger.Info("authenticated successfully",
+		zap.String("account_id", accID),
+		zap.String("session_id", sessionID),
+		zap.String("client_type", clientType.String()),
+	)
+
+	return &Token{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }
