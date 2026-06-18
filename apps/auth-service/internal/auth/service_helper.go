@@ -7,6 +7,7 @@ package auth
 import (
 	"context"
 	"crypto/rsa"
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/suphawit-wt/travelbook/apps/auth-service/internal/session"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
+	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/jwt"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/secret"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
 	"github.com/suphawit-wt/travelbook/pkg/shared/dberr"
@@ -311,5 +313,122 @@ func (s *service) createSessionAndTokens(
 	return &Token{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+	}, nil
+}
+
+func (s *service) validateAndFetchSession(
+	ctx context.Context,
+	sessionKey, accSessionsKey, accID, sessionID, refreshToken string,
+	logger *zaplog.Logger,
+) (*session.Metadata, error) {
+	sessionMeta, err := s.sessionRepo.GetMetadata(ctx, sessionKey)
+	if err != nil {
+		if errors.Is(err, session.ErrTokenNotFound) {
+			logger.Warn("refresh attempt on non-existent or revoked session",
+				zap.String("account_id", accID),
+				zap.String("session_id", sessionID),
+			)
+			return nil, errs.NewUnauthorizedError("Session has expired or been revoked.")
+		}
+
+		logger.Error("failed to retrieve session from repository",
+			zap.String("account_id", accID),
+			zap.String("session_id", sessionID),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("authService.RotateTokens: %w", err)
+	}
+
+	incomingHash := secret.HashToken(refreshToken)
+	if sessionMeta.TokenHash != "" &&
+		subtle.ConstantTimeCompare([]byte(sessionMeta.TokenHash), []byte(incomingHash)) != 1 {
+		logger.Warn("token reuse or mismatch detected",
+			zap.String("account_id", accID),
+			zap.String("session_id", sessionID),
+		)
+
+		_, _ = s.sessionRepo.Revoke(ctx, sessionKey, accSessionsKey)
+		return nil, errs.NewUnauthorizedError("Invalid refresh token.")
+	}
+
+	return sessionMeta, nil
+}
+
+func (s *service) issueRotatedTokens(
+	ctx context.Context,
+	claims *jwt.AuthClaims,
+	sessionMeta *session.Metadata,
+	sessionID, sessionKey, accSessionsKey string,
+	clientType ClientType,
+	keys RotateKeys,
+	logger *zaplog.Logger,
+) (*Token, error) {
+	accID := claims.Subject
+
+	newAccessToken, err := s.jwtSvc.SignRS256(
+		accID,
+		sessionID,
+		claims.Email,
+		claims.Roles,
+		clientType.String(),
+		s.authCfg.AccessTTL,
+		s.authCfg.Audience,
+		keys.AccessPrivateKey,
+	)
+	if err != nil {
+		logger.Error("failed to sign new access token during refresh",
+			zap.String("account_id", accID),
+			zap.String("session_id", sessionID),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("authService.RotateTokens: %w", err)
+	}
+
+	newRefreshToken, err := s.jwtSvc.SignRS256(
+		accID,
+		sessionID,
+		claims.Email,
+		claims.Roles,
+		clientType.String(),
+		s.authCfg.RefreshTTL,
+		s.authCfg.Audience,
+		keys.RefreshPrivateKey,
+	)
+	if err != nil {
+		logger.Error("failed to sign new refresh token during refresh",
+			zap.String("account_id", accID),
+			zap.String("session_id", sessionID),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("authService.RotateTokens: %w", err)
+	}
+
+	sessionMeta.TokenHash = secret.HashToken(newRefreshToken)
+	sessionMeta.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
+
+	if err := s.sessionRepo.Create(
+		ctx,
+		sessionID,
+		sessionKey,
+		accSessionsKey,
+		sessionMeta,
+		s.authCfg.RefreshTTL,
+	); err != nil {
+		logger.Error("failed to create session during rotate tokens",
+			zap.String("account_id", accID),
+			zap.String("session_id", sessionID),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("authService.RotateTokens: %w", err)
+	}
+
+	logger.Info("tokens refreshed successfully",
+		zap.String("account_id", accID),
+		zap.String("session_id", sessionID),
+	)
+
+	return &Token{
+		AccessToken:  newAccessToken,
+		RefreshToken: newRefreshToken,
 	}, nil
 }

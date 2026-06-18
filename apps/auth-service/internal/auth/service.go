@@ -6,6 +6,8 @@ package auth
 
 import (
 	"context"
+	"crypto/rsa"
+	"fmt"
 	"strings"
 
 	"go.uber.org/zap"
@@ -14,6 +16,7 @@ import (
 	"github.com/suphawit-wt/travelbook/apps/auth-service/internal/session"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/config"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/database"
+	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/messaging"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/jwt"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/passwd"
@@ -25,6 +28,13 @@ import (
 type Token struct {
 	AccessToken  string
 	RefreshToken string
+}
+
+// RotateKeys holds the cryptographic RSA keys required during a key rotation phase.
+type RotateKeys struct {
+	AccessPrivateKey  *rsa.PrivateKey
+	RefreshPrivateKey *rsa.PrivateKey
+	RefreshPublicKey  *rsa.PublicKey
 }
 
 // OTPPayload represents the data payload for OTP generation events.
@@ -39,6 +49,13 @@ type Service interface {
 	UserVerifyEmail(
 		ctx context.Context,
 		email, otp, ipAddress, userAgent string,
+	) (*Token, error)
+
+	RotateTokens(
+		ctx context.Context,
+		refreshToken string,
+		clientType ClientType,
+		keys RotateKeys,
 	) (*Token, error)
 }
 
@@ -136,6 +153,52 @@ func (s *service) UserVerifyEmail(
 		5,
 		ipAddress,
 		userAgent,
+		logger,
+	)
+}
+
+func (s *service) RotateTokens(
+	ctx context.Context,
+	refreshToken string,
+	clientType ClientType,
+	keys RotateKeys,
+) (*Token, error) {
+	logger := s.logger.Named("rotate_tokens")
+
+	claims, err := s.jwtSvc.VerifyRS256(refreshToken, keys.RefreshPublicKey)
+	if err != nil {
+		logger.Warn("refresh token validation failed", zap.Error(err))
+		return nil, errs.NewUnauthorizedError("Invalid or expired refresh token.")
+	}
+
+	accID := claims.Subject
+	sessionID := claims.ID
+	clientKey := strings.ToLower(clientType.String())
+	sessionKey := fmt.Sprintf("%s:%s:session:%s", clientKey, accID, sessionID)
+	accSessionsKey := fmt.Sprintf("%s:%s:sessions", clientKey, accID)
+
+	sessionMeta, err := s.validateAndFetchSession(
+		ctx,
+		sessionKey,
+		accSessionsKey,
+		accID,
+		sessionID,
+		refreshToken,
+		logger,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.issueRotatedTokens(
+		ctx,
+		claims,
+		sessionMeta,
+		sessionID,
+		sessionKey,
+		accSessionsKey,
+		clientType,
+		keys,
 		logger,
 	)
 }
