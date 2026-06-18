@@ -57,6 +57,12 @@ type Service interface {
 		clientType ClientType,
 		keys RotateKeys,
 	) (*Token, error)
+	SignOut(
+		ctx context.Context,
+		refreshToken string,
+		publicKey *rsa.PublicKey,
+		clientType ClientType,
+	) error
 }
 
 type service struct {
@@ -201,4 +207,51 @@ func (s *service) RotateTokens(
 		keys,
 		logger,
 	)
+}
+
+func (s *service) SignOut(
+	ctx context.Context,
+	refreshToken string,
+	publicKey *rsa.PublicKey,
+	clientType ClientType,
+) error {
+	logger := s.logger.Named("sign_out")
+
+	claims, err := s.jwtSvc.VerifyRS256(refreshToken, publicKey)
+	if err != nil {
+		return errs.NewUnauthorizedError("Invalid Refresh Token!")
+	}
+
+	accID := claims.Subject
+	sessionID := claims.ID
+	clientKey := strings.ToLower(clientType.String())
+	sessionKey := fmt.Sprintf("%s:%s:session:%s", clientKey, accID, sessionID)
+	accSessionsKey := fmt.Sprintf("%s:%s:sessions", clientKey, accID)
+
+	deleted, err := s.sessionRepo.Revoke(ctx, sessionKey, accSessionsKey)
+	if err != nil {
+		logger.Error("failed to revoke device session in storage",
+			zap.String("account_id", accID),
+			zap.String("session_id", sessionID),
+			zap.Error(err),
+		)
+
+		return err
+	}
+
+	if !deleted {
+		logger.Info("session already revoked or expired",
+			zap.String("account_id", accID),
+			zap.String("session_id", sessionID),
+		)
+
+		return nil
+	}
+
+	logger.Info("device session revoked successfully",
+		zap.String("account_id", accID),
+		zap.String("session_id", sessionID),
+	)
+
+	return nil
 }
