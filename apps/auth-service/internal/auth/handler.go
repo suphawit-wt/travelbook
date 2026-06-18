@@ -22,6 +22,7 @@ import (
 type Handler interface {
 	UserSignInWithEmail(c *gin.Context)
 	UserVerifyEmail(c *gin.Context)
+	UserRefreshToken(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -122,6 +123,83 @@ func (h *handler) UserVerifyEmail(c *gin.Context) {
 		Data: &TokenResponse{
 			AccessToken: token.AccessToken,
 		},
+	}
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(
+		UserRefreshTokenCookieKey,
+		token.RefreshToken,
+		int(h.cfg.Auth.RefreshTTL.Seconds()),
+		"/",
+		h.cfg.Cookie.Domain,
+		true,
+		true,
+	)
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UserRefreshToken godoc
+//
+//	@Summary		Refresh user token pair
+//	@Description	Generate a new access token using a valid refresh token (from HTTP-only cookie)
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	ApiResponseWithData{data=TokenResponse}
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		401	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/auth/user/refresh [post]
+func (h *handler) UserRefreshToken(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	refreshToken, err := c.Cookie(UserRefreshTokenCookieKey)
+	if err != nil {
+		if err == http.ErrNoCookie {
+			errs.GinHandleError(
+				c,
+				errs.NewUnauthorizedError("Authentication session expired or missing."),
+			)
+			return
+		}
+
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	keys := RotateKeys{
+		AccessPrivateKey:  h.jwtKeys.User.Access.Private,
+		RefreshPrivateKey: h.jwtKeys.User.Refresh.Private,
+		RefreshPublicKey:  h.jwtKeys.User.Refresh.Public,
+	}
+
+	token, err := h.svc.RotateTokens(ctx, refreshToken, ClientTypeCustomer, keys)
+	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			if appErr.Status == api.StatusUnauthorized {
+				c.SetSameSite(http.SameSiteLaxMode)
+				c.SetCookie(
+					UserRefreshTokenCookieKey,
+					"",
+					-1,
+					"/",
+					h.cfg.Cookie.Domain,
+					true,
+					true,
+				)
+			}
+		}
+
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponseWithData[*TokenResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       &TokenResponse{AccessToken: token.AccessToken},
 	}
 
 	c.SetSameSite(http.SameSiteLaxMode)
