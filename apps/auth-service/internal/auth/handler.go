@@ -6,6 +6,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -21,6 +22,7 @@ import (
 // Handler defines HTTP request handler methods for user authentication, partner authentication, and system health checks.
 type Handler interface {
 	UserSignInWithEmail(c *gin.Context)
+	UserSignOut(c *gin.Context)
 	UserVerifyEmail(c *gin.Context)
 	UserRefreshToken(c *gin.Context)
 
@@ -77,6 +79,60 @@ func (h *handler) UserSignInWithEmail(c *gin.Context) {
 		StatusCode: http.StatusOK,
 		Message:    "OTP was sent to the user's email.",
 	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UserSignOut godoc
+//
+//	@Summary		Sign out user
+//	@Description	Invalidate user session and clear authentication cookies
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse
+//	@Failure		401	{object}	ApiResponse	"Unauthorized"
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/auth/user/sign-out [post]
+func (h *handler) UserSignOut(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	refreshToken, err := c.Cookie(UserRefreshTokenCookieKey)
+	if err != nil {
+		if errors.Is(err, http.ErrNoCookie) {
+			errs.GinHandleError(
+				c,
+				errs.NewUnauthorizedError(
+					"Authentication session expired or missing.",
+				),
+			)
+			return
+		}
+
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err := h.svc.SignOut(
+		ctx,
+		refreshToken,
+		h.jwtKeys.User.Refresh.Public,
+		ClientTypeCustomer,
+	); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Sign Out Successfully.",
+	}
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(UserRefreshTokenCookieKey, "", -1, "/", h.cfg.Cookie.Domain, true, true)
 
 	c.JSON(http.StatusOK, res)
 }

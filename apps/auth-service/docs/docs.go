@@ -147,6 +147,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/auth/user/sign-out": {
+            "post": {
+                "description": "Invalidate user session and clear authentication cookies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Sign out user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/auth/user/verify-email": {
             "post": {
                 "description": "Verify user using otp token by email verification",

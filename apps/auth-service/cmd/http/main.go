@@ -186,6 +186,7 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, authHandler auth.
 
 	authV1User := authV1.Group("user")
 	authV1User.POST("/sign-in", authHandler.UserSignInWithEmail)
+	authV1User.POST("/sign-out", authHandler.UserSignOut)
 	authV1User.POST("/verify-email", authHandler.UserVerifyEmail)
 	authV1User.POST("/refresh", authHandler.UserRefreshToken)
 
