@@ -24,6 +24,70 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/auth/partner/sign-up": {
+            "post": {
+                "description": "Register a new partner account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Sign up partner",
+                "parameters": [
+                    {
+                        "description": "Partner registration payload",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.PartnerSignUpRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/auth.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/auth.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/auth/user/google": {
             "post": {
                 "description": "Authenticate user using Google ID token and return access + refresh token",
@@ -385,6 +449,40 @@ const docTemplate = `{
             ],
             "properties": {
                 "authCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.PartnerSignUpRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "firstName",
+                "lastName",
+                "password",
+                "phoneNumber",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 254
+                },
+                "firstName": {
+                    "type": "string",
+                    "maxLength": 80
+                },
+                "lastName": {
+                    "type": "string",
+                    "maxLength": 80
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

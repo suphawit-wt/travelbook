@@ -30,6 +30,31 @@ definitions:
     required:
     - authCode
     type: object
+  auth.PartnerSignUpRequest:
+    properties:
+      email:
+        maxLength: 254
+        type: string
+      firstName:
+        maxLength: 80
+        type: string
+      lastName:
+        maxLength: 80
+        type: string
+      password:
+        type: string
+      phoneNumber:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - firstName
+    - lastName
+    - password
+    - phoneNumber
+    - username
+    type: object
   auth.TokenResponse:
     properties:
       accessToken:
@@ -72,6 +97,45 @@ info:
   title: Auth Service - Travelbook API
   version: 1.0.0
 paths:
+  /v1/auth/partner/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Register a new partner account
+      parameters:
+      - description: Partner registration payload
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/auth.PartnerSignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/auth.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/auth.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+      summary: Sign up partner
+      tags:
+      - Auth
   /v1/auth/user/google:
     post:
       consumes:

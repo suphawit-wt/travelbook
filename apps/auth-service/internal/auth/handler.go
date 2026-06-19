@@ -27,6 +27,8 @@ type Handler interface {
 	UserVerifyEmail(c *gin.Context)
 	UserRefreshToken(c *gin.Context)
 
+	PartnerSignUp(c *gin.Context)
+
 	HealthCheck(c *gin.Context)
 }
 
@@ -326,6 +328,44 @@ func (h *handler) UserRefreshToken(c *gin.Context) {
 	)
 
 	c.JSON(http.StatusOK, res)
+}
+
+// PartnerSignUp godoc
+//
+//	@Summary		Sign up partner
+//	@Description	Register a new partner account
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			req	body		PartnerSignUpRequest	true	"Partner registration payload"
+//	@Success		201	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		409	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/auth/partner/sign-up [post]
+func (h *handler) PartnerSignUp(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var req PartnerSignUpRequest
+
+	if err := errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err := h.svc.PartnerSignUpWithUsernamePassword(ctx, &req); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusCreated,
+		Message:    "Verify mail was sent to the partner's email.",
+	}
+
+	c.JSON(http.StatusCreated, res)
 }
 
 // HealthCheck is a simple health check endpoint to verify that the service is running.

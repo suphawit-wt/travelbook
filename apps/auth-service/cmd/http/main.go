@@ -191,5 +191,8 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, authHandler auth.
 	authV1User.POST("/refresh", authHandler.UserRefreshToken)
 	authV1User.POST("/google", authHandler.UserSignInWithGoogle)
 
+	authV1Partner := authV1.Group("partner")
+	authV1Partner.POST("/sign-up", authHandler.PartnerSignUp)
+
 	router.GET("/health", authHandler.HealthCheck)
 }
