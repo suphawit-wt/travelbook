@@ -46,6 +46,10 @@ type OTPPayload struct {
 // Service defines the data access contract for authentication services.
 type Service interface {
 	UserSignInWithEmail(ctx context.Context, email string) error
+	UserSignInWithGoogleOAuth(
+		ctx context.Context,
+		authCode, ipAddress, userAgent string,
+	) (*Token, error)
 	UserVerifyEmail(
 		ctx context.Context,
 		email, otp, ipAddress, userAgent string,
@@ -126,6 +130,39 @@ func (s *service) UserSignInWithEmail(ctx context.Context, email string) error {
 	}
 
 	return s.publishOTPEventWithRollback(ctx, email, payloadBytes, logger)
+}
+
+func (s *service) UserSignInWithGoogleOAuth(
+	ctx context.Context,
+	authCode, ipAddress, userAgent string,
+) (*Token, error) {
+	logger := s.logger.Named("user_google_sign_in")
+
+	googleProfile, err := s.exchangeAndValidateGoogleCode(ctx, authCode, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	acc, err := s.getOrCreateGoogleOAuthAccount(ctx, googleProfile, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	keys := KeyPair{
+		AccessPrivateKey:  s.jwtKeys.User.Access.Private,
+		RefreshPrivateKey: s.jwtKeys.User.Refresh.Private,
+	}
+
+	return s.createSessionAndTokens(
+		ctx,
+		acc,
+		ClientTypeCustomer,
+		keys,
+		5,
+		ipAddress,
+		userAgent,
+		logger,
+	)
 }
 
 func (s *service) UserVerifyEmail(

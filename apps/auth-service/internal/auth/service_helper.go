@@ -17,6 +17,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/idtoken"
 
 	"github.com/suphawit-wt/travelbook/apps/auth-service/internal/session"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
@@ -31,6 +34,13 @@ import (
 type KeyPair struct {
 	AccessPrivateKey  *rsa.PrivateKey
 	RefreshPrivateKey *rsa.PrivateKey
+}
+
+type googleOAuthProfile struct {
+	Subject     string
+	Email       string
+	DisplayName string
+	AvatarURL   string
 }
 
 func (s *service) generateAndSaveOTP(
@@ -431,4 +441,133 @@ func (s *service) issueRotatedTokens(
 		AccessToken:  newAccessToken,
 		RefreshToken: newRefreshToken,
 	}, nil
+}
+
+func (s *service) exchangeAndValidateGoogleCode(
+	ctx context.Context,
+	authCode string,
+	logger *zaplog.Logger,
+) (*googleOAuthProfile, error) {
+	conf := &oauth2.Config{
+		ClientID:     s.authCfg.OAuth.Google.ClientID,
+		ClientSecret: s.authCfg.OAuth.Google.ClientSecret,
+		RedirectURL:  "postmessage",
+		Endpoint:     google.Endpoint,
+	}
+
+	oToken, err := conf.Exchange(ctx, authCode)
+	if err != nil {
+		logger.Error("failed to exchange google auth code", zap.Error(err))
+		return nil, errs.NewBadRequestError("Invalid or expired Google authorization code.")
+	}
+
+	oauthIDToken, ok := oToken.Extra("id_token").(string)
+	if !ok || oauthIDToken == "" {
+		logger.Error("missing id_token in google oauth response")
+		return nil, errs.NewUnauthorizedError("Invalid Google authentication response.")
+	}
+
+	payload, err := idtoken.Validate(ctx, oauthIDToken, conf.ClientID)
+	if err != nil {
+		logger.Error("failed to validate google id_token", zap.Error(err))
+		return nil, errs.NewUnauthorizedError("Invalid Google ID Token.")
+	}
+
+	email, ok := payload.Claims["email"].(string)
+	if !ok || email == "" {
+		logger.Error("failed to extract email from Google ID token")
+		return nil, errs.NewUnauthorizedError("Email claim missing from Google profile.")
+	}
+
+	displayName, _ := payload.Claims["name"].(string)
+	avatarURL, _ := payload.Claims["picture"].(string)
+
+	return &googleOAuthProfile{
+		Subject:     payload.Subject,
+		Email:       strings.TrimSpace(strings.ToLower(email)),
+		DisplayName: displayName,
+		AvatarURL:   avatarURL,
+	}, nil
+}
+
+func (s *service) getOrCreateGoogleOAuthAccount(
+	ctx context.Context,
+	profile *googleOAuthProfile,
+	logger *zaplog.Logger,
+) (*Account, error) {
+	acc, err := s.authRepo.GetAccountByEmail(ctx, profile.Email)
+	if err == nil {
+		return acc, nil
+	}
+
+	if !errors.Is(err, ErrAccountNotFound) {
+		return nil, err
+	}
+
+	var newAcc *Account
+	txErr := s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		accID, err := uuid.NewV7()
+		if err != nil {
+			return fmt.Errorf("failed to generate id uuid v7: %w", err)
+		}
+
+		createdAcc, createErr := s.authRepo.CreateAccount(
+			txCtx,
+			tx,
+			&Account{
+				ID:            accID,
+				Email:         profile.Email,
+				EmailVerified: true,
+				Roles:         []string{RoleCustomer.String()},
+			},
+		)
+		if createErr != nil {
+			return dberr.ValidatePostgresError(createErr)
+		}
+
+		if _, opErr := s.authRepo.CreateAccountOAuthProvider(txCtx, tx, &AccountOAuthProvider{
+			AccountID:      createdAcc.ID,
+			Provider:       OAuthProviderGoogle.String(),
+			ProviderUserID: profile.Subject,
+		}); opErr != nil {
+			return dberr.ValidatePostgresError(opErr)
+		}
+
+		payloadMap := map[string]any{
+			"id":          createdAcc.ID.String(),
+			"email":       createdAcc.Email,
+			"displayName": profile.DisplayName,
+			"avatarUrl":   profile.AvatarURL,
+		}
+
+		jsonPayload, jsonErr := json.Marshal(payloadMap)
+		if jsonErr != nil {
+			return fmt.Errorf("failed to marshal outbox payload: %w", jsonErr)
+		}
+
+		if outboxErr := s.outboxRepo.Create(
+			txCtx,
+			tx,
+			"user",
+			createdAcc.ID.String(),
+			"UserProfileOAuthCreated",
+			"dev.user.profile.create-oauth.v1",
+			jsonPayload,
+		); outboxErr != nil {
+			return outboxErr
+		}
+
+		newAcc = createdAcc
+		return nil
+	})
+
+	if txErr != nil {
+		logger.Error("failed to create new user credential in transaction",
+			zap.String("email", profile.Email),
+			zap.Error(txErr),
+		)
+		return nil, fmt.Errorf("auth_service.getOrCreateGoogleOAuthAccount: %w", txErr)
+	}
+
+	return newAcc, nil
 }
