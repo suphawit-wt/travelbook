@@ -21,6 +21,11 @@ type Repository interface {
 		tx pgx.Tx,
 		acc *Account,
 	) (*Account, error)
+	CreateAccountOAuthProvider(
+		ctx context.Context,
+		tx pgx.Tx,
+		accOP *AccountOAuthProvider,
+	) (*AccountOAuthProvider, error)
 }
 
 type repositoryDB struct {
@@ -100,4 +105,27 @@ func (r *repositoryDB) CreateAccount(
 	}
 
 	return acc, nil
+}
+
+func (r *repositoryDB) CreateAccountOAuthProvider(
+	ctx context.Context,
+	tx pgx.Tx,
+	accOP *AccountOAuthProvider,
+) (*AccountOAuthProvider, error) {
+	query := `
+		INSERT INTO account_oauth_providers (account_id, provider, provider_user_id)
+		VALUES ($1, $2, $3)
+	`
+	_, err := tx.Exec(
+		ctx,
+		query,
+		accOP.AccountID,
+		accOP.Provider,
+		accOP.ProviderUserID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to insert account oauth provider: %w", err)
+	}
+
+	return accOP, nil
 }
