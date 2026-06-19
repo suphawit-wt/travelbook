@@ -189,6 +189,7 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, authHandler auth.
 	authV1User.POST("/sign-out", authHandler.UserSignOut)
 	authV1User.POST("/verify-email", authHandler.UserVerifyEmail)
 	authV1User.POST("/refresh", authHandler.UserRefreshToken)
+	authV1User.POST("/google", authHandler.UserSignInWithGoogle)
 
 	router.GET("/health", authHandler.HealthCheck)
 }

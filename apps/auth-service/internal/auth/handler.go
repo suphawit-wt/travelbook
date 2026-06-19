@@ -22,6 +22,7 @@ import (
 // Handler defines HTTP request handler methods for user authentication, partner authentication, and system health checks.
 type Handler interface {
 	UserSignInWithEmail(c *gin.Context)
+	UserSignInWithGoogle(c *gin.Context)
 	UserSignOut(c *gin.Context)
 	UserVerifyEmail(c *gin.Context)
 	UserRefreshToken(c *gin.Context)
@@ -79,6 +80,61 @@ func (h *handler) UserSignInWithEmail(c *gin.Context) {
 		StatusCode: http.StatusOK,
 		Message:    "OTP was sent to the user's email.",
 	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UserSignInWithGoogle godoc
+//
+//	@Summary		Sign in user with Google
+//	@Description	Authenticate user using Google ID token and return access + refresh token
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			req	body		GoogleSignInRequest	true	"Google Id token payload"
+//	@Success		200	{object}	ApiResponseWithData{data=TokenResponse}
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		401	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/auth/user/google [post]
+func (h *handler) UserSignInWithGoogle(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var req GoogleSignInRequest
+
+	if err := errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	token, err := h.svc.UserSignInWithGoogleOAuth(
+		ctx,
+		req.AuthCode,
+		c.ClientIP(),
+		c.Request.UserAgent(),
+	)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponseWithData[*TokenResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       &TokenResponse{AccessToken: token.AccessToken},
+	}
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(
+		UserRefreshTokenCookieKey,
+		token.RefreshToken,
+		int(h.cfg.Auth.RefreshTTL.Seconds()),
+		"/",
+		h.cfg.Cookie.Domain,
+		true,
+		true,
+	)
 
 	c.JSON(http.StatusOK, res)
 }

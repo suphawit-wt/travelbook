@@ -23,6 +23,13 @@ definitions:
       message:
         type: string
     type: object
+  auth.GoogleSignInRequest:
+    properties:
+      authCode:
+        type: string
+    required:
+    - authCode
+    type: object
   auth.TokenResponse:
     properties:
       accessToken:
@@ -65,6 +72,51 @@ info:
   title: Auth Service - Travelbook API
   version: 1.0.0
 paths:
+  /v1/auth/user/google:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user using Google ID token and return access + refresh
+        token
+      parameters:
+      - description: Google Id token payload
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/auth.GoogleSignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/auth.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.TokenResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/auth.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/auth.ErrResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+      summary: Sign in user with Google
+      tags:
+      - Auth
   /v1/auth/user/refresh:
     post:
       consumes:

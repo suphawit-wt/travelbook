@@ -9,6 +9,11 @@ type UserSignInRequest struct {
 	Email string `json:"email" binding:"required,email,lte=254"`
 }
 
+// GoogleSignInRequest represents the expected payload for a Google sign-in request.
+type GoogleSignInRequest struct {
+	AuthCode string `json:"authCode" binding:"required"`
+}
+
 // UserVerifyEmailRequest represents the expected payload for verifying a user's email with an OTP.
 type UserVerifyEmailRequest struct {
 	Email string `json:"email" binding:"required,email,lte=254"`
