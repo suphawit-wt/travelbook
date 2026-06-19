@@ -571,3 +571,102 @@ func (s *service) getOrCreateGoogleOAuthAccount(
 
 	return newAcc, nil
 }
+
+func (s *service) createPartnerAccountTx(
+	ctx context.Context,
+	req *PartnerSignUpRequest,
+	hashedPassword string,
+) (*Account, error) {
+	var acc *Account
+
+	err := s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		accID, err := uuid.NewV7()
+		if err != nil {
+			return fmt.Errorf("failed to generate id uuid v7: %w", err)
+		}
+
+		newUser := &Account{
+			ID:            accID,
+			Email:         req.Email,
+			Username:      &req.Username,
+			PasswordHash:  &hashedPassword,
+			EmailVerified: false,
+			Roles:         []string{RolePartnerAdmin.String()},
+		}
+
+		newAcc, newAccErr := s.authRepo.CreateAccount(txCtx, tx, newUser)
+		if newAccErr != nil {
+			return newAccErr
+		}
+
+		payloadMap := map[string]any{
+			"id":          newAcc.ID.String(),
+			"firstName":   req.FirstName,
+			"lastName":    req.LastName,
+			"phoneNumber": req.PhoneNumber,
+		}
+
+		jsonPayload, jsonErr := json.Marshal(payloadMap)
+		if jsonErr != nil {
+			return fmt.Errorf("failed to marshal outbox payload: %w", jsonErr)
+		}
+
+		if outboxErr := s.outboxRepo.Create(
+			txCtx,
+			tx,
+			"partner",
+			newAcc.ID.String(),
+			"PartnerProfileCreated",
+			"dev.partner.profile.create.v1",
+			jsonPayload,
+		); outboxErr != nil {
+			return outboxErr
+		}
+
+		acc = newAcc
+		return nil
+	})
+
+	return acc, err
+}
+
+func (s *service) generateAndSavePartnerVerifyToken(
+	ctx context.Context,
+	acc *Account,
+	logger *zaplog.Logger,
+) error {
+	verifyTokenTTL := 10 * time.Minute
+	clientType := ClientTypePartner
+	clientKey := strings.ToLower(clientType.String())
+	sessionID := uuid.New().String()
+
+	verifyToken, err := s.jwtSvc.SignHS256(
+		acc.ID.String(),
+		sessionID,
+		acc.Email,
+		acc.Roles,
+		clientType.String(),
+		verifyTokenTTL,
+		s.authCfg.Audience,
+		s.jwtKeys.Partner.Verify,
+	)
+	if err != nil {
+		logger.Error("failed to sign verify token",
+			zap.String("email", acc.Email),
+			zap.Error(err),
+		)
+		return err
+	}
+
+	verifyKey := fmt.Sprintf("verify:%s:%s", clientKey, acc.ID.String())
+
+	if err := s.sessionRepo.SaveOTP(ctx, verifyKey, verifyToken, verifyTokenTTL); err != nil {
+		logger.Error("failed to save verify token",
+			zap.String("email", acc.Email),
+			zap.Error(err),
+		)
+		return err
+	}
+
+	return nil
+}

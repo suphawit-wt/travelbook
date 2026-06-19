@@ -19,3 +19,13 @@ type UserVerifyEmailRequest struct {
 	Email string `json:"email" binding:"required,email,lte=254"`
 	OTP   string `json:"otp"   binding:"required,alphanum,len=6"`
 }
+
+// PartnerSignUpRequest expected payload for a partner sign-up request.
+type PartnerSignUpRequest struct {
+	Email       string `json:"email"       binding:"required,email,lte=254"`
+	Username    string `json:"username"    binding:"required,username"`
+	Password    string `json:"password"    binding:"required,passwd"`
+	FirstName   string `json:"firstName"   binding:"required,lte=80"`
+	LastName    string `json:"lastName"    binding:"required,lte=80"`
+	PhoneNumber string `json:"phoneNumber" binding:"required,e164"`
+}

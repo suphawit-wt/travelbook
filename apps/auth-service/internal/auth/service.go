@@ -21,6 +21,7 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/jwt"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/passwd"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
+	"github.com/suphawit-wt/travelbook/pkg/shared/dberr"
 	"github.com/suphawit-wt/travelbook/pkg/shared/jwtkey"
 )
 
@@ -54,6 +55,8 @@ type Service interface {
 		ctx context.Context,
 		email, otp, ipAddress, userAgent string,
 	) (*Token, error)
+
+	PartnerSignUpWithUsernamePassword(ctx context.Context, req *PartnerSignUpRequest) error
 
 	RotateTokens(
 		ctx context.Context,
@@ -198,6 +201,37 @@ func (s *service) UserVerifyEmail(
 		userAgent,
 		logger,
 	)
+}
+
+func (s *service) PartnerSignUpWithUsernamePassword(
+	ctx context.Context,
+	req *PartnerSignUpRequest,
+) error {
+	logger := s.logger.Named("partner_sign_up")
+
+	hashedPassword, err := s.passwordEncoder.Hash(req.Password)
+	if err != nil {
+		logger.Error("failed to hash password",
+			zap.String("email", req.Email),
+			zap.Error(err),
+		)
+		return err
+	}
+
+	acc, err := s.createPartnerAccountTx(ctx, req, hashedPassword)
+	if err != nil {
+		logger.Error("failed to execute transaction for account creation",
+			zap.String("email", req.Email),
+			zap.Error(err),
+		)
+		return dberr.ValidatePostgresError(err)
+	}
+
+	if err := s.generateAndSavePartnerVerifyToken(ctx, acc, logger); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *service) RotateTokens(
