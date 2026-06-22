@@ -29,3 +29,8 @@ type PartnerSignUpRequest struct {
 	LastName    string `json:"lastName"    binding:"required,lte=80"`
 	PhoneNumber string `json:"phoneNumber" binding:"required,e164"`
 }
+
+// PartnerVerifyRequest expected payload for verify a partner.
+type PartnerVerifyRequest struct {
+	Token string `json:"token" binding:"required"`
+}

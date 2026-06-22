@@ -55,6 +55,13 @@ definitions:
     - phoneNumber
     - username
     type: object
+  auth.PartnerVerifyRequest:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
   auth.TokenResponse:
     properties:
       accessToken:
@@ -134,6 +141,55 @@ paths:
           schema:
             $ref: '#/definitions/auth.ApiResponse'
       summary: Sign up partner
+      tags:
+      - Auth
+  /v1/auth/partner/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verify partner using JWT token (e.g. email verification or account
+        activation)
+      parameters:
+      - description: Verification payload (JWT token)
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/auth.PartnerVerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/auth.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.TokenResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/auth.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/auth.ErrResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+      summary: Verify partner
       tags:
       - Auth
   /v1/auth/user/google:

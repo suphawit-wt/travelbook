@@ -193,6 +193,7 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, authHandler auth.
 
 	authV1Partner := authV1.Group("partner")
 	authV1Partner.POST("/sign-up", authHandler.PartnerSignUp)
+	authV1Partner.POST("/verify", authHandler.PartnerVerify)
 
 	router.GET("/health", authHandler.HealthCheck)
 }

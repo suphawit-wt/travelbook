@@ -28,6 +28,7 @@ type Handler interface {
 	UserRefreshToken(c *gin.Context)
 
 	PartnerSignUp(c *gin.Context)
+	PartnerVerify(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -366,6 +367,57 @@ func (h *handler) PartnerSignUp(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, res)
+}
+
+// PartnerVerify godoc
+//
+//	@Summary		Verify partner
+//	@Description	Verify partner using JWT token (e.g. email verification or account activation)
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			req	body		PartnerVerifyRequest	true	"Verification payload (JWT token)"
+//	@Success		200	{object}	ApiResponseWithData{data=TokenResponse}
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		401	{object}	ApiResponse
+//	@Failure		404	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/auth/partner/verify [post]
+func (h *handler) PartnerVerify(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var req PartnerVerifyRequest
+
+	if err := errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	token, err := h.svc.PartnerVerifyEmail(ctx, req.Token, c.ClientIP(), c.Request.UserAgent())
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponseWithData[*TokenResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       &TokenResponse{AccessToken: token.AccessToken},
+	}
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(
+		PartnerRefreshTokenCookieKey,
+		token.RefreshToken,
+		int(h.cfg.Auth.RefreshTTL.Seconds()),
+		"/",
+		h.cfg.Cookie.Domain,
+		true,
+		true,
+	)
+
+	c.JSON(http.StatusOK, res)
 }
 
 // HealthCheck is a simple health check endpoint to verify that the service is running.
