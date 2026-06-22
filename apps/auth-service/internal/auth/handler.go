@@ -29,6 +29,7 @@ type Handler interface {
 
 	PartnerSignIn(c *gin.Context)
 	PartnerSignUp(c *gin.Context)
+	PartnerSignOut(c *gin.Context)
 	PartnerVerify(c *gin.Context)
 	PartnerRefreshToken(c *gin.Context)
 
@@ -425,6 +426,58 @@ func (h *handler) PartnerSignUp(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, res)
+}
+
+// PartnerSignOut godoc
+//
+//	@Summary		Sign out partner
+//	@Description	Invalidate partner session and clear authentication cookies
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse
+//	@Failure		401	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/auth/partner/sign-out [post]
+func (h *handler) PartnerSignOut(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	refreshToken, err := c.Cookie(PartnerRefreshTokenCookieKey)
+	if err != nil {
+		if err == http.ErrNoCookie {
+			errs.GinHandleError(
+				c,
+				errs.NewUnauthorizedError("Authentication session expired or missing."),
+			)
+			return
+		}
+
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err := h.svc.SignOut(
+		ctx,
+		refreshToken,
+		h.jwtKeys.Partner.Refresh.Public,
+		ClientTypePartner,
+	); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Sign Out Successfully.",
+	}
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(PartnerRefreshTokenCookieKey, "", -1, "/", h.cfg.Cookie.Domain, true, true)
+
+	c.JSON(http.StatusOK, res)
 }
 
 // PartnerVerify godoc

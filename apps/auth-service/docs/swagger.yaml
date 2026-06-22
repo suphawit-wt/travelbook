@@ -192,6 +192,33 @@ paths:
       summary: Sign in partner
       tags:
       - Auth
+  /v1/auth/partner/sign-out:
+    post:
+      consumes:
+      - application/json
+      description: Invalidate partner session and clear authentication cookies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+      summary: Sign out partner
+      tags:
+      - Auth
   /v1/auth/partner/sign-up:
     post:
       consumes:
