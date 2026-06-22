@@ -18,6 +18,7 @@ import (
 // Repository defines data access methods for managing user accounts, OAuth provider links, and email verification states.
 type Repository interface {
 	GetAccountByEmail(ctx context.Context, email string) (*Account, error)
+	GetAccountByUsername(ctx context.Context, username string) (*Account, error)
 	CreateAccount(
 		ctx context.Context,
 		tx pgx.Tx,
@@ -58,6 +59,45 @@ func (r *repositoryDB) GetAccountByEmail(ctx context.Context, email string) (*Ac
 
 	var acc Account
 	if err := r.db.QueryRow(ctx, query, email).Scan(
+		&acc.ID,
+		&acc.Email,
+		&acc.Username,
+		&acc.PasswordHash,
+		&acc.EmailVerified,
+		&acc.DeletedAt,
+		&acc.Roles,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrAccountNotFound
+		}
+
+		return nil, err
+	}
+
+	return &acc, nil
+}
+
+func (r *repositoryDB) GetAccountByUsername(
+	ctx context.Context,
+	username string,
+) (*Account, error) {
+	query := `
+		SELECT
+			a.id,
+			a.email,
+			a.username,
+			a.password_hash,
+			a.email_verified,
+			a.deleted_at,
+			COALESCE(ARRAY_AGG(r.role) FILTER (WHERE r.role IS NOT NULL), '{}') AS roles
+		FROM accounts a
+		LEFT JOIN account_roles r ON a.id = r.account_id
+		WHERE a.username = $1
+		GROUP BY a.id
+	`
+
+	var acc Account
+	if err := r.db.QueryRow(ctx, query, username).Scan(
 		&acc.ID,
 		&acc.Email,
 		&acc.Username,
