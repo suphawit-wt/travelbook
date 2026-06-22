@@ -30,6 +30,7 @@ type Handler interface {
 	PartnerSignIn(c *gin.Context)
 	PartnerSignUp(c *gin.Context)
 	PartnerVerify(c *gin.Context)
+	PartnerRefreshToken(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -453,6 +454,83 @@ func (h *handler) PartnerVerify(c *gin.Context) {
 
 	token, err := h.svc.PartnerVerifyEmail(ctx, req.Token, c.ClientIP(), c.Request.UserAgent())
 	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponseWithData[*TokenResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       &TokenResponse{AccessToken: token.AccessToken},
+	}
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(
+		PartnerRefreshTokenCookieKey,
+		token.RefreshToken,
+		int(h.cfg.Auth.RefreshTTL.Seconds()),
+		"/",
+		h.cfg.Cookie.Domain,
+		true,
+		true,
+	)
+
+	c.JSON(http.StatusOK, res)
+}
+
+// PartnerRefreshToken godoc
+//
+//	@Summary		Refresh partner token pair
+//	@Description	Generate a new access token using a valid refresh token (from HTTP-only cookie)
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	ApiResponseWithData{data=TokenResponse}
+//	@Failure		400	{object}	ApiResponse
+//	@Failure		401	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/auth/partner/refresh [post]
+func (h *handler) PartnerRefreshToken(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	refreshToken, err := c.Cookie(PartnerRefreshTokenCookieKey)
+	if err != nil {
+		if err == http.ErrNoCookie {
+			errs.GinHandleError(
+				c,
+				errs.NewUnauthorizedError("Authentication session expired or missing."),
+			)
+			return
+		}
+
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	keys := RotateKeys{
+		AccessPrivateKey:  h.jwtKeys.Partner.Access.Private,
+		RefreshPrivateKey: h.jwtKeys.Partner.Refresh.Private,
+		RefreshPublicKey:  h.jwtKeys.Partner.Refresh.Public,
+	}
+
+	token, err := h.svc.RotateTokens(ctx, refreshToken, ClientTypePartner, keys)
+	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			if appErr.Status == api.StatusUnauthorized {
+				c.SetSameSite(http.SameSiteLaxMode)
+				c.SetCookie(
+					PartnerRefreshTokenCookieKey,
+					"",
+					-1,
+					"/",
+					h.cfg.Cookie.Domain,
+					true,
+					true,
+				)
+			}
+		}
+
 		errs.GinHandleError(c, err)
 		return
 	}
