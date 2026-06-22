@@ -30,6 +30,17 @@ definitions:
     required:
     - authCode
     type: object
+  auth.PartnerSignInRequest:
+    properties:
+      password:
+        type: string
+      usernameOrEmail:
+        maxLength: 254
+        type: string
+    required:
+    - password
+    - usernameOrEmail
+    type: object
   auth.PartnerSignUpRequest:
     properties:
       email:
@@ -104,6 +115,50 @@ info:
   title: Auth Service - Travelbook API
   version: 1.0.0
 paths:
+  /v1/auth/partner/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate partner and return access + refresh token
+      parameters:
+      - description: Partner credentials
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/auth.PartnerSignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/auth.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.TokenResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/auth.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/auth.ErrResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.ApiResponse'
+      summary: Sign in partner
+      tags:
+      - Auth
   /v1/auth/partner/sign-up:
     post:
       consumes:

@@ -20,6 +20,12 @@ type UserVerifyEmailRequest struct {
 	OTP   string `json:"otp"   binding:"required,alphanum,len=6"`
 }
 
+// PartnerSignInRequest represents the expected payload for a partner sign-in request.
+type PartnerSignInRequest struct {
+	UsernameOrEmail string `json:"usernameOrEmail" binding:"required,lte=254"`
+	Password        string `json:"password"        binding:"required,passwd"`
+}
+
 // PartnerSignUpRequest expected payload for a partner sign-up request.
 type PartnerSignUpRequest struct {
 	Email       string `json:"email"       binding:"required,email,lte=254"`

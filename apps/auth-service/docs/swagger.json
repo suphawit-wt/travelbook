@@ -18,6 +18,82 @@
     "host": "api.travelbook.localhost",
     "basePath": "/",
     "paths": {
+        "/v1/auth/partner/sign-in": {
+            "post": {
+                "description": "Authenticate partner and return access + refresh token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Sign in partner",
+                "parameters": [
+                    {
+                        "description": "Partner credentials",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.PartnerSignInRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/auth.ApiResponseWithData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/auth.TokenResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/auth.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/auth.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/auth.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/auth/partner/sign-up": {
             "post": {
                 "description": "Register a new partner account",
@@ -526,6 +602,22 @@
             "properties": {
                 "authCode": {
                     "type": "string"
+                }
+            }
+        },
+        "auth.PartnerSignInRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "usernameOrEmail"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "usernameOrEmail": {
+                    "type": "string",
+                    "maxLength": 254
                 }
             }
         },
