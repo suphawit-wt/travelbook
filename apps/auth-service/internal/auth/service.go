@@ -57,6 +57,10 @@ type Service interface {
 		email, otp, ipAddress, userAgent string,
 	) (*Token, error)
 
+	PartnerSignInWithUsernamePassword(
+		ctx context.Context,
+		emailOrUsername, password, ipAddress, userAgent string,
+	) (*Token, error)
 	PartnerSignUpWithUsernamePassword(ctx context.Context, req *PartnerSignUpRequest) error
 	PartnerVerifyEmail(
 		ctx context.Context,
@@ -202,6 +206,49 @@ func (s *service) UserVerifyEmail(
 		ClientTypeCustomer,
 		keys,
 		5,
+		ipAddress,
+		userAgent,
+		logger,
+	)
+}
+
+func (s *service) PartnerSignInWithUsernamePassword(
+	ctx context.Context,
+	emailOrUsername, password, ipAddress, userAgent string,
+) (*Token, error) {
+	logger := s.logger.Named("partner_sign_in")
+
+	acc, err := s.getPartnerAccount(
+		ctx,
+		strings.TrimSpace(strings.ToLower(emailOrUsername)),
+		logger,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.validatePartnerAccount(
+		acc,
+		password,
+		emailOrUsername,
+		ipAddress,
+		userAgent,
+		logger,
+	); err != nil {
+		return nil, err
+	}
+
+	keys := KeyPair{
+		AccessPrivateKey:  s.jwtKeys.Partner.Access.Private,
+		RefreshPrivateKey: s.jwtKeys.Partner.Refresh.Private,
+	}
+
+	return s.createSessionAndTokens(
+		ctx,
+		acc,
+		ClientTypePartner,
+		keys,
+		3,
 		ipAddress,
 		userAgent,
 		logger,

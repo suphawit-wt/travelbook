@@ -708,3 +708,94 @@ func (s *service) verifyPartnerToken(
 
 	return claims, nil
 }
+
+func (s *service) getPartnerAccount(
+	ctx context.Context,
+	identifier string,
+	logger *zaplog.Logger,
+) (*Account, error) {
+	var (
+		acc *Account
+		err error
+	)
+
+	if strings.Contains(identifier, "@") {
+		acc, err = s.authRepo.GetAccountByEmail(ctx, identifier)
+	} else {
+		acc, err = s.authRepo.GetAccountByUsername(ctx, identifier)
+	}
+
+	if err != nil {
+		if errors.Is(err, ErrAccountNotFound) {
+			logger.Warn("partner sign-in failed: credential not found",
+				zap.String("identifier", identifier),
+				zap.String("event", "auth.partner.sign_in.failed"),
+			)
+			return nil, errs.NewUnauthorizedError("Invalid username/email or password.")
+		}
+		return nil, dberr.ValidatePostgresError(err)
+	}
+
+	return acc, nil
+}
+
+func (s *service) validatePartnerAccount(
+	acc *Account,
+	password, identifier, ipAddress, userAgent string,
+	logger *zaplog.Logger,
+) error {
+	if acc.DeletedAt != nil {
+		logger.Warn("deactivated partner attempted sign-in",
+			zap.String("account_id", acc.ID.String()),
+			zap.String("identifier", identifier),
+			zap.String("ip_address", ipAddress),
+			zap.Time("deactivated_at", *acc.DeletedAt),
+		)
+		return errs.NewForbiddenError("Your account is deactivated.")
+	}
+
+	if acc.PasswordHash == nil {
+		logger.Warn(
+			"partner sign-in failed: account has no password set",
+			zap.String("account_id", acc.ID.String()),
+			zap.String("identifier", identifier),
+			zap.String("ip_address", ipAddress),
+		)
+		return errs.NewUnauthorizedError("Invalid username/email or password.")
+	}
+
+	if !acc.EmailVerified {
+		logger.Warn(
+			"partner sign-in failed: email not verified",
+			zap.String("account_id", acc.ID.String()),
+			zap.String("identifier", identifier),
+			zap.String("ip_address", ipAddress),
+		)
+		return errs.NewUnauthorizedError(
+			"Your email is not verified. Please verify your email before signing in.",
+		)
+	}
+
+	verified, err := s.passwordEncoder.Verify(*acc.PasswordHash, password)
+	if err != nil {
+		logger.Error(
+			"failed to execute password verification",
+			zap.String("account_id", acc.ID.String()),
+			zap.Error(err),
+		)
+		return fmt.Errorf("auth_service.PartnerSignIn: %w", err)
+	}
+
+	if !verified {
+		logger.Warn(
+			"partner sign-in failed: invalid password provided",
+			zap.String("account_id", acc.ID.String()),
+			zap.String("identifier", identifier),
+			zap.String("ip_address", ipAddress),
+			zap.String("user_agent", userAgent),
+		)
+		return errs.NewUnauthorizedError("Invalid username/email or password.")
+	}
+
+	return nil
+}
