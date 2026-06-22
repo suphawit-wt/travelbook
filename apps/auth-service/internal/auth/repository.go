@@ -8,7 +8,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -26,6 +28,7 @@ type Repository interface {
 		tx pgx.Tx,
 		accOP *AccountOAuthProvider,
 	) (*AccountOAuthProvider, error)
+	MarkEmailAsVerified(ctx context.Context, accID uuid.UUID) error
 }
 
 type repositoryDB struct {
@@ -128,4 +131,28 @@ func (r *repositoryDB) CreateAccountOAuthProvider(
 	}
 
 	return accOP, nil
+}
+
+func (r *repositoryDB) MarkEmailAsVerified(
+	ctx context.Context,
+	accID uuid.UUID,
+) error {
+	now := time.Now().UTC()
+
+	query := `
+		UPDATE accounts
+		SET email_verified = true, updated_at = $2
+		WHERE id = $1
+	`
+	_, err := r.db.Exec(
+		ctx,
+		query,
+		accID,
+		now,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to verify email: %w", err)
+	}
+
+	return nil
 }
