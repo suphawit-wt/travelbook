@@ -670,3 +670,41 @@ func (s *service) generateAndSavePartnerVerifyToken(
 
 	return nil
 }
+
+func (s *service) verifyPartnerToken(
+	ctx context.Context,
+	verifyToken string,
+	logger *zaplog.Logger,
+) (*jwt.AuthClaims, error) {
+	claims, err := s.jwtSvc.VerifyHS256(verifyToken, s.jwtKeys.Partner.Verify)
+	if err != nil {
+		return nil, errs.NewUnauthorizedError("Invalid verify token or expired.")
+	}
+
+	accID, err := uuid.Parse(claims.Subject)
+	if err != nil {
+		return nil, err
+	}
+
+	verifyKey := "verify:partner:" + accID.String()
+
+	verified, err := s.sessionRepo.VerifyOTP(ctx, verifyKey, verifyToken)
+	if err != nil {
+		if errors.Is(err, session.ErrTokenNotFound) {
+			return nil, errs.NewExpiredOTP("The Token you entered does not exist or has expired.")
+		}
+
+		logger.Error(
+			"failed to verify verify token",
+			zap.String("account_id", accID.String()),
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	if !verified {
+		return nil, errs.NewUnauthorizedError("The Token you entered is incorrect.")
+	}
+
+	return claims, nil
+}

@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	"github.com/suphawit-wt/travelbook/apps/auth-service/internal/outbox"
@@ -57,6 +58,10 @@ type Service interface {
 	) (*Token, error)
 
 	PartnerSignUpWithUsernamePassword(ctx context.Context, req *PartnerSignUpRequest) error
+	PartnerVerifyEmail(
+		ctx context.Context,
+		verifyToken, ipAddress, userAgent string,
+	) (*Token, error)
 
 	RotateTokens(
 		ctx context.Context,
@@ -232,6 +237,53 @@ func (s *service) PartnerSignUpWithUsernamePassword(
 	}
 
 	return nil
+}
+
+func (s *service) PartnerVerifyEmail(
+	ctx context.Context,
+	verifyToken, ipAddress, userAgent string,
+) (*Token, error) {
+	logger := s.logger.Named("partner_verify")
+
+	claims, err := s.verifyPartnerToken(ctx, verifyToken, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	accID, err := uuid.Parse(claims.Subject)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.authRepo.MarkEmailAsVerified(ctx, accID); err != nil {
+		logger.Error("failed to mark partner email as verified in database",
+			zap.String("account_id", accID.String()),
+			zap.Error(err),
+		)
+		return nil, dberr.ValidatePostgresError(err)
+	}
+
+	acc := &Account{
+		ID:    accID,
+		Email: claims.Email,
+		Roles: claims.Roles,
+	}
+
+	keys := KeyPair{
+		AccessPrivateKey:  s.jwtKeys.Partner.Access.Private,
+		RefreshPrivateKey: s.jwtKeys.Partner.Refresh.Private,
+	}
+
+	return s.createSessionAndTokens(
+		ctx,
+		acc,
+		ClientTypePartner,
+		keys,
+		3,
+		ipAddress,
+		userAgent,
+		logger,
+	)
 }
 
 func (s *service) RotateTokens(
