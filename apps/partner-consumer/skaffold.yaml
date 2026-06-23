@@ -1,0 +1,31 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: partner-consumer
+build:
+  local:
+    push: false
+    useBuildkit: true
+    concurrency: 0
+  artifacts:
+    - image: tb-registry/partner-consumer
+      context: ../..
+      docker:
+        dockerfile: apps/partner-consumer/Dockerfile.dev
+      sync:
+        manual:
+          - src: 'apps/partner-consumer/**/*.go'
+            dest: /app
+          - src: 'pkg/**/*.go'
+            dest: /app
+deploy:
+  helm:
+    releases:
+      - name: partner-consumer
+        chartPath: ../../deploy/helm/partner-consumer
+        valuesFiles:
+          - ../../deploy/helm/partner-consumer/values.yaml
+          - ../../deploy/helm/partner-consumer/values-dev.yaml
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_tb_registry_partner_consumer}}"
+          image.tag: "{{.IMAGE_TAG_tb_registry_partner_consumer}}"

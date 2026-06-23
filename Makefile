@@ -30,6 +30,9 @@ dev-email-consumer:
 dev-user-consumer:
 	skaffold dev -m user-consumer
 
+dev-partner-consumer:
+	skaffold dev -m partner-consumer
+
 lint-auth-service:
 	golangci-lint run --fix ./apps/auth-service/...
 
@@ -39,6 +42,9 @@ lint-email-consumer:
 lint-user-consumer:
 	golangci-lint run --fix ./apps/user-consumer/...
 
+lint-partner-consumer:
+	golangci-lint run --fix ./apps/partner-consumer/...
+
 test-auth-service:
 	go test -v ./apps/auth-service/...
 
@@ -47,6 +53,9 @@ test-email-consumer:
 
 test-user-consumer:
 	go test -v ./apps/user-consumer/...
+
+test-partner-consumer:
+	go test -v ./apps/partner-consumer/...
 
 swag-auth:
 	swag init -d apps/auth-service -g cmd/http/main.go -o apps/auth-service/docs

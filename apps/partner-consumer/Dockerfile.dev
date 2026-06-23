@@ -1,0 +1,20 @@
+FROM golang:1.26-alpine
+
+RUN apk add --no-cache gcc musl-dev
+
+WORKDIR /app
+
+ENV CGO_ENABLED=1
+ENV GOCACHE=/tmp/go-build
+
+RUN go install github.com/air-verse/air
+
+COPY go.mod go.sum* ./
+
+RUN go mod download
+
+COPY . .
+
+WORKDIR /app/apps/partner-consumer
+
+CMD ["air", "-c", ".air.toml"]
