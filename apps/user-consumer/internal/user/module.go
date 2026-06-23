@@ -20,6 +20,7 @@ import (
 type Module struct {
 	logger        *zaplog.Logger
 	kafkaConsumer messaging.KafkaConsumer
+	service       Service
 }
 
 // NewModule initializes a new instance of the user module with the provided database connection pool.
@@ -28,9 +29,16 @@ func NewModule(
 	db *pgxpool.Pool,
 	kafkaConsumer messaging.KafkaConsumer,
 ) *Module {
+	svcLogger := logger.Named("service")
+
+	repo := NewRepositoryDB(db)
+
+	svc := NewService(svcLogger, repo)
+
 	return &Module{
 		logger:        logger,
 		kafkaConsumer: kafkaConsumer,
+		service:       svc,
 	}
 }
 
@@ -74,6 +82,30 @@ func (m *Module) processMessage(ctx context.Context, msg *kafka.Message) error {
 	}
 
 	switch eventType {
+	case "UserProfileCreated":
+		var user User
+		if err := json.Unmarshal(kafkaConnectEnvelope.Payload, &user); err != nil {
+			m.logger.Error("Failed to parse inner user json payload", zap.Error(err))
+			return nil // Malformed business payload: skip & commit
+		}
+
+		if err := m.service.CreateUser(ctx, &user); err != nil {
+			m.logger.Error("Failed to create user", zap.Error(err))
+			return err // Return error DO NOT commit offset (allows retry)
+		}
+
+	case "UserProfileOAuthCreated":
+		var user User
+		if err := json.Unmarshal(kafkaConnectEnvelope.Payload, &user); err != nil {
+			m.logger.Error("Failed to parse inner user json payload", zap.Error(err))
+			return nil // Malformed business payload: skip & commit
+		}
+
+		if err := m.service.CreateUserFromOAuth(ctx, &user); err != nil {
+			m.logger.Error("Failed to create user from OAuth", zap.Error(err))
+			return err // Return error DO NOT commit offset (allows retry)
+		}
+
 	default:
 		m.logger.Warn(
 			"Unknown event type skipped without processing",
