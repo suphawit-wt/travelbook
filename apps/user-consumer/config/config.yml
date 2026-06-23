@@ -1,0 +1,10 @@
+app:
+  name: User Consumer - Travelbook
+
+messaging:
+  kafka:
+    consumer:
+      group_id: tb-user-consumer
+      topics:
+        - dev.user.profile.create.v1
+      auto_offset_reset: earliest

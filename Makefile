@@ -27,17 +27,26 @@ dev-auth-service:
 dev-email-consumer:
 	skaffold dev -m email-consumer
 
+dev-user-consumer:
+	skaffold dev -m user-consumer
+
 lint-auth-service:
 	golangci-lint run --fix ./apps/auth-service/...
 
 lint-email-consumer:
 	golangci-lint run --fix ./apps/email-consumer/...
 
+lint-user-consumer:
+	golangci-lint run --fix ./apps/user-consumer/...
+
 test-auth-service:
 	go test -v ./apps/auth-service/...
 
 test-email-consumer:
 	go test -v ./apps/email-consumer/...
+
+test-user-consumer:
+	go test -v ./apps/user-consumer/...
 
 swag-auth:
 	swag init -d apps/auth-service -g cmd/http/main.go -o apps/auth-service/docs

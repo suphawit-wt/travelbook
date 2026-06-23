@@ -1,0 +1,5 @@
+apiVersion: v2
+name: user-consumer
+description: Subchart for user-consumer
+type: application
+version: 0.1.0

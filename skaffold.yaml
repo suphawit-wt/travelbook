@@ -10,3 +10,5 @@ requires:
     path: apps/auth-service/skaffold.yaml
   - configs: ["email-consumer"]
     path: apps/email-consumer/skaffold.yaml
+  - configs: ["user-consumer"]
+    path: apps/user-consumer/skaffold.yaml

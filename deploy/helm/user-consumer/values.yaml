@@ -1,0 +1,6 @@
+namespace: travelbook
+replicaCount: 2
+image:
+  repository: tb-registry/user-consumer
+  tag: latest
+  pullPolicy: IfNotPresent
