@@ -20,6 +20,7 @@ import (
 type Module struct {
 	logger        *zaplog.Logger
 	kafkaConsumer messaging.KafkaConsumer
+	svc           Service
 }
 
 // NewModule initializes a new instance of the email module with the provided database connection pool.
@@ -28,9 +29,14 @@ func NewModule(
 	kafkaConsumer messaging.KafkaConsumer,
 	sgClient *sendgrid.Client,
 ) *Module {
+	svcLogger := logger.Named("service")
+
+	svc := NewService(svcLogger, sgClient)
+
 	return &Module{
 		logger:        logger,
 		kafkaConsumer: kafkaConsumer,
+		svc:           svc,
 	}
 }
 
@@ -61,6 +67,18 @@ func (m *Module) processMessage(ctx context.Context, msg *kafka.Message) error {
 	}
 
 	switch envelope.Metadata.EventType {
+	case "auth.user.sign-in.otp-generated":
+		if err := m.svc.SendSignInOTP(ctx, otpPayload.Email, otpPayload.OTP); err != nil {
+			m.logger.Error("Failed to send sign-in OTP", zap.Error(err))
+			return err // Return error DO NOT commit offset (allows retry)
+		}
+
+	case "auth.user.sign-up.otp-generated":
+		if err := m.svc.SendSignUpOTP(ctx, otpPayload.Email, otpPayload.OTP); err != nil {
+			m.logger.Error("Failed to send sign-up OTP", zap.Error(err))
+			return err // Return error DO NOT commit offset (allows retry)
+		}
+
 	default:
 		m.logger.Warn(
 			"Unknown event type skipped without processing",
