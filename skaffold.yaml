@@ -8,3 +8,5 @@ requires:
     path: apps/web/skaffold.yaml
   - configs: ["auth-service"]
     path: apps/auth-service/skaffold.yaml
+  - configs: ["email-consumer"]
+    path: apps/email-consumer/skaffold.yaml

@@ -24,11 +24,20 @@ format-web:
 dev-auth-service:
 	skaffold dev -m auth-service
 
+dev-email-consumer:
+	skaffold dev -m email-consumer
+
 lint-auth-service:
 	golangci-lint run --fix ./apps/auth-service/...
 
+lint-email-consumer:
+	golangci-lint run --fix ./apps/email-consumer/...
+
 test-auth-service:
 	go test -v ./apps/auth-service/...
+
+test-email-consumer:
+	go test -v ./apps/email-consumer/...
 
 swag-auth:
 	swag init -d apps/auth-service -g cmd/http/main.go -o apps/auth-service/docs
