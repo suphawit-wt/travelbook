@@ -4,8 +4,10 @@
 
 import { Provider as TooltipProvider } from '@radix-ui/react-tooltip';
 import { dir } from 'i18next';
+import { cookies } from 'next/headers';
 import { ThemeProvider } from 'next-themes';
 
+import { AuthBootstrap } from '@/features/auth/ui/auth-bootstrap/auth-bootstrap';
 import { APP } from '@/shared/constants';
 import {
   CookiesProvider,
@@ -67,11 +69,15 @@ const RootLayout: FC<PropsWithChildren<RootLayoutProps>> = ({
   params,
   children,
 }) => {
+  const cookieStore = cookies();
+  const hasAuthSession = cookieStore.get('user_refresh_token');
+
   return (
     <html suppressHydrationWarning dir={dir(params.lng)} lang={params.lng}>
       <body>
         <CookiesProvider>
           <StoreProvider>
+            <AuthBootstrap hasAuthSession={Boolean(hasAuthSession)} />
             <StyledComponentsRegistry>
               <GlobalStyles />
               <ThemeProvider enableSystem={false}>
