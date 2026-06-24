@@ -3,5 +3,6 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 export * from './cookies-provider';
+export * from './google-auth-provider';
 export * from './store-provider';
 export * from './styled-components';
