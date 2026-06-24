@@ -11,6 +11,7 @@ import { AuthBootstrap } from '@/features/auth/ui/auth-bootstrap/auth-bootstrap'
 import { APP } from '@/shared/constants';
 import {
   CookiesProvider,
+  GoogleAuthProvider,
   StoreProvider,
   StyledComponentsRegistry,
 } from '@/shared/providers';
@@ -77,15 +78,17 @@ const RootLayout: FC<PropsWithChildren<RootLayoutProps>> = ({
       <body>
         <CookiesProvider>
           <StoreProvider>
-            <AuthBootstrap hasAuthSession={Boolean(hasAuthSession)} />
-            <StyledComponentsRegistry>
-              <GlobalStyles />
-              <ThemeProvider enableSystem={false}>
-                <TooltipProvider delayDuration={500} skipDelayDuration={0}>
-                  {children}
-                </TooltipProvider>
-              </ThemeProvider>
-            </StyledComponentsRegistry>
+            <GoogleAuthProvider>
+              <AuthBootstrap hasAuthSession={Boolean(hasAuthSession)} />
+              <StyledComponentsRegistry>
+                <GlobalStyles />
+                <ThemeProvider enableSystem={false}>
+                  <TooltipProvider delayDuration={500} skipDelayDuration={0}>
+                    {children}
+                  </TooltipProvider>
+                </ThemeProvider>
+              </StyledComponentsRegistry>
+            </GoogleAuthProvider>
           </StoreProvider>
         </CookiesProvider>
       </body>
