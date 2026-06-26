@@ -39,6 +39,26 @@
     "checkOut": "Check-out date"
   },
 
+  "form": {
+    "optional": "optional",
+    "dates": {
+      "placeholder": "YYYY/MM/DD"
+    },
+    "options": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "errors": {
+      "required": "Enter your {{label, lowercase}}.",
+      "email": "Enter a valid email address."
+    }
+  },
+
+  "errors": {
+    "network": "Something went wrong. Please try again.",
+    "unknown": "An unexpected error occurred."
+  },
+
   "price": {
     "USD": "US${{amount, number}}",
     "THB": "THB {{amount, number}}"
