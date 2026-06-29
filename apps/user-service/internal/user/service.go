@@ -24,6 +24,7 @@ type NavbarInfo struct {
 
 // Service defines the data access contract for user-related operations.
 type Service interface {
+	GetUserById(ctx context.Context, id uuid.UUID) (*User, error)
 	GetNavbarInfo(ctx context.Context, id uuid.UUID) (*NavbarInfo, error)
 }
 
@@ -47,6 +48,25 @@ func NewService(
 		s3Client:   s3Client,
 		userRepo:   userRepo,
 	}
+}
+
+func (s *service) GetUserById(ctx context.Context, id uuid.UUID) (*User, error) {
+	logger := s.logger.Named("get_user_by_id")
+
+	user, found, err := s.userRepo.GetById(ctx, id)
+	if err != nil {
+		logger.Error("failed to query user by id",
+			zap.String("id", id.String()),
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	if !found {
+		return nil, errs.NewNotFoundError("User not found.")
+	}
+
+	return user, nil
 }
 
 func (s *service) GetNavbarInfo(ctx context.Context, id uuid.UUID) (*NavbarInfo, error) {
