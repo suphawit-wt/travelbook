@@ -24,8 +24,10 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/jwt"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/vault"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/server"
+	"github.com/suphawit-wt/travelbook/pkg/go-libs/storage"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
 	"github.com/suphawit-wt/travelbook/pkg/shared/jwtkey"
+	"github.com/suphawit-wt/travelbook/pkg/shared/middleware"
 )
 
 //	@title			User Service - Travelbook API
@@ -93,6 +95,11 @@ func run() error {
 		pgPool.Close()
 	}()
 
+	s3Client, err := storage.NewS3Client(&cfg.Storage.S3)
+	if err != nil {
+		return fmt.Errorf("init s3 client: %w", err)
+	}
+
 	vaultClient, err := vault.NewClient(cfg.App.Mode, &cfg.Security.Vault)
 	if err != nil {
 		return fmt.Errorf("init vault client: %w", err)
@@ -110,7 +117,9 @@ func run() error {
 		return fmt.Errorf("init http server: %w", err)
 	}
 
-	userHandler := user.NewHandler(srv.Validator)
+	userRepo := user.NewRepositoryDB(pgPool)
+	userService := user.NewService(appLogger.Named("service"), &cfg.Storage, s3Client, userRepo)
+	userHandler := user.NewHandler(srv.Validator, userService)
 
 	registerRoutes(srv.Router, &cfg.App, jwtSvc, jwtKeys, userHandler)
 
@@ -143,6 +152,10 @@ func registerRoutes(
 
 		usersV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
+
+	authorizedUsersV1 := v1.Group("users").
+		Use(middleware.AuthorizedUser(jwtSvc, jwtKeys.User.Access.Public))
+	authorizedUsersV1.GET("/navbar-info", userHandler.GetNavbarInfo)
 
 	router.GET("/health", userHandler.HealthCheck)
 }
