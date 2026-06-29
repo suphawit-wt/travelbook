@@ -1,0 +1,31 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: user-service
+build:
+  local:
+    push: false
+    useBuildkit: true
+    concurrency: 0
+  artifacts:
+    - image: tb-registry/user-service
+      context: ../..
+      docker:
+        dockerfile: apps/user-service/Dockerfile.dev
+      sync:
+        manual:
+          - src: 'apps/user-service/**/*.go'
+            dest: /app
+          - src: 'pkg/**/*.go'
+            dest: /app
+deploy:
+  helm:
+    releases:
+      - name: user-service
+        chartPath: ../../deploy/helm/user-service
+        valuesFiles:
+          - ../../deploy/helm/user-service/values.yaml
+          - ../../deploy/helm/user-service/values-dev.yaml
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_tb_registry_user_service}}"
+          image.tag: "{{.IMAGE_TAG_tb_registry_user_service}}"

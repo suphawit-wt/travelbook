@@ -1,0 +1,33 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "User Service manages user identities, profiles, and access control within the TravelBook ecosystem.",
+        "title": "User Service - Travelbook API",
+        "termsOfService": "https://suphawit.dev/terms/",
+        "contact": {
+            "name": "Suphawit Watthanataetakun",
+            "url": "https://suphawit.dev/support",
+            "email": "support@suphwit.dev"
+        },
+        "license": {
+            "name": "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0",
+            "url": "https://creativecommons.org/licenses/by-nc-nd/4.0"
+        },
+        "version": "1.0.0"
+    },
+    "host": "api.travelbook.localhost",
+    "basePath": "/",
+    "paths": {},
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Put **_ONLY_** your JWT Bearer token in textbox below",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}

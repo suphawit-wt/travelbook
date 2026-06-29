@@ -1,0 +1,10 @@
+namespace: travelbook
+replicaCount: 2
+image:
+  repository: tb-registry/user-service
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  port: 8080
+vault:
+    enabled: false
