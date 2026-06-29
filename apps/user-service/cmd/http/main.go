@@ -155,6 +155,7 @@ func registerRoutes(
 
 	authorizedUsersV1 := v1.Group("users").
 		Use(middleware.AuthorizedUser(jwtSvc, jwtKeys.User.Access.Public))
+	authorizedUsersV1.GET("/me", userHandler.GetUserInfo)
 	authorizedUsersV1.GET("/navbar-info", userHandler.GetNavbarInfo)
 
 	router.GET("/health", userHandler.HealthCheck)
