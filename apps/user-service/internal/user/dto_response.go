@@ -83,6 +83,11 @@ type NavbarInfoResponse struct {
 	GeniusTier uint8   `json:"geniusTier"`
 }
 
+// AvatarResponse return avatar response of user
+type AvatarResponse struct {
+	AvatarURL string `json:"avatarUrl"`
+}
+
 // ApiResponse represents the standard structure for API responses, including status, status code, message, and optional error details.
 type ApiResponse struct {
 	Status     string        `json:"status"`

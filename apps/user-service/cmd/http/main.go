@@ -157,6 +157,7 @@ func registerRoutes(
 		Use(middleware.AuthorizedUser(jwtSvc, jwtKeys.User.Access.Public))
 	authorizedUsersV1.GET("/me", userHandler.GetUserInfo)
 	authorizedUsersV1.GET("/navbar-info", userHandler.GetNavbarInfo)
+	authorizedUsersV1.POST("/me/avatar", userHandler.UploadAvatar)
 
 	router.GET("/health", userHandler.HealthCheck)
 }

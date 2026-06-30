@@ -21,6 +21,7 @@ import (
 type Handler interface {
 	GetUserInfo(c *gin.Context)
 	GetNavbarInfo(c *gin.Context)
+	UploadAvatar(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -123,6 +124,64 @@ func (h *handler) GetNavbarInfo(c *gin.Context) {
 		Data: &NavbarInfoResponse{
 			AvatarURL:  navbarInfo.AvatarURL,
 			GeniusTier: navbarInfo.GeniusTier,
+		},
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UploadAvatar godoc
+//
+//	@Summary		Upload user avatar
+//	@Description	Upload and update the authenticated user's avatar image.
+//	@Description	Supported formats: jpg, jpeg, png, webp. Max size: 2MB.
+//	@Tags			Users
+//	@Security		Bearer
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			avatar	formData	file										true	"Avatar image file (max 2MB)"
+//	@Success		200		{object}	ApiResponseWithData{data=AvatarResponse}	"Avatar uploaded successfully"
+//	@Failure		400		{object}	ApiResponse
+//	@Failure		413		{object}	ApiResponse	"File too large"
+//	@Failure		415		{object}	ApiResponse	"Unsupported file type"
+//	@Failure		500		{object}	ApiResponse	"Internal server error"
+//	@Router			/v1/users/me/avatar [post]
+func (h *handler) UploadAvatar(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
+	defer cancel()
+
+	userIDStr, ok := c.MustGet("userID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewUnexpectedError())
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("invalid uuid format"))
+		return
+	}
+
+	// Limit request to 2 MB
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 2<<20)
+
+	fileHeader, err := c.FormFile("avatar")
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("no avatar file uploaded"))
+		return
+	}
+
+	avatarURL, err := h.userSvc.UploadAvatar(ctx, userID, fileHeader)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponseWithData[*AvatarResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data: &AvatarResponse{
+			AvatarURL: avatarURL,
 		},
 	}
 

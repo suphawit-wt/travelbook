@@ -27,6 +27,11 @@ definitions:
       statusCode:
         type: integer
     type: object
+  user.AvatarResponse:
+    properties:
+      avatarUrl:
+        type: string
+    type: object
   user.NavbarInfoResponse:
     properties:
       avatarUrl:
@@ -131,6 +136,52 @@ paths:
       security:
       - Bearer: []
       summary: Get user by id
+      tags:
+      - Users
+  /v1/users/me/avatar:
+    post:
+      consumes:
+      - multipart/form-data
+      description: |-
+        Upload and update the authenticated user's avatar image.
+        Supported formats: jpg, jpeg, png, webp. Max size: 2MB.
+      parameters:
+      - description: Avatar image file (max 2MB)
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Avatar uploaded successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/user.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.AvatarResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "413":
+          description: File too large
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "415":
+          description: Unsupported file type
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Upload user avatar
       tags:
       - Users
   /v1/users/navbar-info:
