@@ -7,6 +7,7 @@ package user
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -16,6 +17,7 @@ import (
 // Repository defines the data access contract for user entities.
 type Repository interface {
 	GetById(ctx context.Context, id uuid.UUID) (user *User, found bool, err error)
+	UpdateAvatar(ctx context.Context, id uuid.UUID, avatarKey, avatarUrl string) error
 }
 
 type repositoryDB struct {
@@ -88,4 +90,29 @@ func (r *repositoryDB) GetById(
 	}
 
 	return &user, true, nil
+}
+
+func (r *repositoryDB) UpdateAvatar(
+	ctx context.Context,
+	id uuid.UUID, avatarKey, avatarUrl string,
+) error {
+	query := `
+	UPDATE users
+	SET
+		avatar_key = $1,
+		avatar_url = $2,
+		updated_at = $3
+	WHERE id = $4
+	`
+
+	_, err := r.db.Exec(ctx, query,
+		avatarKey,
+		avatarUrl,
+		time.Now().UTC(),
+		id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
