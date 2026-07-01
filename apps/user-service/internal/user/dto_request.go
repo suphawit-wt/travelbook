@@ -9,3 +9,8 @@ type UpdateNameRequest struct {
 	FirstName string `json:"firstName" binding:"required,lte=80"`
 	LastName  string `json:"lastName"  binding:"required,lte=80"`
 }
+
+// UpdateDisplayNameRequest represents the request body for updating a user's display name.
+type UpdateDisplayNameRequest struct {
+	DisplayName string `json:"displayName" binding:"required,lte=80"`
+}

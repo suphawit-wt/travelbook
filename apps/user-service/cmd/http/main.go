@@ -159,6 +159,7 @@ func registerRoutes(
 	authorizedUsersV1.GET("/navbar-info", userHandler.GetNavbarInfo)
 	authorizedUsersV1.POST("/me/avatar", userHandler.UploadAvatar)
 	authorizedUsersV1.PATCH("/me/name", userHandler.UpdateName)
+	authorizedUsersV1.PATCH("/me/display-name", userHandler.UpdateDisplayName)
 
 	router.GET("/health", userHandler.HealthCheck)
 }
