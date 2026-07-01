@@ -42,6 +42,7 @@ type Service interface {
 	) (string, error)
 	UpdateName(ctx context.Context, id uuid.UUID, firstName, lastName string) error
 	UpdateDisplayName(ctx context.Context, id uuid.UUID, displayName string) error
+	UpdatePhoneNumber(ctx context.Context, id uuid.UUID, phoneNumber string) error
 }
 
 type service struct {
@@ -242,6 +243,25 @@ func (s *service) UpdateDisplayName(
 		logger.Error("failed to update display name in database",
 			zap.String("user_id", id.String()),
 			zap.String("display_name", displayName),
+			zap.Error(err),
+		)
+		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
+}
+
+func (s *service) UpdatePhoneNumber(
+	ctx context.Context,
+	id uuid.UUID,
+	phoneNumber string,
+) error {
+	logger := s.logger.Named("update_phone_number")
+
+	if err := s.userRepo.UpdatePhoneNumber(ctx, id, phoneNumber); err != nil {
+		logger.Error("failed to update phone number in database",
+			zap.String("user_id", id.String()),
+			zap.String("phone_number", phoneNumber),
 			zap.Error(err),
 		)
 		return dberr.ValidatePostgresError(err)
