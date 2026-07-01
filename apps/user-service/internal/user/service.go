@@ -40,6 +40,7 @@ type Service interface {
 		userID uuid.UUID,
 		fileHeader *multipart.FileHeader,
 	) (string, error)
+	UpdateName(ctx context.Context, id uuid.UUID, firstName, lastName string) error
 }
 
 type service struct {
@@ -207,4 +208,24 @@ func (s *service) UploadAvatar(
 	}
 
 	return avatarURL, nil
+}
+
+func (s *service) UpdateName(
+	ctx context.Context,
+	id uuid.UUID,
+	firstName, lastName string,
+) error {
+	logger := s.logger.Named("update_name")
+
+	if err := s.userRepo.UpdateName(ctx, id, firstName, lastName); err != nil {
+		logger.Error("failed to update name in database",
+			zap.String("user_id", id.String()),
+			zap.String("first_name", firstName),
+			zap.String("last_name", lastName),
+			zap.Error(err),
+		)
+		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
 }
