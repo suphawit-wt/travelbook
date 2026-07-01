@@ -20,6 +20,7 @@ type Repository interface {
 	UpdateAvatar(ctx context.Context, id uuid.UUID, avatarKey, avatarUrl string) error
 	UpdateName(ctx context.Context, id uuid.UUID, firstName, lastName string) error
 	UpdateDisplayName(ctx context.Context, id uuid.UUID, displayName string) error
+	UpdatePhoneNumber(ctx context.Context, id uuid.UUID, phoneNumber string) error
 }
 
 type repositoryDB struct {
@@ -160,6 +161,30 @@ func (r *repositoryDB) UpdateDisplayName(
 
 	_, err := r.db.Exec(ctx, query,
 		displayName,
+		time.Now().UTC(),
+		id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) UpdatePhoneNumber(
+	ctx context.Context,
+	id uuid.UUID,
+	phoneNumber string,
+) error {
+	query := `
+	UPDATE users
+	SET
+		phone_number = $1,
+		updated_at = $2
+	WHERE id = $3
+	`
+
+	_, err := r.db.Exec(ctx, query,
+		phoneNumber,
 		time.Now().UTC(),
 		id)
 	if err != nil {
