@@ -293,6 +293,75 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/users/me/phone-number": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update the authenticated user's phone number.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user phone number",
+                "parameters": [
+                    {
+                        "description": "UpdatePhoneNumberRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.UpdatePhoneNumberRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/user.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/user.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/navbar-info": {
             "get": {
                 "security": [
@@ -511,6 +580,17 @@ const docTemplate = `{
                 "lastName": {
                     "type": "string",
                     "maxLength": 80
+                }
+            }
+        },
+        "user.UpdatePhoneNumberRequest": {
+            "type": "object",
+            "required": [
+                "phoneNumber"
+            ],
+            "properties": {
+                "phoneNumber": {
+                    "type": "string"
                 }
             }
         }

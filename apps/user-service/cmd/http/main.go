@@ -160,6 +160,7 @@ func registerRoutes(
 	authorizedUsersV1.POST("/me/avatar", userHandler.UploadAvatar)
 	authorizedUsersV1.PATCH("/me/name", userHandler.UpdateName)
 	authorizedUsersV1.PATCH("/me/display-name", userHandler.UpdateDisplayName)
+	authorizedUsersV1.PATCH("/me/phone-number", userHandler.UpdatePhoneNumber)
 
 	router.GET("/health", userHandler.HealthCheck)
 }

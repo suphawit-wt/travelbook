@@ -14,3 +14,8 @@ type UpdateNameRequest struct {
 type UpdateDisplayNameRequest struct {
 	DisplayName string `json:"displayName" binding:"required,lte=80"`
 }
+
+// UpdatePhoneNumberRequest represents the request body for updating a user's phone number.
+type UpdatePhoneNumberRequest struct {
+	PhoneNumber string `json:"phoneNumber" binding:"required,e164"`
+}

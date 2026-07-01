@@ -24,6 +24,7 @@ type Handler interface {
 	UploadAvatar(c *gin.Context)
 	UpdateName(c *gin.Context)
 	UpdateDisplayName(c *gin.Context)
+	UpdatePhoneNumber(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -287,6 +288,57 @@ func (h *handler) UpdateDisplayName(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Message:    "Update Display Name Successfully.",
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UpdatePhoneNumber godoc
+//
+//	@Summary		Update user phone number
+//	@Description	Update the authenticated user's phone number.
+//	@Tags			Users
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Param			req	body		UpdatePhoneNumberRequest	true	"UpdatePhoneNumberRequest"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		404	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/users/me/phone-number [patch]
+func (h *handler) UpdatePhoneNumber(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	userIDStr, ok := c.MustGet("userID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewUnexpectedError())
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("invalid uuid format"))
+		return
+	}
+
+	var req UpdatePhoneNumberRequest
+
+	if err = errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err = h.userSvc.UpdatePhoneNumber(ctx, userID, req.PhoneNumber); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Update Phone number Successfully.",
 	}
 
 	c.JSON(http.StatusOK, res)
