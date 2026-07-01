@@ -41,6 +41,7 @@ type Service interface {
 		fileHeader *multipart.FileHeader,
 	) (string, error)
 	UpdateName(ctx context.Context, id uuid.UUID, firstName, lastName string) error
+	UpdateDisplayName(ctx context.Context, id uuid.UUID, displayName string) error
 }
 
 type service struct {
@@ -222,6 +223,25 @@ func (s *service) UpdateName(
 			zap.String("user_id", id.String()),
 			zap.String("first_name", firstName),
 			zap.String("last_name", lastName),
+			zap.Error(err),
+		)
+		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
+}
+
+func (s *service) UpdateDisplayName(
+	ctx context.Context,
+	id uuid.UUID,
+	displayName string,
+) error {
+	logger := s.logger.Named("update_display_name")
+
+	if err := s.userRepo.UpdateDisplayName(ctx, id, displayName); err != nil {
+		logger.Error("failed to update display name in database",
+			zap.String("user_id", id.String()),
+			zap.String("display_name", displayName),
 			zap.Error(err),
 		)
 		return dberr.ValidatePostgresError(err)
