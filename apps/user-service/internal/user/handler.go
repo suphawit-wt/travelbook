@@ -22,6 +22,7 @@ type Handler interface {
 	GetUserInfo(c *gin.Context)
 	GetNavbarInfo(c *gin.Context)
 	UploadAvatar(c *gin.Context)
+	UpdateName(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -183,6 +184,57 @@ func (h *handler) UploadAvatar(c *gin.Context) {
 		Data: &AvatarResponse{
 			AvatarURL: avatarURL,
 		},
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UpdateName godoc
+//
+//	@Summary		Update user name
+//	@Description	Update the authenticated user's name.
+//	@Tags			Users
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Param			req	body		UpdateNameRequest	true	"UpdateNameRequest"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		404	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/users/me/name [patch]
+func (h *handler) UpdateName(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	userIDStr, ok := c.MustGet("userID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewUnexpectedError())
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("invalid uuid format"))
+		return
+	}
+
+	var req UpdateNameRequest
+
+	if err = errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err = h.userSvc.UpdateName(ctx, userID, req.FirstName, req.LastName); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Update Name Successfully.",
 	}
 
 	c.JSON(http.StatusOK, res)

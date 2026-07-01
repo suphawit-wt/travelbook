@@ -155,6 +155,75 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/users/me/name": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update the authenticated user's name.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user name",
+                "parameters": [
+                    {
+                        "description": "UpdateNameRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.UpdateNameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/user.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/user.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/navbar-info": {
             "get": {
                 "security": [
@@ -253,6 +322,17 @@ const docTemplate = `{
                 }
             }
         },
+        "user.ErrResponse": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "user.NavbarInfoResponse": {
             "type": "object",
             "properties": {
@@ -333,6 +413,23 @@ const docTemplate = `{
                 },
                 "phoneNumber": {
                     "type": "string"
+                }
+            }
+        },
+        "user.UpdateNameRequest": {
+            "type": "object",
+            "required": [
+                "firstName",
+                "lastName"
+            ],
+            "properties": {
+                "firstName": {
+                    "type": "string",
+                    "maxLength": 80
+                },
+                "lastName": {
+                    "type": "string",
+                    "maxLength": 80
                 }
             }
         }
