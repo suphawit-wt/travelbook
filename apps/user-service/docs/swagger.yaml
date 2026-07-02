@@ -93,6 +93,13 @@ definitions:
       phoneNumber:
         type: string
     type: object
+  user.UpdateDateOfBirthRequest:
+    properties:
+      dateOfBirth:
+        type: string
+    required:
+    - dateOfBirth
+    type: object
   user.UpdateDisplayNameRequest:
     properties:
       displayName:
@@ -216,6 +223,48 @@ paths:
       security:
       - Bearer: []
       summary: Upload user avatar
+      tags:
+      - Users
+  /v1/users/me/date-of-birth:
+    patch:
+      consumes:
+      - application/json
+      description: Update the authenticated user's date of birth. Date format must
+        be YYYY-MM-DD.
+      parameters:
+      - description: UpdateDateOfBirthRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateDateOfBirthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/user.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/user.ErrResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Update user date of birth
       tags:
       - Users
   /v1/users/me/display-name:

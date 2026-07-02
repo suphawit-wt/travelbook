@@ -25,6 +25,7 @@ type Handler interface {
 	UpdateName(c *gin.Context)
 	UpdateDisplayName(c *gin.Context)
 	UpdatePhoneNumber(c *gin.Context)
+	UpdateDateOfBirth(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -339,6 +340,63 @@ func (h *handler) UpdatePhoneNumber(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Message:    "Update Phone number Successfully.",
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UpdateDateOfBirth godoc
+//
+//	@Summary		Update user date of birth
+//	@Description	Update the authenticated user's date of birth. Date format must be YYYY-MM-DD.
+//	@Tags			Users
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Param			req	body		UpdateDateOfBirthRequest	true	"UpdateDateOfBirthRequest"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		404	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/users/me/date-of-birth [patch]
+func (h *handler) UpdateDateOfBirth(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	userIDStr, ok := c.MustGet("userID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewUnexpectedError())
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("invalid uuid format"))
+		return
+	}
+
+	var req UpdateDateOfBirthRequest
+
+	if err = errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	dateOfBirth, err := time.Parse(time.DateOnly, req.DateOfBirth)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid date format"))
+		return
+	}
+
+	if err = h.userSvc.UpdateDateOfBirth(ctx, userID, dateOfBirth); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Update Personal details Date of birth Successfully.",
 	}
 
 	c.JSON(http.StatusOK, res)

@@ -19,3 +19,8 @@ type UpdateDisplayNameRequest struct {
 type UpdatePhoneNumberRequest struct {
 	PhoneNumber string `json:"phoneNumber" binding:"required,e164"`
 }
+
+// UpdateDateOfBirthRequest represents the request body for updating a user's date of birth.
+type UpdateDateOfBirthRequest struct {
+	DateOfBirth string `json:"dateOfBirth" binding:"required,datetime=2006-01-02"`
+}

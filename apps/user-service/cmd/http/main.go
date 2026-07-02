@@ -161,6 +161,7 @@ func registerRoutes(
 	authorizedUsersV1.PATCH("/me/name", userHandler.UpdateName)
 	authorizedUsersV1.PATCH("/me/display-name", userHandler.UpdateDisplayName)
 	authorizedUsersV1.PATCH("/me/phone-number", userHandler.UpdatePhoneNumber)
+	authorizedUsersV1.PATCH("/me/date-of-birth", userHandler.UpdateDateOfBirth)
 
 	router.GET("/health", userHandler.HealthCheck)
 }
