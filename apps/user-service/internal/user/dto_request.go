@@ -24,3 +24,8 @@ type UpdatePhoneNumberRequest struct {
 type UpdateDateOfBirthRequest struct {
 	DateOfBirth string `json:"dateOfBirth" binding:"required,datetime=2006-01-02"`
 }
+
+// UpdateNationalityRequest represents the request body for updating
+type UpdateNationalityRequest struct {
+	Nationality string `json:"nationality" binding:"required,iso3166_1_alpha2"`
+}

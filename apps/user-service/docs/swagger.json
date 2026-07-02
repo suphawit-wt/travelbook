@@ -356,6 +356,78 @@
                 }
             }
         },
+        "/v1/users/me/nationality": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update the authenticated user's nationality.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user nationality",
+                "parameters": [
+                    {
+                        "description": "UpdateNationalityRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.UpdateNationalityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/user.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/user.ErrResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/me/phone-number": {
             "patch": {
                 "security": [
@@ -654,6 +726,17 @@
                 "lastName": {
                     "type": "string",
                     "maxLength": 80
+                }
+            }
+        },
+        "user.UpdateNationalityRequest": {
+            "type": "object",
+            "required": [
+                "nationality"
+            ],
+            "properties": {
+                "nationality": {
+                    "type": "string"
                 }
             }
         },

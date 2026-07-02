@@ -26,6 +26,7 @@ type Handler interface {
 	UpdateDisplayName(c *gin.Context)
 	UpdatePhoneNumber(c *gin.Context)
 	UpdateDateOfBirth(c *gin.Context)
+	UpdateNationality(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -397,6 +398,57 @@ func (h *handler) UpdateDateOfBirth(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Message:    "Update Personal details Date of birth Successfully.",
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UpdateNationality godoc
+//
+//	@Summary		Update user nationality
+//	@Description	Update the authenticated user's nationality.
+//	@Tags			Users
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Param			req	body		UpdateNationalityRequest	true	"UpdateNationalityRequest"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=[]ErrResponse}
+//	@Failure		404	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/users/me/nationality [patch]
+func (h *handler) UpdateNationality(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	userIDStr, ok := c.MustGet("userID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewUnexpectedError())
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("invalid uuid format"))
+		return
+	}
+
+	var req UpdateNationalityRequest
+
+	if err = errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err = h.userSvc.UpdateNationality(ctx, userID, req.Nationality); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Update Personal Details Nationality Successfully.",
 	}
 
 	c.JSON(http.StatusOK, res)

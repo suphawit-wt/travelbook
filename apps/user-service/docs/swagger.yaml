@@ -120,6 +120,13 @@ definitions:
     - firstName
     - lastName
     type: object
+  user.UpdateNationalityRequest:
+    properties:
+      nationality:
+        type: string
+    required:
+    - nationality
+    type: object
   user.UpdatePhoneNumberRequest:
     properties:
       phoneNumber:
@@ -347,6 +354,49 @@ paths:
       security:
       - Bearer: []
       summary: Update user name
+      tags:
+      - Users
+  /v1/users/me/nationality:
+    patch:
+      consumes:
+      - application/json
+      description: Update the authenticated user's nationality.
+      parameters:
+      - description: UpdateNationalityRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateNationalityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/user.ApiResponse'
+            - properties:
+                errors:
+                  items:
+                    $ref: '#/definitions/user.ErrResponse'
+                  type: array
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Update user nationality
       tags:
       - Users
   /v1/users/me/phone-number:
