@@ -10,6 +10,7 @@ import (
 	"mime/multipart"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager"
@@ -43,6 +44,7 @@ type Service interface {
 	UpdateName(ctx context.Context, id uuid.UUID, firstName, lastName string) error
 	UpdateDisplayName(ctx context.Context, id uuid.UUID, displayName string) error
 	UpdatePhoneNumber(ctx context.Context, id uuid.UUID, phoneNumber string) error
+	UpdateDateOfBirth(ctx context.Context, id uuid.UUID, dateOfBirth time.Time) error
 }
 
 type service struct {
@@ -262,6 +264,25 @@ func (s *service) UpdatePhoneNumber(
 		logger.Error("failed to update phone number in database",
 			zap.String("user_id", id.String()),
 			zap.String("phone_number", phoneNumber),
+			zap.Error(err),
+		)
+		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
+}
+
+func (s *service) UpdateDateOfBirth(
+	ctx context.Context,
+	id uuid.UUID,
+	dateOfBirth time.Time,
+) error {
+	logger := s.logger.Named("update_date_of_birth")
+
+	if err := s.userRepo.UpdateDateOfBirth(ctx, id, dateOfBirth); err != nil {
+		logger.Error("failed to update date of birth in database",
+			zap.String("user_id", id.String()),
+			zap.String("date_of_birth", dateOfBirth.String()),
 			zap.Error(err),
 		)
 		return dberr.ValidatePostgresError(err)
