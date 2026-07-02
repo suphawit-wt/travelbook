@@ -23,6 +23,7 @@ type Repository interface {
 	UpdatePhoneNumber(ctx context.Context, id uuid.UUID, phoneNumber string) error
 	UpdateDateOfBirth(ctx context.Context, id uuid.UUID, dateOfBirth time.Time) error
 	UpdateNationality(ctx context.Context, id uuid.UUID, nationality string) error
+	UpdateGender(ctx context.Context, id uuid.UUID, gender string) error
 }
 
 type repositoryDB struct {
@@ -235,6 +236,26 @@ func (r *repositoryDB) UpdateNationality(
 
 	_, err := r.db.Exec(ctx, query,
 		nationality,
+		time.Now().UTC(),
+		id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) UpdateGender(ctx context.Context, id uuid.UUID, gender string) error {
+	query := `
+	UPDATE users
+	SET
+		gender = $1,
+		updated_at = $2
+	WHERE id = $3
+	`
+
+	_, err := r.db.Exec(ctx, query,
+		gender,
 		time.Now().UTC(),
 		id)
 	if err != nil {
