@@ -29,3 +29,8 @@ type UpdateDateOfBirthRequest struct {
 type UpdateNationalityRequest struct {
 	Nationality string `json:"nationality" binding:"required,iso3166_1_alpha2"`
 }
+
+// UpdateGenderRequest represents the request body for updating
+type UpdateGenderRequest struct {
+	Gender string `json:"gender" binding:"required,eq=male|eq=female|eq=non_binary|eq=not_say"`
+}

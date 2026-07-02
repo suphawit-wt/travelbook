@@ -163,6 +163,7 @@ func registerRoutes(
 	authorizedUsersV1.PATCH("/me/phone-number", userHandler.UpdatePhoneNumber)
 	authorizedUsersV1.PATCH("/me/date-of-birth", userHandler.UpdateDateOfBirth)
 	authorizedUsersV1.PATCH("/me/nationality", userHandler.UpdateNationality)
+	authorizedUsersV1.PATCH("/me/gender", userHandler.UpdateGender)
 
 	router.GET("/health", userHandler.HealthCheck)
 }
