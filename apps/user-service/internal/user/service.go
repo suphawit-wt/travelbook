@@ -47,6 +47,7 @@ type Service interface {
 	UpdateDateOfBirth(ctx context.Context, id uuid.UUID, dateOfBirth time.Time) error
 	UpdateNationality(ctx context.Context, id uuid.UUID, nationality string) error
 	UpdateGender(ctx context.Context, id uuid.UUID, gender string) error
+	UpdateAddress(ctx context.Context, id uuid.UUID, address *Address) error
 }
 
 type service struct {
@@ -319,6 +320,24 @@ func (s *service) UpdateGender(ctx context.Context, id uuid.UUID, gender string)
 		logger.Error("failed to update nationality in database",
 			zap.String("user_id", id.String()),
 			zap.String("gender", gender),
+			zap.Error(err),
+		)
+		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
+}
+
+func (s *service) UpdateAddress(
+	ctx context.Context,
+	id uuid.UUID,
+	address *Address,
+) error {
+	logger := s.logger.Named("update_address")
+
+	if err := s.userRepo.UpdateAddress(ctx, id, address); err != nil {
+		logger.Error("failed to update address in database",
+			zap.String("user_id", id.String()),
 			zap.Error(err),
 		)
 		return dberr.ValidatePostgresError(err)
