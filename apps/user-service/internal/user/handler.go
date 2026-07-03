@@ -30,6 +30,7 @@ type Handler interface {
 	UpdateGender(c *gin.Context)
 	UpdateAddress(c *gin.Context)
 	UpdatePassportDetails(c *gin.Context)
+	DeletePassportDetails(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -625,6 +626,43 @@ func (h *handler) UpdatePassportDetails(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+// DeletePassportDetails godoc
+//
+//	@Summary		Delete user passport details
+//	@Description	Delete the authenticated user's passport details.
+//	@Tags			Users
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Success		204	"No content"
+//	@Failure		400	{object}	ApiResponse
+//	@Failure		404	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/users/me/passport-details [delete]
+func (h *handler) DeletePassportDetails(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	userIDStr, ok := c.MustGet("userID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewUnexpectedError())
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("invalid uuid format"))
+		return
+	}
+
+	if err = h.userSvc.DeletePassportDetails(ctx, userID); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }
 
 // HealthCheck is a simple health check endpoint to verify that the service is running.
