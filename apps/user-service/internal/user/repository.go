@@ -43,6 +43,7 @@ type Repository interface {
 	UpdateGender(ctx context.Context, id uuid.UUID, gender string) error
 	UpdateAddress(ctx context.Context, id uuid.UUID, addr *Address) error
 	UpdatePassportDetails(ctx context.Context, id uuid.UUID, passportDetails *PassportDetails) error
+	DeletePassportDetails(ctx context.Context, id uuid.UUID) error
 }
 
 type repositoryDB struct {
@@ -337,6 +338,29 @@ func (r *repositoryDB) UpdatePassportDetails(
 		passportDetails.PassportNumber,
 		passportDetails.IssueCountry,
 		passportDetails.ExpireDate,
+		time.Now().UTC(),
+		id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) DeletePassportDetails(ctx context.Context, id uuid.UUID) error {
+	query := `
+	UPDATE users
+	SET
+		passport_first_name = NULL,
+		passport_last_name = NULL,
+		passport_number = NULL,
+		passport_issue_country = NULL,
+		passport_expire_date = NULL,
+		updated_at = $1
+	WHERE id = $2
+	`
+
+	_, err := r.db.Exec(ctx, query,
 		time.Now().UTC(),
 		id)
 	if err != nil {
