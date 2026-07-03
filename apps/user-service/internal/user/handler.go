@@ -28,6 +28,7 @@ type Handler interface {
 	UpdateDateOfBirth(c *gin.Context)
 	UpdateNationality(c *gin.Context)
 	UpdateGender(c *gin.Context)
+	UpdateAddress(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -501,6 +502,62 @@ func (h *handler) UpdateGender(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Message:    "Update Personal Details Gender Successfully.",
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UpdateAddress godoc
+//
+//	@Summary		Update user address
+//	@Description	Update the authenticated user's address.
+//	@Tags			Users
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Param			req	body		UpdateAddressRequest	true	"UpdateAddressRequest"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		404	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/users/me/address [patch]
+func (h *handler) UpdateAddress(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	userIDStr, ok := c.MustGet("userID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewUnexpectedError())
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("invalid uuid format"))
+		return
+	}
+
+	var req UpdateAddressRequest
+
+	if err = errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err = h.userSvc.UpdateAddress(ctx, userID, &Address{
+		CountryCode:  req.CountryCode,
+		AddressLine1: req.AddressLine1,
+		City:         req.City,
+		ZipCode:      req.ZipCode,
+	}); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Update Address Successfully.",
 	}
 
 	c.JSON(http.StatusOK, res)

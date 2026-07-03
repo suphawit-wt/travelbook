@@ -93,6 +93,24 @@ definitions:
       phoneNumber:
         type: string
     type: object
+  user.UpdateAddressRequest:
+    properties:
+      addressLine1:
+        maxLength: 80
+        type: string
+      city:
+        maxLength: 60
+        type: string
+      countryCode:
+        type: string
+      zipCode:
+        type: string
+    required:
+    - addressLine1
+    - city
+    - countryCode
+    - zipCode
+    type: object
   user.UpdateDateOfBirthRequest:
     properties:
       dateOfBirth:
@@ -191,6 +209,47 @@ paths:
       security:
       - Bearer: []
       summary: Get user by id
+      tags:
+      - Users
+  /v1/users/me/address:
+    patch:
+      consumes:
+      - application/json
+      description: Update the authenticated user's address.
+      parameters:
+      - description: UpdateAddressRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateAddressRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/user.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/user.ErrResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Update user address
       tags:
       - Users
   /v1/users/me/avatar:
