@@ -49,6 +49,7 @@ type Service interface {
 	UpdateGender(ctx context.Context, id uuid.UUID, gender string) error
 	UpdateAddress(ctx context.Context, id uuid.UUID, address *Address) error
 	UpdatePassportDetails(ctx context.Context, id uuid.UUID, passportDetails *PassportDetails) error
+	DeletePassportDetails(ctx context.Context, id uuid.UUID) error
 }
 
 type service struct {
@@ -356,6 +357,20 @@ func (s *service) UpdatePassportDetails(
 
 	if err := s.userRepo.UpdatePassportDetails(ctx, id, passportDetails); err != nil {
 		logger.Error("failed to update passport details in database",
+			zap.String("user_id", id.String()),
+			zap.Error(err),
+		)
+		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
+}
+
+func (s *service) DeletePassportDetails(ctx context.Context, id uuid.UUID) error {
+	logger := s.logger.Named("delete_passport_details")
+
+	if err := s.userRepo.DeletePassportDetails(ctx, id); err != nil {
+		logger.Error("failed to delete passport details in database",
 			zap.String("user_id", id.String()),
 			zap.Error(err),
 		)
