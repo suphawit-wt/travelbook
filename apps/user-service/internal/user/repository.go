@@ -14,6 +14,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// Address represents the user's address information.
+type Address struct {
+	CountryCode  string
+	AddressLine1 string
+	City         string
+	ZipCode      string
+}
+
 // Repository defines the data access contract for user entities.
 type Repository interface {
 	GetById(ctx context.Context, id uuid.UUID) (user *User, found bool, err error)
@@ -24,6 +32,7 @@ type Repository interface {
 	UpdateDateOfBirth(ctx context.Context, id uuid.UUID, dateOfBirth time.Time) error
 	UpdateNationality(ctx context.Context, id uuid.UUID, nationality string) error
 	UpdateGender(ctx context.Context, id uuid.UUID, gender string) error
+	UpdateAddress(ctx context.Context, id uuid.UUID, addr *Address) error
 }
 
 type repositoryDB struct {
@@ -256,6 +265,36 @@ func (r *repositoryDB) UpdateGender(ctx context.Context, id uuid.UUID, gender st
 
 	_, err := r.db.Exec(ctx, query,
 		gender,
+		time.Now().UTC(),
+		id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) UpdateAddress(
+	ctx context.Context,
+	id uuid.UUID,
+	addr *Address,
+) error {
+	query := `
+	UPDATE users
+	SET
+		country_code = $1,
+		address_line1 = $2,
+		city = $3,
+		zip_code = $4,
+		updated_at = $5
+	WHERE id = $6
+	`
+
+	_, err := r.db.Exec(ctx, query,
+		addr.CountryCode,
+		addr.AddressLine1,
+		addr.City,
+		addr.ZipCode,
 		time.Now().UTC(),
 		id)
 	if err != nil {
