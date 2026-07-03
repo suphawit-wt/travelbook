@@ -29,6 +29,7 @@ type Handler interface {
 	UpdateNationality(c *gin.Context)
 	UpdateGender(c *gin.Context)
 	UpdateAddress(c *gin.Context)
+	UpdatePassportDetails(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -558,6 +559,69 @@ func (h *handler) UpdateAddress(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Message:    "Update Address Successfully.",
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UpdatePassportDetails godoc
+//
+//	@Summary		Update user passport details
+//	@Description	Update the authenticated user's passport details.
+//	@Tags			Users
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Param			req	body		UpdatePassportDetailsRequest	true	"UpdatePassportDetailsRequest"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		404	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/users/me/passport-details [patch]
+func (h *handler) UpdatePassportDetails(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	userIDStr, ok := c.MustGet("userID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewUnexpectedError())
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("invalid uuid format"))
+		return
+	}
+
+	var req UpdatePassportDetailsRequest
+
+	if err = errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	expireDate, err := time.Parse(time.DateOnly, req.ExpireDate)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid date format"))
+		return
+	}
+
+	if err = h.userSvc.UpdatePassportDetails(ctx, userID, &PassportDetails{
+		FirstName:      req.FirstName,
+		LastName:       req.LastName,
+		PassportNumber: req.PassportNumber,
+		IssueCountry:   req.IssueCountry,
+		ExpireDate:     expireDate,
+	}); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Update Passport Details Successfully.",
 	}
 
 	c.JSON(http.StatusOK, res)

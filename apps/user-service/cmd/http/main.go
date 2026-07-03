@@ -165,6 +165,7 @@ func registerRoutes(
 	authorizedUsersV1.PATCH("/me/nationality", userHandler.UpdateNationality)
 	authorizedUsersV1.PATCH("/me/gender", userHandler.UpdateGender)
 	authorizedUsersV1.PATCH("/me/address", userHandler.UpdateAddress)
+	authorizedUsersV1.PATCH("/me/passport-details", userHandler.UpdatePassportDetails)
 
 	router.GET("/health", userHandler.HealthCheck)
 }

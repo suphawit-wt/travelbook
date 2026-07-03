@@ -152,6 +152,29 @@ definitions:
     required:
     - nationality
     type: object
+  user.UpdatePassportDetailsRequest:
+    properties:
+      expireDate:
+        type: string
+      firstName:
+        maxLength: 80
+        type: string
+      issueCountry:
+        type: string
+      lastName:
+        maxLength: 80
+        type: string
+      passportNumber:
+        maxLength: 20
+        minLength: 6
+        type: string
+    required:
+    - expireDate
+    - firstName
+    - issueCountry
+    - lastName
+    - passportNumber
+    type: object
   user.UpdatePhoneNumberRequest:
     properties:
       phoneNumber:
@@ -504,6 +527,47 @@ paths:
       security:
       - Bearer: []
       summary: Update user nationality
+      tags:
+      - Users
+  /v1/users/me/passport-details:
+    patch:
+      consumes:
+      - application/json
+      description: Update the authenticated user's passport details.
+      parameters:
+      - description: UpdatePassportDetailsRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdatePassportDetailsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/user.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/user.ErrResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Update user passport details
       tags:
       - Users
   /v1/users/me/phone-number:

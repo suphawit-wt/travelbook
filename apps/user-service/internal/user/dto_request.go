@@ -42,3 +42,12 @@ type UpdateAddressRequest struct {
 	City         string `json:"city"         binding:"required,lte=60"`
 	ZipCode      string `json:"zipCode"      binding:"required,postcode_iso3166_alpha2_field=CountryCode"`
 }
+
+// UpdatePassportDetailsRequest represents the request body for updating a user's passport details.
+type UpdatePassportDetailsRequest struct {
+	FirstName      string `json:"firstName"      binding:"required,lte=80"`
+	LastName       string `json:"lastName"       binding:"required,lte=80"`
+	PassportNumber string `json:"passportNumber" binding:"required,alphanum,min=6,max=20"`
+	IssueCountry   string `json:"issueCountry"   binding:"required,iso3166_1_alpha2"`
+	ExpireDate     string `json:"expireDate"     binding:"required,datetime=2006-01-02"`
+}

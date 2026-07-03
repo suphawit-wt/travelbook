@@ -572,6 +572,75 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/users/me/passport-details": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update the authenticated user's passport details.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user passport details",
+                "parameters": [
+                    {
+                        "description": "UpdatePassportDetailsRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.UpdatePassportDetailsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/user.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/user.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/user.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/me/phone-number": {
             "patch": {
                 "security": [
@@ -917,6 +986,37 @@ const docTemplate = `{
             "properties": {
                 "nationality": {
                     "type": "string"
+                }
+            }
+        },
+        "user.UpdatePassportDetailsRequest": {
+            "type": "object",
+            "required": [
+                "expireDate",
+                "firstName",
+                "issueCountry",
+                "lastName",
+                "passportNumber"
+            ],
+            "properties": {
+                "expireDate": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string",
+                    "maxLength": 80
+                },
+                "issueCountry": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string",
+                    "maxLength": 80
+                },
+                "passportNumber": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 6
                 }
             }
         },
