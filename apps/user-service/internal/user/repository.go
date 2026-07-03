@@ -22,6 +22,15 @@ type Address struct {
 	ZipCode      string
 }
 
+// PassportDetails represents the user's passport information.
+type PassportDetails struct {
+	FirstName      string
+	LastName       string
+	PassportNumber string
+	IssueCountry   string
+	ExpireDate     time.Time
+}
+
 // Repository defines the data access contract for user entities.
 type Repository interface {
 	GetById(ctx context.Context, id uuid.UUID) (user *User, found bool, err error)
@@ -33,6 +42,7 @@ type Repository interface {
 	UpdateNationality(ctx context.Context, id uuid.UUID, nationality string) error
 	UpdateGender(ctx context.Context, id uuid.UUID, gender string) error
 	UpdateAddress(ctx context.Context, id uuid.UUID, addr *Address) error
+	UpdatePassportDetails(ctx context.Context, id uuid.UUID, passportDetails *PassportDetails) error
 }
 
 type repositoryDB struct {
@@ -295,6 +305,38 @@ func (r *repositoryDB) UpdateAddress(
 		addr.AddressLine1,
 		addr.City,
 		addr.ZipCode,
+		time.Now().UTC(),
+		id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) UpdatePassportDetails(
+	ctx context.Context,
+	id uuid.UUID,
+	passportDetails *PassportDetails,
+) error {
+	query := `
+	UPDATE users
+	SET
+		passport_first_name = $1,
+		passport_last_name = $2,
+		passport_number = $3,
+		passport_issue_country = $4,
+		passport_expire_date = $5,
+		updated_at = $6
+	WHERE id = $7
+	`
+
+	_, err := r.db.Exec(ctx, query,
+		passportDetails.FirstName,
+		passportDetails.LastName,
+		passportDetails.PassportNumber,
+		passportDetails.IssueCountry,
+		passportDetails.ExpireDate,
 		time.Now().UTC(),
 		id)
 	if err != nil {
