@@ -1,0 +1,15 @@
+{
+  "userMenu": {
+    "title": "แอคเคาท์ของท่าน",
+    "geniusLevel": "Genius เลเวล {{tier}}",
+    "nav": {
+      "account": "แอคเคาท์ของฉัน",
+      "bookings": "การจอง",
+      "genius": "โปรแกรมสมนาคุณ Genius",
+      "rewards": "รางวัล & กระเป๋าเงิน",
+      "reviews": "รีวิว",
+      "saved": "ตัวเลือกถูกใจ",
+      "signOut": "ออกจากระบบ"
+    }
+  }
+}

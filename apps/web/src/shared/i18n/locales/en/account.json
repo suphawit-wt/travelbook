@@ -1,0 +1,15 @@
+{
+  "userMenu": {
+    "title": "Your account",
+    "geniusLevel": "Genius Level {{tier}}",
+    "nav": {
+      "account": "My account",
+      "bookings": "Bookings & trips",
+      "genius": "Genius loyalty program",
+      "rewards": "Rewards & Wallet",
+      "reviews": "Reviews",
+      "saved": "Saved",
+      "signOut": "Sign out"
+    }
+  }
+}
