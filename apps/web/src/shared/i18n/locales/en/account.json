@@ -11,5 +11,52 @@
       "saved": "Saved",
       "signOut": "Sign out"
     }
+  },
+
+  "settings": {
+    "title": "Account Settings",
+    "description": "Manage your {{appName}} experience"
+  },
+
+  "personalDetails": {
+    "title": "Personal details",
+    "description": "Update your info and find out how it's used.",
+    "action": "Manage personal details"
+  },
+
+  "preferences": {
+    "title": "Customization preferences",
+    "description": "Personalize your account to meet your needs.",
+    "action": "Manage preferences"
+  },
+
+  "security": {
+    "title": "Security settings",
+    "description": "Change your security settings, setup secure authentication, or delete your account.",
+    "action": "Manage account security"
+  },
+
+  "payments": {
+    "title": "Payment methods",
+    "description": "Securely add or remove payment methods to make it easier when you book.",
+    "action": "Manage payment details"
+  },
+
+  "privacy": {
+    "title": "Privacy and data management",
+    "description": "Exercise your privacy rights, control your data, or export your information.",
+    "action": "Manage privacy"
+  },
+
+  "notifications": {
+    "title": "Email preferences",
+    "description": "Decide what you want to be notified about and unsubscribe from what you don't.",
+    "action": "Manage notifications"
+  },
+
+  "travelers": {
+    "title": "Other travelers",
+    "description": "Add or edit info about the people you're travelling with.",
+    "action": "Manage travelers"
   }
 }
