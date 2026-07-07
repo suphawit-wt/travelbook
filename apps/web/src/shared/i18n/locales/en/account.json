@@ -21,7 +21,12 @@
   "personalDetails": {
     "title": "Personal details",
     "description": "Update your info and find out how it's used.",
-    "action": "Manage personal details"
+    "action": "Manage personal details",
+
+    "profileImage": {
+      "title": "Profile Image",
+      "description": "Select an image to upload"
+    }
   },
 
   "preferences": {
