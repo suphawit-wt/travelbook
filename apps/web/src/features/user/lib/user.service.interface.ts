@@ -18,4 +18,5 @@ export interface UserServiceInterface {
   ) => Promise<string>;
   updateName: (req: NameRequest) => Promise<void>;
   updateDisplayName: (displayName: string) => Promise<void>;
+  sendNewEmailVerification: (email: string) => Promise<void>;
 }

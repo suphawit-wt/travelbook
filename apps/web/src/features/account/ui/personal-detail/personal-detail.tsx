@@ -24,6 +24,7 @@ import { Heading, Icon, Link, Text } from '@/shared/ui';
 
 import { AvatarUpload } from './components/avatar-upload';
 import { DisplayNameForm } from './components/display-name-form';
+import { EmailForm } from './components/email-form';
 import { NameForm } from './components/name-form';
 import {
   AccountInputList,
@@ -158,6 +159,11 @@ export const PersonalDetail: FC = () => {
           <DisplayNameForm
             displayName={user?.displayName}
             editActive={editActive}
+            setEditActive={setEditActive}
+          />
+          <EmailForm
+            editActive={editActive}
+            email={user?.email}
             setEditActive={setEditActive}
           />
         </AccountInputList>
