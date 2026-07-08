@@ -26,6 +26,13 @@
     "profileImage": {
       "title": "รูปภาพโปรไฟล์",
       "description": "เลือกภาพที่ต้องการอัปโหลด"
+    },
+
+    "name": {
+      "title": "ชื่อ",
+      "placeholder": "ระบุชื่อของท่าน",
+      "firstName": "ชื่อ",
+      "lastName": "นามสกุล"
     }
   },
 

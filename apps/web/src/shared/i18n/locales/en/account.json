@@ -26,6 +26,13 @@
     "profileImage": {
       "title": "Profile Image",
       "description": "Select an image to upload"
+    },
+
+    "name": {
+      "title": "Name",
+      "placeholder": "Let us know what to call you",
+      "firstName": "First name(s)",
+      "lastName": "Last name(s)"
     }
   },
 
