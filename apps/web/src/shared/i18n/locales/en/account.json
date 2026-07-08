@@ -39,6 +39,13 @@
       "title": "Display name",
       "placeholder": "Choose a display name",
       "label": "Display name"
+    },
+
+    "email": {
+      "title": "Email address",
+      "description": "This is the email address you use to sign in. It's also where we send your booking confirmations.",
+      "label": "Email address",
+      "hint": "We'll send a verification link to your new email address - check your inbox."
     }
   },
 
