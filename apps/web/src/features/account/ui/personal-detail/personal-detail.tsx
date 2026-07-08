@@ -23,7 +23,9 @@ import { axiosClient } from '@/shared/lib/axios-client';
 import { Heading, Icon, Link, Text } from '@/shared/ui';
 
 import { AvatarUpload } from './components/avatar-upload';
+import { NameForm } from './components/name-form';
 import {
+  AccountInputList,
   AccountMenuItem,
   AccountMenuList,
   IconDisplay,
@@ -144,6 +146,15 @@ export const PersonalDetail: FC = () => {
           </div>
           <AvatarUpload disabled={editActive !== 'none'} />
         </TitleProfile>
+
+        <AccountInputList>
+          <NameForm
+            editActive={editActive}
+            firstName={user?.firstName}
+            lastName={user?.lastName}
+            setEditActive={setEditActive}
+          />
+        </AccountInputList>
       </Main>
     </Wrapper>
   );

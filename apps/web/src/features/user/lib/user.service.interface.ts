@@ -4,6 +4,7 @@
 
 import type { AxiosProgressEvent } from 'axios';
 import type {
+  NameRequest,
   NavbarInfoResponse,
   UserInfoResponse,
 } from './user.service.types';
@@ -15,4 +16,5 @@ export interface UserServiceInterface {
     formData: FormData,
     onUploadProgress?: (progressEvent: AxiosProgressEvent) => void,
   ) => Promise<string>;
+  updateName: (req: NameRequest) => Promise<void>;
 }

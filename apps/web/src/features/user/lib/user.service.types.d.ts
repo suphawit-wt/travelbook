@@ -53,3 +53,8 @@ export interface UserInfoResponse {
 export interface AvatarResponse {
   avatarUrl: string;
 }
+
+export interface NameRequest {
+  firstName: string;
+  lastName: string;
+}
