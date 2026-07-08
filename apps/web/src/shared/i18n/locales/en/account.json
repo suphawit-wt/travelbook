@@ -33,6 +33,12 @@
       "placeholder": "Let us know what to call you",
       "firstName": "First name(s)",
       "lastName": "Last name(s)"
+    },
+
+    "displayName": {
+      "title": "Display name",
+      "placeholder": "Choose a display name",
+      "label": "Display name"
     }
   },
 

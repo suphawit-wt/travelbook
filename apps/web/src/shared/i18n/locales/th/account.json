@@ -33,6 +33,12 @@
       "placeholder": "ระบุชื่อของท่าน",
       "firstName": "ชื่อ",
       "lastName": "นามสกุล"
+    },
+
+    "displayName": {
+      "title": "ชื่อดิสเพลย์",
+      "placeholder": "เลือกดิสเพลย์",
+      "label": "ชื่อดิสเพลย์"
     }
   },
 
