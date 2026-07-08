@@ -17,4 +17,5 @@ export interface UserServiceInterface {
     onUploadProgress?: (progressEvent: AxiosProgressEvent) => void,
   ) => Promise<string>;
   updateName: (req: NameRequest) => Promise<void>;
+  updateDisplayName: (displayName: string) => Promise<void>;
 }

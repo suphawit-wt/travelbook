@@ -23,6 +23,7 @@ import { axiosClient } from '@/shared/lib/axios-client';
 import { Heading, Icon, Link, Text } from '@/shared/ui';
 
 import { AvatarUpload } from './components/avatar-upload';
+import { DisplayNameForm } from './components/display-name-form';
 import { NameForm } from './components/name-form';
 import {
   AccountInputList,
@@ -152,6 +153,11 @@ export const PersonalDetail: FC = () => {
             editActive={editActive}
             firstName={user?.firstName}
             lastName={user?.lastName}
+            setEditActive={setEditActive}
+          />
+          <DisplayNameForm
+            displayName={user?.displayName}
+            editActive={editActive}
             setEditActive={setEditActive}
           />
         </AccountInputList>
