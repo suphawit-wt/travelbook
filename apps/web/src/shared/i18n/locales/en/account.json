@@ -53,6 +53,12 @@
       "placeholder": "Add your phone number",
       "description": "Properties or attractions you book will use this number if they need to contact you.",
       "label": "Phone number"
+    },
+
+    "dob": {
+      "title": "Date of birth",
+      "placeholder": "Enter your date of birth",
+      "label": "Date of birth"
     }
   },
 
