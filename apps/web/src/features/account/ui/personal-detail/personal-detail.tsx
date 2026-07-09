@@ -26,6 +26,7 @@ import { AvatarUpload } from './components/avatar-upload';
 import { DisplayNameForm } from './components/display-name-form';
 import { EmailForm } from './components/email-form';
 import { NameForm } from './components/name-form';
+import { PhoneForm } from './components/phone-form';
 import {
   AccountInputList,
   AccountMenuItem,
@@ -164,6 +165,11 @@ export const PersonalDetail: FC = () => {
           <EmailForm
             editActive={editActive}
             email={user?.email}
+            setEditActive={setEditActive}
+          />
+          <PhoneForm
+            editActive={editActive}
+            phoneNumber={user?.phoneNumber}
             setEditActive={setEditActive}
           />
         </AccountInputList>
