@@ -202,4 +202,28 @@ export class UserService implements UserServiceInterface {
       throw new UnexpectedError();
     }
   }
+
+  async updateDateOfBirth(dateOfBirth: string): Promise<void> {
+    try {
+      await this.axiosClient.patch<ApiResponse>(
+        `v1/${API_PREFIX}/me/date-of-birth`,
+        { dateOfBirth },
+      );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response) {
+        const { status, message } = error.response.data as ApiResponse;
+
+        switch (status) {
+          case ApiStatus.Unauthorized:
+            throw new UnauthorizedError(message);
+          case ApiStatus.NotFound:
+            throw new NotFoundError(message);
+          default:
+            throw new UnexpectedError();
+        }
+      }
+
+      throw new UnexpectedError();
+    }
+  }
 }

@@ -20,4 +20,5 @@ export interface UserServiceInterface {
   updateDisplayName: (displayName: string) => Promise<void>;
   sendNewEmailVerification: (email: string) => Promise<void>;
   updatePhoneNumber: (phoneNumber: string) => Promise<void>;
+  updateDateOfBirth: (dateOfBirth: string) => Promise<void>;
 }
