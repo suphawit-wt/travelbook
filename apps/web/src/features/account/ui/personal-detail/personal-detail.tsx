@@ -23,6 +23,7 @@ import { axiosClient } from '@/shared/lib/axios-client';
 import { Heading, Icon, Link, Text } from '@/shared/ui';
 
 import { AvatarUpload } from './components/avatar-upload';
+import { DateOfBirthForm } from './components/date-of-birth-form';
 import { DisplayNameForm } from './components/display-name-form';
 import { EmailForm } from './components/email-form';
 import { NameForm } from './components/name-form';
@@ -170,6 +171,11 @@ export const PersonalDetail: FC = () => {
           <PhoneForm
             editActive={editActive}
             phoneNumber={user?.phoneNumber}
+            setEditActive={setEditActive}
+          />
+          <DateOfBirthForm
+            dateOfBirth={user?.personalDetails.dateOfBirth}
+            editActive={editActive}
             setEditActive={setEditActive}
           />
         </AccountInputList>
