@@ -31,6 +31,12 @@ const dateFullWithWeekdayFormatMap: Record<Language, string> = {
   th: 'EEEE d MMM yyyy',
 };
 
+const dateNumericFormatMap: Record<Language, string> = {
+  en: 'yyyy/MM/dd',
+  gb: 'yyyy/MM/dd',
+  th: 'yyyy/MM/dd',
+};
+
 export const getDateLocale = (language: Language): Locale => {
   return localeMap[language];
 };
@@ -38,7 +44,7 @@ export const getDateLocale = (language: Language): Locale => {
 export const formatLocalizedDate = (
   date: Date,
   language: Language,
-  type: 'short' | 'full' | 'fullWithWeekday',
+  type: 'short' | 'full' | 'fullWithWeekday' | 'numeric',
 ): string => {
   if (type === 'short') {
     return format(date, dateShortFormatMap[language], {
@@ -46,6 +52,10 @@ export const formatLocalizedDate = (
     });
   } else if (type === 'full') {
     return format(date, dateFullFormatMap[language], {
+      locale: localeMap[language],
+    });
+  } else if (type === 'numeric') {
+    return format(date, dateNumericFormatMap[language], {
       locale: localeMap[language],
     });
   }
@@ -57,7 +67,7 @@ export const formatLocalizedDate = (
 export const formatLocalizedDateString = (
   dateString: string,
   language: Language,
-  type: 'short' | 'full' | 'fullWithWeekday',
+  type: 'short' | 'full' | 'fullWithWeekday' | 'numeric',
 ): string => {
   const date = parseISO(dateString);
 
@@ -67,6 +77,10 @@ export const formatLocalizedDateString = (
     });
   } else if (type === 'full') {
     return format(date, dateFullFormatMap[language], {
+      locale: localeMap[language],
+    });
+  } else if (type === 'numeric') {
+    return format(date, dateNumericFormatMap[language], {
       locale: localeMap[language],
     });
   }
