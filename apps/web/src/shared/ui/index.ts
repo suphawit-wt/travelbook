@@ -10,6 +10,7 @@ export * from './button-link';
 export * from './card';
 export * from './checkbox';
 export * from './container';
+export * from './date-picker';
 export * from './date-range-picker';
 export * from './dialog';
 export * from './drawer';
