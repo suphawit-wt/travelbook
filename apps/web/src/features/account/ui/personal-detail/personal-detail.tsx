@@ -26,6 +26,7 @@ import { AvatarUpload } from './components/avatar-upload';
 import { DateOfBirthForm } from './components/date-of-birth-form';
 import { DisplayNameForm } from './components/display-name-form';
 import { EmailForm } from './components/email-form';
+import { GenderForm } from './components/gender-form';
 import { NameForm } from './components/name-form';
 import { NationalityForm } from './components/nationality-form';
 import { PhoneForm } from './components/phone-form';
@@ -182,6 +183,11 @@ export const PersonalDetail: FC = () => {
           <NationalityForm
             editActive={editActive}
             nationality={user?.personalDetails.nationality}
+            setEditActive={setEditActive}
+          />
+          <GenderForm
+            editActive={editActive}
+            gender={user?.personalDetails.gender}
             setEditActive={setEditActive}
           />
         </AccountInputList>
