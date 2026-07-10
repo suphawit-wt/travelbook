@@ -59,6 +59,12 @@
       "title": "Date of birth",
       "placeholder": "Enter your date of birth",
       "label": "Date of birth"
+    },
+
+    "nationality": {
+      "title": "Nationality",
+      "placeholder": "Select the country/region you're from",
+      "label": "Nationality"
     }
   },
 

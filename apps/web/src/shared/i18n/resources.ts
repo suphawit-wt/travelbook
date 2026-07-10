@@ -5,6 +5,7 @@
 import account from './locales/en/account.json';
 import auth from './locales/en/auth.json';
 import common from './locales/en/common.json';
+import country from './locales/en/country.json';
 import home from './locales/en/home.json';
 import property from './locales/en/property.json';
 import reviews from './locales/en/reviews.json';
@@ -15,6 +16,7 @@ export const resources = {
     account,
     auth,
     common,
+    country,
     home,
     search,
     property,
