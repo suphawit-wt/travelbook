@@ -65,6 +65,16 @@
       "title": "Nationality",
       "placeholder": "Select the country/region you're from",
       "label": "Nationality"
+    },
+
+    "gender": {
+      "title": "Gender",
+      "placeholder": "Select your gender",
+      "label": "Gender",
+      "male": "I'm a man",
+      "female": "I'm a woman",
+      "nonBinary": "I'm non-binary",
+      "notSay": "I prefer not to say"
     }
   },
 
