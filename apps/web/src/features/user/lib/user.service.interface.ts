@@ -22,4 +22,5 @@ export interface UserServiceInterface {
   updatePhoneNumber: (phoneNumber: string) => Promise<void>;
   updateDateOfBirth: (dateOfBirth: string) => Promise<void>;
   updateNationality: (nationality: string) => Promise<void>;
+  updateGender: (gender: string) => Promise<void>;
 }
