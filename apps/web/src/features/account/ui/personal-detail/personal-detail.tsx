@@ -27,6 +27,7 @@ import { DateOfBirthForm } from './components/date-of-birth-form';
 import { DisplayNameForm } from './components/display-name-form';
 import { EmailForm } from './components/email-form';
 import { NameForm } from './components/name-form';
+import { NationalityForm } from './components/nationality-form';
 import { PhoneForm } from './components/phone-form';
 import {
   AccountInputList,
@@ -176,6 +177,11 @@ export const PersonalDetail: FC = () => {
           <DateOfBirthForm
             dateOfBirth={user?.personalDetails.dateOfBirth}
             editActive={editActive}
+            setEditActive={setEditActive}
+          />
+          <NationalityForm
+            editActive={editActive}
+            nationality={user?.personalDetails.nationality}
             setEditActive={setEditActive}
           />
         </AccountInputList>
