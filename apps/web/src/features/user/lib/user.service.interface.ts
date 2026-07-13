@@ -3,6 +3,7 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 import type {
+  AddressRequest,
   NameRequest,
   NavbarInfoResponse,
   UserInfoResponse,
@@ -23,4 +24,5 @@ export interface UserServiceInterface {
   updateDateOfBirth: (dateOfBirth: string) => Promise<void>;
   updateNationality: (nationality: string) => Promise<void>;
   updateGender: (gender: string) => Promise<void>;
+  updateAddress: (req: AddressRequest) => Promise<void>;
 }

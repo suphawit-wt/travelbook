@@ -7,7 +7,7 @@ export interface NavbarInfoResponse {
   geniusTier: number;
 }
 
-export interface Address {
+export interface AddressRequest {
   countryCode: string;
   addressLine1: string;
   city: string;
@@ -22,7 +22,7 @@ export interface PassportDetails {
   expireDate: Date | null;
 }
 
-interface AddressResponse {
+export interface AddressResponse {
   countryCode: string | null;
   addressLine1: string | null;
   city: string | null;
