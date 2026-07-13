@@ -18,6 +18,7 @@ import type {
   AvatarResponse,
   NameRequest,
   NavbarInfoResponse,
+  PassportDetailsRequest,
   UserInfoResponse,
 } from './user.service.types';
 
@@ -280,6 +281,53 @@ export class UserService implements UserServiceInterface {
       await this.axiosClient.patch<ApiResponse>(`v1/${API_PREFIX}/me/address`, {
         ...req,
       });
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response) {
+        const { status, message } = error.response.data as ApiResponse;
+
+        switch (status) {
+          case ApiStatus.Unauthorized:
+            throw new UnauthorizedError(message);
+          case ApiStatus.NotFound:
+            throw new NotFoundError(message);
+          default:
+            throw new UnexpectedError();
+        }
+      }
+
+      throw new UnexpectedError();
+    }
+  }
+
+  async updatePassportDetails(req: PassportDetailsRequest): Promise<void> {
+    try {
+      await this.axiosClient.patch<ApiResponse>(
+        `v1/${API_PREFIX}/me/passport-details`,
+        { ...req },
+      );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response) {
+        const { status, message } = error.response.data as ApiResponse;
+
+        switch (status) {
+          case ApiStatus.Unauthorized:
+            throw new UnauthorizedError(message);
+          case ApiStatus.NotFound:
+            throw new NotFoundError(message);
+          default:
+            throw new UnexpectedError();
+        }
+      }
+
+      throw new UnexpectedError();
+    }
+  }
+
+  async deletePassportDetails(): Promise<void> {
+    try {
+      await this.axiosClient.delete<ApiResponse>(
+        `v1/${API_PREFIX}/me/passport-details`,
+      );
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
         const { status, message } = error.response.data as ApiResponse;

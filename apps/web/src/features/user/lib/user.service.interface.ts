@@ -2,13 +2,14 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
+import type { AxiosProgressEvent } from 'axios';
 import type {
   AddressRequest,
   NameRequest,
   NavbarInfoResponse,
+  PassportDetailsRequest,
   UserInfoResponse,
 } from './user.service.types';
-import type { AxiosProgressEvent } from 'axios';
 
 export interface UserServiceInterface {
   getNavbarInfo: () => Promise<NavbarInfoResponse>;
@@ -25,4 +26,6 @@ export interface UserServiceInterface {
   updateNationality: (nationality: string) => Promise<void>;
   updateGender: (gender: string) => Promise<void>;
   updateAddress: (req: AddressRequest) => Promise<void>;
+  updatePassportDetails: (req: PassportDetailsRequest) => Promise<void>;
+  deletePassportDetails: () => Promise<void>;
 }

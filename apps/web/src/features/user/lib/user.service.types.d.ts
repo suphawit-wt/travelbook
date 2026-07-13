@@ -14,6 +14,14 @@ export interface AddressRequest {
   zipCode: string;
 }
 
+export interface PassportDetailsRequest {
+  firstName: string;
+  lastName: string;
+  passportNumber: string;
+  issueCountry: string;
+  expireDate: string;
+}
+
 export interface PassportDetails {
   firstName: string | null;
   lastName: string | null;
