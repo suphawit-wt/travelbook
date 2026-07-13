@@ -22,6 +22,7 @@ import { useTranslation } from '@/shared/i18n/hooks/use-translation';
 import { axiosClient } from '@/shared/lib/axios-client';
 import { Heading, Icon, Link, Text } from '@/shared/ui';
 
+import { AddressForm } from './components/address-form';
 import { AvatarUpload } from './components/avatar-upload';
 import { DateOfBirthForm } from './components/date-of-birth-form';
 import { DisplayNameForm } from './components/display-name-form';
@@ -188,6 +189,11 @@ export const PersonalDetail: FC = () => {
           <GenderForm
             editActive={editActive}
             gender={user?.personalDetails.gender}
+            setEditActive={setEditActive}
+          />
+          <AddressForm
+            address={user?.address}
+            editActive={editActive}
             setEditActive={setEditActive}
           />
         </AccountInputList>
