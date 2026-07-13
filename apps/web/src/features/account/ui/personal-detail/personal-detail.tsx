@@ -30,6 +30,7 @@ import { EmailForm } from './components/email-form';
 import { GenderForm } from './components/gender-form';
 import { NameForm } from './components/name-form';
 import { NationalityForm } from './components/nationality-form';
+import { PassportForm } from './components/passport-form';
 import { PhoneForm } from './components/phone-form';
 import {
   AccountInputList,
@@ -117,7 +118,7 @@ export const PersonalDetail: FC = () => {
     };
 
     void fetchUser();
-  }, [userService]);
+  }, [userService, setUser]);
 
   return (
     <Wrapper>
@@ -194,6 +195,11 @@ export const PersonalDetail: FC = () => {
           <AddressForm
             address={user?.address}
             editActive={editActive}
+            setEditActive={setEditActive}
+          />
+          <PassportForm
+            editActive={editActive}
+            passportDetails={user?.passportDetails}
             setEditActive={setEditActive}
           />
         </AccountInputList>
