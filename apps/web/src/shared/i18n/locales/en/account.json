@@ -75,6 +75,25 @@
       "female": "I'm a woman",
       "nonBinary": "I'm non-binary",
       "notSay": "I prefer not to say"
+    },
+
+    "address": {
+      "title": "Address",
+      "placeholder": "Add your address",
+      "country": {
+        "label": "Country/Region",
+        "placeholder": "Select the country/region you live in"
+      },
+      "street": {
+        "label": "Address",
+        "placeholder": "Your street name and house/apartment number"
+      },
+      "city": {
+        "label": "Town/City"
+      },
+      "zip": {
+        "label": "Zip code"
+      }
     }
   },
 
