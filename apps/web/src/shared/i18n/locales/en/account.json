@@ -94,6 +94,27 @@
       "zip": {
         "label": "Zip code"
       }
+    },
+
+    "passport": {
+      "title": "Passport details",
+      "placeholder": "Not provided",
+      "description": "Save your passport details for use when booking your next stay, flight, or attraction.",
+      "add": "Add passport",
+      "nameHint": "Enter the name exactly as it's written on the passport or other official travel document",
+      "issuingCountry": {
+        "label": "Issuing country",
+        "placeholder": "Select issuing country"
+      },
+      "number": {
+        "label": "Passport number",
+        "placeholder": "Enter document number"
+      },
+      "expiry": {
+        "label": "Expiration date",
+        "hint": "We'll store this data safely and remove it after two years of inactivity."
+      },
+      "consent": "I consent to {{appName}} storing my passport information in accordance with the <0>privacy statement</0>"
     }
   },
 

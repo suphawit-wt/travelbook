@@ -51,7 +51,8 @@
     },
     "errors": {
       "required": "Enter your {{label, lowercase}}.",
-      "email": "Enter a valid email address."
+      "email": "Enter a valid email address.",
+      "consent": "Confirm your consent before saving"
     }
   },
 
