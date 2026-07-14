@@ -1,4 +1,9 @@
 {
+  "breadcrumbs": {
+    "home": "หน้าหลัก",
+    "results": "ผลการค้นหา"
+  },
+
   "status": {
     "verified": "ยืนยันแล้ว",
     "notFound": "ไม่พบเพจที่คุณค้นหา"

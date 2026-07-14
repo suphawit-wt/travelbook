@@ -1,4 +1,9 @@
 {
+  "breadcrumbs": {
+    "home": "Home",
+    "results": "Search results"
+  },
+
   "status": {
     "verified": "Verified",
     "notFound": "Not found"
