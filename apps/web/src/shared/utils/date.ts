@@ -88,3 +88,34 @@ export const formatLocalizedDateString = (
     locale: localeMap[language],
   });
 };
+
+export const calculateNights = (startDate: string, endDate: string): number => {
+  if (!startDate || !endDate) return 0;
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    // eslint-disable-next-line no-console -- for debug
+    console.error('Invalid date format provided to calculateNights');
+    return -1;
+  }
+
+  const startUTC = Date.UTC(
+    start.getUTCFullYear(),
+    start.getUTCMonth(),
+    start.getUTCDate(),
+  );
+
+  const endUTC = Date.UTC(
+    end.getUTCFullYear(),
+    end.getUTCMonth(),
+    end.getUTCDate(),
+  );
+
+  const diffDays = Math.floor((endUTC - startUTC) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return 0;
+
+  return diffDays;
+};
