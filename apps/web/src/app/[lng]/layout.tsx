@@ -10,8 +10,8 @@ import { ThemeProvider } from 'next-themes';
 import { AuthBootstrap } from '@/features/auth/ui/auth-bootstrap/auth-bootstrap';
 import { APP } from '@/shared/constants';
 import {
-  CookiesProvider,
   GoogleAuthProvider,
+  ReactQueryProvider,
   StoreProvider,
   StyledComponentsRegistry,
 } from '@/shared/providers';
@@ -76,8 +76,8 @@ const RootLayout: FC<PropsWithChildren<RootLayoutProps>> = ({
   return (
     <html suppressHydrationWarning dir={dir(params.lng)} lang={params.lng}>
       <body>
-        <CookiesProvider>
-          <StoreProvider>
+        <StoreProvider>
+          <ReactQueryProvider>
             <GoogleAuthProvider>
               <AuthBootstrap hasAuthSession={Boolean(hasAuthSession)} />
               <StyledComponentsRegistry>
@@ -89,8 +89,8 @@ const RootLayout: FC<PropsWithChildren<RootLayoutProps>> = ({
                 </ThemeProvider>
               </StyledComponentsRegistry>
             </GoogleAuthProvider>
-          </StoreProvider>
-        </CookiesProvider>
+          </ReactQueryProvider>
+        </StoreProvider>
       </body>
     </html>
   );
