@@ -4,5 +4,6 @@
 
 export * from './cookies-provider';
 export * from './google-auth-provider';
+export * from './react-query-provider';
 export * from './store-provider';
 export * from './styled-components';
