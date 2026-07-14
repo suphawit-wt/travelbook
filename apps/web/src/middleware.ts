@@ -4,15 +4,15 @@
 
 import { NextResponse } from 'next/server';
 
-import { withAuth, withI18n } from '@/shared/middlewares';
+import { withAuth, withI18n, withSearchDefaults } from '@/shared/middlewares';
 
 import type { NextRequest } from 'next/server';
 
-const middlewares = [withI18n, withAuth];
+const middlewares = [withI18n, withSearchDefaults, withAuth];
 
 /**
  * Orchestrates the application's middleware pipeline by running sequential,
- * modular middleware handlers (e.g., i18n localization, auth guards).
+ * modular middleware handlers (e.g., i18n localization, query parameter injection, auth guards).
  *
  * @remarks
  * Each handler can short-circuit the pipeline by issuing a terminal redirect (307/308)
