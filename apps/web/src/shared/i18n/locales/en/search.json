@@ -22,5 +22,181 @@
 
     "changeSearch": "Change Search",
     "cta": "Search"
+  },
+
+  "filters": {
+    "title": "Filter by",
+    "budget": "Your budget (per night)",
+    "popular": "Popular filters",
+    "reviewsBased": "Based on guest reviews",
+    "qualityHint": "Find high-quality hotels and vacation rentals",
+
+    "groups": {
+      "meals": {
+        "title": "Meals",
+        "options": {
+          "kitchen": "Kitchen facilities",
+          "breakfast": "Breakfast included"
+        }
+      },
+
+      "facilities": {
+        "title": "Facilities",
+        "options": {
+          "parking": "Parking",
+          "restaurant": "Restaurant",
+          "pets": "Pet friendly",
+          "roomService": "Room service",
+          "frontDesk24h": "24-hour front desk",
+          "nonSmoking": "Non-smoking rooms",
+          "airportShuttle": "Airport shuttle",
+          "familyRooms": "Family rooms",
+          "hotTub": "Hot tub/Jacuzzi",
+          "wifi": "Free WiFi",
+          "wheelchair": "Wheelchair accessible",
+          "pool": "Swimming pool"
+        }
+      },
+
+      "propertyType": {
+        "title": "Property Type",
+        "options": {
+          "resorts": "Resorts",
+          "hotels": "Hotels",
+          "apartmentsAndHomes": "Apartments and vacation homes",
+          "guestHouses": "Guesthouses",
+          "bnb": "Bed and Breakfasts",
+          "villas": "Villas",
+          "vacationHomes": "Vacation Homes",
+          "homestays": "Homestays",
+          "apartments": "Apartments",
+          "hostels": "Hostels",
+          "campgrounds": "Campgrounds",
+          "countryHouses": "Country Houses"
+        }
+      },
+
+      "rooms": {
+        "title": "Bedrooms and bathrooms",
+        "options": {
+          "bedrooms": "Bedrooms",
+          "bathrooms": "Bathrooms"
+        }
+      },
+
+      "reviewScore": {
+        "title": "Review score",
+        "options": {
+          "wonderful": "Wonderful: 9+",
+          "veryGood": "Very Good: 8+",
+          "good": "Good: 7+",
+          "pleasant": "Pleasant: 6+"
+        }
+      },
+
+      "roomFeatures": {
+        "title": "Room facilities",
+        "options": {
+          "seaView": "Sea view",
+          "airConditioning": "Air conditioning",
+          "bathtub": "Bathtub",
+          "balcony": "Balcony",
+          "washingMachine": "Washing machine",
+          "kitchen": "Kitchen",
+          "towels": "Towels",
+          "kettle": "Electric kettle",
+          "coffee": "Coffee/Tea maker",
+          "safe": "Safe",
+          "babyGates": "Baby safety gates",
+          "socketCovers": "Child safety socket covers",
+          "lakeView": "Lake view",
+          "mountainView": "Mountain view",
+          "cityView": "City view",
+          "courtyardView": "Inner courtyard view",
+          "diningArea": "Dining area",
+          "minibar": "Minibar",
+          "sofaBed": "Sofa bed",
+          "toilet": "Toilet",
+          "bidet": "Bidet"
+        }
+      },
+
+      "rating": {
+        "title": "Property rating",
+        "options": {
+          "2": "2 stars",
+          "3": "3 stars",
+          "4": "4 stars"
+        }
+      },
+
+      "beach": {
+        "title": "Beach access",
+        "options": {
+          "front": "Beachfront"
+        }
+      },
+
+      "policies": {
+        "title": "Reservation policy",
+        "options": {
+          "freeCancellation": "Free cancellation",
+          "noPrepayment": "No prepayment"
+        }
+      },
+
+      "activities": {
+        "title": "Fun Things To Do",
+        "options": {
+          "snorkeling": "Snorkeling",
+          "diving": "Diving",
+          "beach": "Beach",
+          "fishing": "Fishing"
+        }
+      },
+
+      "bed": {
+        "title": "Bed preference",
+        "options": {
+          "twin": "Twin beds",
+          "double": "Double bed"
+        }
+      },
+
+      "city": {
+        "title": "City"
+      },
+
+      "features": {
+        "title": "Highly rated features",
+        "options": {
+          "breakfast": "Very good breakfast",
+          "clean": "Very clean",
+          "location": "Very good location",
+          "wifi": "Very good Wifi"
+        }
+      },
+
+      "payment": {
+        "title": "Online Payment",
+        "options": {
+          "online": "Accepts Online Payments"
+        }
+      },
+
+      "landmarks": {
+        "title": "Landmarks"
+      },
+
+      "accessibility": {
+        "title": "Room Accessibility",
+        "options": {
+          "groundFloor": "Entire unit located on ground floor",
+          "wheelchair": "Entire unit wheelchair accessible",
+          "walkInShower": "Walk-in shower",
+          "raisedToilet": "Raised toilet"
+        }
+      }
+    }
   }
 }

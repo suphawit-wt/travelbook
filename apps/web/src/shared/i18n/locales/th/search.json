@@ -22,5 +22,181 @@
 
     "changeSearch": "เปลี่ยนการค้นหา",
     "cta": "ค้นหา"
+  },
+
+  "filters": {
+    "title": "จำกัดการค้นหาด้วย",
+    "budget": "งบประมาณของท่าน (ต่อคืน)",
+    "popular": "เกณฑ์ค้นหายอดนิยม",
+    "reviewsBased": "อิงตามรีวิวจากผู้เข้าพัก",
+    "qualityHint": "ค้นหาโรงแรมและที่พักให้เช่าคุณภาพสูง",
+
+    "groups": {
+      "meals": {
+        "title": "มื้ออาหาร",
+        "options": {
+          "kitchen": "มีพื้นที่ปรุงอาหาร",
+          "breakfast": "รวมอาหารเช้า"
+        }
+      },
+
+      "facilities": {
+        "title": "สิ่งอำนวยความสะดวก",
+        "options": {
+          "parking": "ที่จอดรถ",
+          "restaurant": "ห้องอาหาร/ภัตตาคาร",
+          "pets": "อนุญาตให้นำสัตว์เลี้ยงเข้าพัก",
+          "roomService": "บริการรูมเซอร์วิส",
+          "frontDesk24h": "แผนกต้อนรับส่วนหน้า 24 ชั่วโมง",
+          "nonSmoking": "ห้องปลอดบุหรี่",
+          "airportShuttle": "รถรับส่งสนามบิน",
+          "familyRooms": "ที่พักที่เหมาะสำหรับครอบครัว",
+          "hotTub": "อ่างน้ำอุ่น/จากุซซี่",
+          "wifi": "ฟรีไวไฟ",
+          "wheelchair": "รองรับผู้ใช้วีลแชร์",
+          "pool": "สระว่ายน้ำ"
+        }
+      },
+
+      "propertyType": {
+        "title": "ประเภทที่พัก",
+        "options": {
+          "resorts": "รีสอร์ท",
+          "hotels": "โรงแรม",
+          "apartmentsAndHomes": "อพาร์ตเมนต์และบ้านพักตากอากาศ",
+          "guestHouses": "บ้านพัก",
+          "bnb": "เบดแอนด์เบรกฟาสต์",
+          "villas": "วิลลา",
+          "vacationHomes": "บ้านพักตากอากาศ",
+          "homestays": "โฮมสเตย์",
+          "apartments": "อพาร์ตเมนต์",
+          "hostels": "โฮสเทล",
+          "campgrounds": "แคมป์",
+          "countryHouses": "คันทรีเฮาส์"
+        }
+      },
+
+      "rooms": {
+        "title": "ห้องนอนและห้องน้ำ",
+        "options": {
+          "bedrooms": "ห้องนอน",
+          "bathrooms": "ห้องน้ำ"
+        }
+      },
+
+      "reviewScore": {
+        "title": "คะแนนความคิดเห็น",
+        "options": {
+          "wonderful": "ดีเลิศ: 9+",
+          "veryGood": "ดีมาก: 8+",
+          "good": "ดี: 7+",
+          "pleasant": "พอใจมาก: 6+"
+        }
+      },
+
+      "roomFeatures": {
+        "title": "สิ่งอำนวยความสะดวกในห้องพัก",
+        "options": {
+          "seaView": "วิวทะเล",
+          "airConditioning": "เครื่องปรับอากาศ",
+          "bathtub": "อ่างอาบน้ำ",
+          "balcony": "ระเบียง",
+          "washingMachine": "เครื่องซักผ้า",
+          "kitchen": "ครัว",
+          "towels": "ผ้าเช็ดตัว",
+          "kettle": "กาต้มน้ำไฟฟ้า",
+          "coffee": "เครื่องชงกาแฟ/ชา",
+          "safe": "ตู้นิรภัย",
+          "babyGates": "ประตูนิรภัยสำหรับเด็ก",
+          "socketCovers": "ม่านปิดปลั๊กไฟสำหรับเด็ก",
+          "lakeView": "วิวทะเลสาบ",
+          "mountainView": "วิวภูเขา",
+          "cityView": "วิวเมือง",
+          "courtyardView": "วิวสวนใน",
+          "diningArea": "โซนรับประทานอาหาร",
+          "minibar": "มินิบาร์",
+          "sofaBed": "โซฟาปรับนอน",
+          "toilet": "ห้องน้ำ",
+          "bidet": "โถชำระ"
+        }
+      },
+
+      "rating": {
+        "title": "ระดับที่พัก",
+        "options": {
+          "2": "2 ดาว",
+          "3": "3 ดาว",
+          "4": "4 ดาว"
+        }
+      },
+
+      "beach": {
+        "title": "เข้าถึงชายหาดได้",
+        "options": {
+          "front": "ติดชายหาด"
+        }
+      },
+
+      "policies": {
+        "title": "นโยบายการจอง",
+        "options": {
+          "freeCancellation": "ยกเลิกการจองฟรี",
+          "noPrepayment": "ไม่ต้องชำระล่วงหน้า"
+        }
+      },
+
+      "activities": {
+        "title": "กิจกรรมสำหรับผ่อนคลาย",
+        "options": {
+          "snorkeling": "ดำน้ำตื้น",
+          "diving": "ดำน้ำ",
+          "beach": "ชายหาด",
+          "fishing": "ตกปลา"
+        }
+      },
+
+      "bed": {
+        "title": "ขนาดเตียงที่ต้องการ",
+        "options": {
+          "twin": "เตียงแฝด",
+          "double": "เตียงใหญ่"
+        }
+      },
+
+      "city": {
+        "title": "เมือง"
+      },
+
+      "features": {
+        "title": "คุณลักษณะที่ได้คะแนนสูง",
+        "options": {
+          "breakfast": "อาหารเช้าระดับดีมาก",
+          "clean": "สะอาดมาก",
+          "location": "ทำเลระดับดีมาก",
+          "wifi": "ไวไฟระดับดีมาก"
+        }
+      },
+
+      "payment": {
+        "title": "ชำระเงินออนไลน์",
+        "options": {
+          "online": "รับชำระเงินออนไลน์"
+        }
+      },
+
+      "landmarks": {
+        "title": "สถานที่สำคัญ"
+      },
+
+      "accessibility": {
+        "title": "สิ่งอำนวยความสะดวกพิเศษในห้องพัก",
+        "options": {
+          "groundFloor": "ห้องพักทั้งหมดอยู่ชั้นแรก",
+          "wheelchair": "ห้องพักทั้งหมดรองรับผู้ใช้วีลแชร์",
+          "walkInShower": "พื้นที่อาบน้ำฝักบัวแบบวอล์กอิน",
+          "raisedToilet": "โถสุขภัณฑ์แบบสูง"
+        }
+      }
+    }
   }
 }
