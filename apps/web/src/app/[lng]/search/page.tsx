@@ -2,6 +2,7 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
+import { FilterSidebar } from '@/features/search/ui/filter-sidebar';
 import { HeaderSearch } from '@/features/search/ui/header-search';
 import { getTranslation } from '@/shared/i18n/hooks/get-translation';
 import { Breadcrumbs, Container } from '@/shared/ui';
@@ -64,6 +65,7 @@ const Search: FC<SearchProps> = async ({ searchParams }) => {
             </Breadcrumbs.Item>
           </Breadcrumbs.List>
         </Breadcrumbs.Root>
+        <FilterSidebar />
       </Container>
     </>
   );
