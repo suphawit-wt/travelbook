@@ -16,3 +16,5 @@ requires:
     path: apps/partner-consumer/skaffold.yaml
   - configs: ["user-service"]
     path: apps/user-service/skaffold.yaml
+  - configs: ["property-service"]
+    path: apps/property-service/skaffold.yaml

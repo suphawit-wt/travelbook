@@ -36,6 +36,9 @@ dev-partner-consumer:
 dev-user-service:
 	skaffold dev -m user-service
 
+dev-property-service:
+	skaffold dev -m property-service
+
 lint-auth-service:
 	golangci-lint run --fix ./apps/auth-service/...
 
@@ -50,6 +53,9 @@ lint-partner-consumer:
 
 lint-user-service:
 	golangci-lint run --fix ./apps/user-service/...
+
+lint-property-service:
+	golangci-lint run --fix ./apps/property-service/...
 
 test-auth-service:
 	go test -v ./apps/auth-service/...
@@ -66,8 +72,14 @@ test-partner-consumer:
 test-user-service:
 	go test -v ./apps/user-service/...
 
+test-property-service:
+	go test -v ./apps/property-service/...
+
 swag-auth:
 	swag init -d apps/auth-service -g cmd/http/main.go -o apps/auth-service/docs
 
 swag-user:
 	swag init -d apps/user-service -g cmd/http/main.go -o apps/user-service/docs
+
+swag-property:
+	swag init -d apps/property-service -g cmd/http/main.go -o apps/property-service/docs

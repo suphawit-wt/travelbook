@@ -1,0 +1,15 @@
+hostnames: "api.suphawit.dev"
+replicaCount: 1
+image:
+  repository: asia-southeast1-docker.pkg.dev/travelbook-prod-1a2b/travelbook/tb-property-service
+  tag: 1.0.0
+  pullPolicy: IfNotPresent
+resources:
+  requests:
+    cpu: 25m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  vault:
+    enabled: true

@@ -1,0 +1,29 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: property-service-route
+  namespace: {{ .Values.namespace }}
+spec:
+  parentRefs:
+  - name: travelbook-gateway
+    namespace: {{ .Values.namespace }}
+  hostnames:
+  - {{ .Values.hostnames }}
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /v1/properties
+    - path:
+        type: PathPrefix
+        value: /v2/properties
+    backendRefs:
+    - name: property-service
+      port: 8080
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /v1/properties/internal
+    - path:
+        type: PathPrefix
+        value: /v2/properties/internal
