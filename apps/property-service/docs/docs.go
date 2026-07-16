@@ -23,7 +23,200 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {},
+    "paths": {
+        "/v1/properties": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new property",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Properties"
+                ],
+                "summary": "Create property",
+                "parameters": [
+                    {
+                        "description": "CreatePropertyRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/property.CreatePropertyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponseWithData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/property.CreatePropertyResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/property.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "property.ApiResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "statusCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "property.ApiResponseWithData": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                },
+                "statusCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "property.CreatePropertyRequest": {
+            "type": "object",
+            "required": [
+                "checkInFrom",
+                "checkInUntil",
+                "checkOutFrom",
+                "checkOutUntil",
+                "name",
+                "timezone",
+                "type"
+            ],
+            "properties": {
+                "checkInFrom": {
+                    "type": "string"
+                },
+                "checkInUntil": {
+                    "type": "string"
+                },
+                "checkOutFrom": {
+                    "type": "string"
+                },
+                "checkOutUntil": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 90
+                },
+                "timezone": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/property.Type"
+                }
+            }
+        },
+        "property.CreatePropertyResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "timezone": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/property.Type"
+                }
+            }
+        },
+        "property.ErrResponse": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "property.Type": {
+            "type": "string",
+            "enum": [
+                "hotel",
+                "apartment",
+                "resort",
+                "villa",
+                "cabin"
+            ],
+            "x-enum-varnames": [
+                "TypeHotel",
+                "TypeApartment",
+                "TypeResort",
+                "TypeVilla",
+                "TypeCabin"
+            ]
+        }
+    },
     "securityDefinitions": {
         "Bearer": {
             "description": "Put **_ONLY_** your JWT Bearer token in textbox below",

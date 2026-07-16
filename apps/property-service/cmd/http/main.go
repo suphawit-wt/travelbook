@@ -5,7 +5,6 @@
 package main
 
 import (
-	"cmm1/307/apps/property-service/docs"
 	"context"
 	"fmt"
 	"log"
@@ -13,20 +12,24 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 
 	"github.com/suphawit-wt/travelbook/apps/property-service/docs"
+	"github.com/suphawit-wt/travelbook/apps/property-service/internal/outbox"
 	"github.com/suphawit-wt/travelbook/apps/property-service/internal/property"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/config"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/database"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/jwt"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/vault"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/server"
+	"github.com/suphawit-wt/travelbook/pkg/go-libs/storage"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
 	"github.com/suphawit-wt/travelbook/pkg/shared/jwtkey"
+	"github.com/suphawit-wt/travelbook/pkg/shared/middleware"
 )
 
 //	@title			Property Service - Travelbook API
@@ -106,6 +109,11 @@ func run() error {
 		}
 	}()
 
+	s3Client, err := storage.NewS3Client(&cfg.Storage.S3)
+	if err != nil {
+		return fmt.Errorf("init s3 client: %w", err)
+	}
+
 	vaultClient, err := vault.NewClient(cfg.App.Mode, &cfg.Security.Vault)
 	if err != nil {
 		return fmt.Errorf("init vault client: %w", err)
@@ -117,13 +125,25 @@ func run() error {
 	}
 
 	jwtSvc := jwt.NewService(cfg.Security.JWT)
+	txManager := database.NewTxManager(pgPool)
+	s3PresignClient := s3.NewPresignClient(s3Client)
 
 	srv, err := server.NewHTTPGin(cfg, serverLogger)
 	if err != nil {
 		return fmt.Errorf("init http server: %w", err)
 	}
 
-	propertyHandler := property.NewHandler(srv.Validator)
+	outboxRepo := outbox.NewRepositoryDB(pgPool)
+	propertyRepo := property.NewRepositoryDB(pgPool, rdb)
+	propertyService := property.NewService(
+		appLogger.Named("service"),
+		&cfg.Storage,
+		s3PresignClient,
+		propertyRepo,
+		outboxRepo,
+		txManager,
+	)
+	propertyHandler := property.NewHandler(srv.Validator, propertyService)
 
 	registerRoutes(srv.Router, &cfg.App, jwtSvc, jwtKeys, propertyHandler)
 
@@ -156,6 +176,11 @@ func registerRoutes(
 
 		propertiesV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
+
+	authorizedPropertiesV1 := propertiesV1.Use(
+		middleware.AuthorizedPartner(jwtSvc, jwtKeys.Partner.Access.Public),
+	)
+	authorizedPropertiesV1.POST("", propertyHandler.CreateProperty)
 
 	router.GET("health", propertyHandler.HealthCheck)
 }

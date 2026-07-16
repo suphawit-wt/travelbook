@@ -1,4 +1,81 @@
 basePath: /
+definitions:
+  property.ApiResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  property.ApiResponseWithData:
+    properties:
+      status:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  property.CreatePropertyRequest:
+    properties:
+      checkInFrom:
+        type: string
+      checkInUntil:
+        type: string
+      checkOutFrom:
+        type: string
+      checkOutUntil:
+        type: string
+      name:
+        maxLength: 90
+        type: string
+      timezone:
+        type: string
+      type:
+        $ref: '#/definitions/property.Type'
+    required:
+    - checkInFrom
+    - checkInUntil
+    - checkOutFrom
+    - checkOutUntil
+    - name
+    - timezone
+    - type
+    type: object
+  property.CreatePropertyResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      timezone:
+        type: string
+      type:
+        $ref: '#/definitions/property.Type'
+    type: object
+  property.ErrResponse:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+  property.Type:
+    enum:
+    - hotel
+    - apartment
+    - resort
+    - villa
+    - cabin
+    type: string
+    x-enum-varnames:
+    - TypeHotel
+    - TypeApartment
+    - TypeResort
+    - TypeVilla
+    - TypeCabin
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -16,7 +93,53 @@ info:
   termsOfService: https://suphawit.dev/terms/
   title: Property Service - Travelbook API
   version: 1.0.0
-paths: {}
+paths:
+  /v1/properties:
+    post:
+      consumes:
+      - application/json
+      description: Create a new property
+      parameters:
+      - description: CreatePropertyRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/property.CreatePropertyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/property.CreatePropertyResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Create property
+      tags:
+      - Properties
 securityDefinitions:
   Bearer:
     description: Put **_ONLY_** your JWT Bearer token in textbox below
