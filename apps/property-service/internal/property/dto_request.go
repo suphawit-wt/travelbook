@@ -12,6 +12,11 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 )
 
+// URI defines the expected URI parameters for property-related endpoints.
+type URI struct {
+	ID string `uri:"id" binding:"required,uuid"`
+}
+
 // CreatePropertyRequest defines the expected payload for creating a new property.
 type CreatePropertyRequest struct {
 	Name          string `json:"name"          binding:"required,lte=90"`
@@ -55,4 +60,26 @@ func (r *CreatePropertyRequest) ToDomain(partnerID uuid.UUID) (*CreateProperty, 
 		CheckOutUntil: checkOutUntil,
 		PartnerID:     partnerID,
 	}, nil
+}
+
+// UpdatePropertyLocationRequest defines the expected payload for updating a property's location information.
+type UpdatePropertyLocationRequest struct {
+	AreaID       string  `json:"areaId"       binding:"required,uuid"`
+	ZipCode      string  `json:"zipCode"      binding:"required"`
+	AddressLine1 string  `json:"addressLine1" binding:"required,lte=80"`
+	AddressLine2 *string `json:"addressLine2" binding:"omitempty,lte=80"`
+	Latitude     float64 `json:"latitude"     binding:"required,latitude"`
+	Longitude    float64 `json:"longitude"    binding:"required,longitude"`
+}
+
+// ToDomain converts the UpdatePropertyLocationRequest into a PropertyLocation, preparing it for use in the domain layer.
+func (r *UpdatePropertyLocationRequest) ToDomain() *Location {
+	return &Location{
+		AreaID:       r.AreaID,
+		ZipCode:      r.ZipCode,
+		AddressLine1: r.AddressLine1,
+		AddressLine2: r.AddressLine2,
+		Latitude:     r.Latitude,
+		Longitude:    r.Longitude,
+	}
 }

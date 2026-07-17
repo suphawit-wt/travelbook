@@ -76,6 +76,29 @@ definitions:
     - TypeResort
     - TypeVilla
     - TypeCabin
+  property.UpdatePropertyLocationRequest:
+    properties:
+      addressLine1:
+        maxLength: 80
+        type: string
+      addressLine2:
+        maxLength: 80
+        type: string
+      areaId:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      zipCode:
+        type: string
+    required:
+    - addressLine1
+    - areaId
+    - latitude
+    - longitude
+    - zipCode
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -138,6 +161,53 @@ paths:
       security:
       - Bearer: []
       summary: Create property
+      tags:
+      - Properties
+  /v1/properties/{id}/location:
+    patch:
+      consumes:
+      - application/json
+      description: Update the location details of an existing property, including
+        address, city, state, postal code, and country.
+      parameters:
+      - description: Property ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UpdatePropertyLocationRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/property.UpdatePropertyLocationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Update property location
       tags:
       - Properties
 securityDefinitions:

@@ -104,6 +104,82 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/properties/{id}/location": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update the location details of an existing property, including address, city, state, postal code, and country.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Properties"
+                ],
+                "summary": "Update property location",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Property ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "UpdatePropertyLocationRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/property.UpdatePropertyLocationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/property.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -215,6 +291,38 @@ const docTemplate = `{
                 "TypeVilla",
                 "TypeCabin"
             ]
+        },
+        "property.UpdatePropertyLocationRequest": {
+            "type": "object",
+            "required": [
+                "addressLine1",
+                "areaId",
+                "latitude",
+                "longitude",
+                "zipCode"
+            ],
+            "properties": {
+                "addressLine1": {
+                    "type": "string",
+                    "maxLength": 80
+                },
+                "addressLine2": {
+                    "type": "string",
+                    "maxLength": 80
+                },
+                "areaId": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "zipCode": {
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {

@@ -20,6 +20,7 @@ import (
 // Handler defines the HTTP interface for handling property-related HTTP requests.
 type Handler interface {
 	CreateProperty(c *gin.Context)
+	UpdateLocation(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -99,6 +100,76 @@ func (h *handler) CreateProperty(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, res)
+}
+
+// UpdateLocation godoc
+//
+//	@Summary		Update property location
+//	@Description	Update the location details of an existing property, including address, city, state, postal code, and country.
+//	@Tags			Properties
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string							true	"Property ID (UUID)"
+//	@Param			req	body		UpdatePropertyLocationRequest	true	"UpdatePropertyLocationRequest"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		409	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/properties/{id}/location [patch]
+func (h *handler) UpdateLocation(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	partnerIDStr, ok := c.MustGet("partnerID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid partner ID format."))
+		return
+	}
+
+	partnerID, err := uuid.Parse(partnerIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid partner ID format."))
+		return
+	}
+
+	var uri URI
+
+	if err = c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	propertyID, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid property ID format."))
+		return
+	}
+
+	var req UpdatePropertyLocationRequest
+
+	if err = errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err = h.propertySvc.UpdateLocation(
+		ctx,
+		partnerID,
+		propertyID,
+		req.ToDomain(),
+	); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Update Property Location Successfully.",
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // HealthCheck is a simple health check endpoint to verify that the service is running.

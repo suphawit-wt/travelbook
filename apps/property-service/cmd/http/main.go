@@ -181,6 +181,7 @@ func registerRoutes(
 		middleware.AuthorizedPartner(jwtSvc, jwtKeys.Partner.Access.Public),
 	)
 	authorizedPropertiesV1.POST("", propertyHandler.CreateProperty)
+	authorizedPropertiesV1.PATCH(":id/location", propertyHandler.UpdateLocation)
 
 	router.GET("health", propertyHandler.HealthCheck)
 }
