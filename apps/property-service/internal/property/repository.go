@@ -26,6 +26,19 @@ type Location struct {
 	Longitude    float64
 }
 
+// Description represents the descriptive details of a property, including the about section, highlights, and area information.
+type Description struct {
+	About    string
+	Hilights Hilights
+	AreaInfo AreaInfo
+}
+
+// Hilights represents the highlights of a property, including rooms with specific features and breakfast information.
+type Hilights struct {
+	RoomsWith     []string
+	BreakfastInfo []string
+}
+
 // Repository defines the data access contract for property entities.
 type Repository interface {
 	Create(ctx context.Context, tx pgx.Tx, p *Property) (*Property, error)
@@ -35,6 +48,12 @@ type Repository interface {
 		partnerID uuid.UUID,
 		propertyID uuid.UUID,
 		location *Location,
+	) error
+	UpdateDescription(
+		ctx context.Context,
+		partnerID uuid.UUID,
+		propertyID uuid.UUID,
+		description *Description,
 	) error
 }
 
@@ -182,6 +201,39 @@ func (r *repositoryDB) UpdateLocation(
 	)
 	if err != nil {
 		return fmt.Errorf("failed to insert outbox record for location update: %w", err)
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) UpdateDescription(
+	ctx context.Context,
+	partnerID, propertyID uuid.UUID,
+	description *Description,
+) error {
+	query := `
+	UPDATE properties
+	SET
+		about = $1,
+		highlights = $2,
+		area_info = $3,
+		updated_at = $4
+	WHERE id = $5
+	AND partner_id = $6
+	`
+
+	_, err := r.db.Exec(
+		ctx,
+		query,
+		description.About,
+		description.Hilights,
+		description.AreaInfo,
+		time.Now().UTC(),
+		propertyID,
+		partnerID,
+	)
+	if err != nil {
+		return err
 	}
 
 	return nil
