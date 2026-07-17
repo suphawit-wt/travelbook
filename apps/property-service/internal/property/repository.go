@@ -6,15 +6,36 @@ package property
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 )
 
+// Location represents the location details of a property, including country code, province, city, area, zip code, address lines, latitude, and longitude.
+type Location struct {
+	AreaID       string
+	ZipCode      string
+	AddressLine1 string
+	AddressLine2 *string
+	Latitude     float64
+	Longitude    float64
+}
+
 // Repository defines the data access contract for property entities.
 type Repository interface {
 	Create(ctx context.Context, tx pgx.Tx, p *Property) (*Property, error)
+	UpdateLocation(
+		ctx context.Context,
+		tx pgx.Tx,
+		partnerID uuid.UUID,
+		propertyID uuid.UUID,
+		location *Location,
+	) error
 }
 
 type repositoryDB struct {
@@ -70,4 +91,98 @@ func (r *repositoryDB) Create(
 	}
 
 	return p, nil
+}
+
+func (r *repositoryDB) UpdateLocation(
+	ctx context.Context,
+	tx pgx.Tx,
+	partnerID, propertyID uuid.UUID,
+	location *Location,
+) error {
+	areaID, err := uuid.Parse(location.AreaID)
+	if err != nil {
+		return err
+	}
+
+	query := `
+	UPDATE properties
+	SET
+		area_id = $1,
+		address_line1 = $2,
+		address_line2 = $3,
+		zip_code = $4,
+		latitude = $5,
+		longitude = $6,
+		updated_at = $7
+	WHERE id = $8
+	AND partner_id = $9
+	`
+
+	_, err = tx.Exec(
+		ctx,
+		query,
+		areaID,
+		location.AddressLine1,
+		location.AddressLine2,
+		location.ZipCode,
+		location.Latitude,
+		location.Longitude,
+		time.Now().UTC(),
+		propertyID,
+		partnerID,
+	)
+	if err != nil {
+		return err
+	}
+
+	locNames, err := r.getLocationNamesByAreaID(ctx, tx, areaID)
+	if err != nil {
+		return err
+	}
+
+	payloadMap := map[string]any{
+		"area_name_en":        locNames.AreaNameEN,
+		"area_name_local":     locNames.AreaNameLocal,
+		"city_name_en":        locNames.CityNameEN,
+		"city_name_local":     locNames.CityNameLocal,
+		"province_name_en":    locNames.ProvinceNameEN,
+		"province_name_local": locNames.ProvinceNameLocal,
+	}
+
+	payloadBytes, err := json.Marshal(payloadMap)
+	if err != nil {
+		return fmt.Errorf("failed to marshal outbox payload for location update: %w", err)
+	}
+
+	outboxQuery := `
+    INSERT INTO outbox (
+        id, 
+        aggregate_type, 
+        aggregate_id, 
+        event_type, 
+        topic, 
+        payload
+    ) VALUES ($1, $2, $3, $4, $5, $6)
+    `
+
+	outboxID, err := uuid.NewV7()
+	if err != nil {
+		return fmt.Errorf("failed to generate outbox id uuid v7: %w", err)
+	}
+
+	_, err = tx.Exec(
+		ctx,
+		outboxQuery,
+		outboxID,
+		"property",
+		propertyID,
+		"PropertyLocationUpdated",
+		"dev.property.inventory.search.v1",
+		payloadBytes,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to insert outbox record for location update: %w", err)
+	}
+
+	return nil
 }
