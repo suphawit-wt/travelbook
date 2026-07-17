@@ -48,6 +48,12 @@ type Service interface {
 		propertyID uuid.UUID,
 		location *Location,
 	) error
+	UpdateDescription(
+		ctx context.Context,
+		partnerID uuid.UUID,
+		propertyID uuid.UUID,
+		description *Description,
+	) error
 }
 
 type service struct {
@@ -94,9 +100,9 @@ func (s *service) CreateProperty(
 
 	var property *Property
 	err = s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		propertyID, err := uuid.NewV7()
-		if err != nil {
-			return fmt.Errorf("failed to generate id uuid v7: %w", err)
+		propertyID, uuidErr := uuid.NewV7()
+		if uuidErr != nil {
+			return fmt.Errorf("failed to generate id uuid v7: %w", uuidErr)
 		}
 
 		propertyReq := Property{
@@ -120,13 +126,13 @@ func (s *service) CreateProperty(
 
 		property = propertyCreated
 
-		partnerPropertyID, err := uuid.NewV7()
-		if err != nil {
-			return fmt.Errorf("failed to generate id uuid v7: %w", err)
+		partnerPropertyID, uuidErr := uuid.NewV7()
+		if uuidErr != nil {
+			return fmt.Errorf("failed to generate id uuid v7: %w", uuidErr)
 		}
 
 		payloadMap := map[string]any{
-			"id":          partnerPropertyID.String(),
+			"id":          partnerPropertyID,
 			"partner_id":  req.PartnerID.String(),
 			"property_id": propertyID,
 			"role":        partner.RoleOwner,
@@ -209,6 +215,27 @@ func (s *service) UpdateLocation(
 			zap.Error(err),
 		)
 		return fmt.Errorf("Service.UpdateLocation: %w", err)
+	}
+
+	return nil
+}
+
+func (s *service) UpdateDescription(
+	ctx context.Context,
+	partnerID uuid.UUID,
+	propertyID uuid.UUID,
+	description *Description,
+) error {
+	logger := s.logger.Named("update_description")
+
+	if err := s.propertyRepo.UpdateDescription(
+		ctx,
+		partnerID,
+		propertyID,
+		description,
+	); err != nil {
+		logger.Error("failed to update property description in database", zap.Error(err))
+		return dberr.ValidatePostgresError(err)
 	}
 
 	return nil
