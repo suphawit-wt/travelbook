@@ -105,6 +105,82 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/properties/{id}/descripion": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update the description of an existing property.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Properties"
+                ],
+                "summary": "Update property description",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Property ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "UpdatePropertyDescriptionRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/property.UpdatePropertyDescriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/property.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/properties/{id}/location": {
             "patch": {
                 "security": [
@@ -292,6 +368,24 @@ const docTemplate = `{
                 "TypeCabin"
             ]
         },
+        "property.UpdatePropertyDescriptionRequest": {
+            "type": "object",
+            "required": [
+                "about",
+                "hilights"
+            ],
+            "properties": {
+                "about": {
+                    "type": "string"
+                },
+                "areaInfo": {
+                    "$ref": "#/definitions/property.areaInfoRequest"
+                },
+                "hilights": {
+                    "$ref": "#/definitions/property.hilightsRequest"
+                }
+            }
+        },
         "property.UpdatePropertyLocationRequest": {
             "type": "object",
             "required": [
@@ -321,6 +415,91 @@ const docTemplate = `{
                 },
                 "zipCode": {
                     "type": "string"
+                }
+            }
+        },
+        "property.areaInfoRequest": {
+            "type": "object",
+            "properties": {
+                "beaches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.areaItemRequest"
+                    }
+                },
+                "closestAirports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.areaItemRequest"
+                    }
+                },
+                "naturalBeauty": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.areaItemRequest"
+                    }
+                },
+                "nearbyPlaces": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.areaItemRequest"
+                    }
+                },
+                "publicTransit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.areaItemRequest"
+                    }
+                },
+                "restaurantsCafe": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.areaItemRequest"
+                    }
+                },
+                "topAttractions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.areaItemRequest"
+                    }
+                }
+            }
+        },
+        "property.areaItemRequest": {
+            "type": "object",
+            "required": [
+                "distanceM",
+                "name"
+            ],
+            "properties": {
+                "distanceM": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/property.Type"
+                }
+            }
+        },
+        "property.hilightsRequest": {
+            "type": "object",
+            "required": [
+                "roomsWith"
+            ],
+            "properties": {
+                "breakfastInfo": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "roomsWith": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }

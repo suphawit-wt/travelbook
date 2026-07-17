@@ -21,6 +21,7 @@ import (
 type Handler interface {
 	CreateProperty(c *gin.Context)
 	UpdateLocation(c *gin.Context)
+	UpdateDescription(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -167,6 +168,76 @@ func (h *handler) UpdateLocation(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Message:    "Update Property Location Successfully.",
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UpdateDescription godoc
+//
+//	@Summary		Update property description
+//	@Description	Update the description of an existing property.
+//	@Tags			Properties
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string								true	"Property ID (UUID)"
+//	@Param			req	body		UpdatePropertyDescriptionRequest	true	"UpdatePropertyDescriptionRequest"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		409	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/properties/{id}/descripion [patch]
+func (h *handler) UpdateDescription(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	partnerIDStr, ok := c.MustGet("partnerID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid partner ID format."))
+		return
+	}
+
+	partnerID, err := uuid.Parse(partnerIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid partner ID format."))
+		return
+	}
+
+	var uri URI
+
+	if err = c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	propertyID, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid property ID format."))
+		return
+	}
+
+	var req UpdatePropertyDescriptionRequest
+
+	if err = errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err = h.propertySvc.UpdateDescription(
+		ctx,
+		partnerID,
+		propertyID,
+		req.ToDomain(),
+	); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Update Property Description Successfully.",
 	}
 
 	c.JSON(http.StatusOK, res)

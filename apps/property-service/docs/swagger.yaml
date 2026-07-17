@@ -76,6 +76,18 @@ definitions:
     - TypeResort
     - TypeVilla
     - TypeCabin
+  property.UpdatePropertyDescriptionRequest:
+    properties:
+      about:
+        type: string
+      areaInfo:
+        $ref: '#/definitions/property.areaInfoRequest'
+      hilights:
+        $ref: '#/definitions/property.hilightsRequest'
+    required:
+    - about
+    - hilights
+    type: object
   property.UpdatePropertyLocationRequest:
     properties:
       addressLine1:
@@ -98,6 +110,62 @@ definitions:
     - latitude
     - longitude
     - zipCode
+    type: object
+  property.areaInfoRequest:
+    properties:
+      beaches:
+        items:
+          $ref: '#/definitions/property.areaItemRequest'
+        type: array
+      closestAirports:
+        items:
+          $ref: '#/definitions/property.areaItemRequest'
+        type: array
+      naturalBeauty:
+        items:
+          $ref: '#/definitions/property.areaItemRequest'
+        type: array
+      nearbyPlaces:
+        items:
+          $ref: '#/definitions/property.areaItemRequest'
+        type: array
+      publicTransit:
+        items:
+          $ref: '#/definitions/property.areaItemRequest'
+        type: array
+      restaurantsCafe:
+        items:
+          $ref: '#/definitions/property.areaItemRequest'
+        type: array
+      topAttractions:
+        items:
+          $ref: '#/definitions/property.areaItemRequest'
+        type: array
+    type: object
+  property.areaItemRequest:
+    properties:
+      distanceM:
+        type: number
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/property.Type'
+    required:
+    - distanceM
+    - name
+    type: object
+  property.hilightsRequest:
+    properties:
+      breakfastInfo:
+        items:
+          type: string
+        type: array
+      roomsWith:
+        items:
+          type: string
+        type: array
+    required:
+    - roomsWith
     type: object
 externalDocs:
   description: OpenAPI
@@ -161,6 +229,52 @@ paths:
       security:
       - Bearer: []
       summary: Create property
+      tags:
+      - Properties
+  /v1/properties/{id}/descripion:
+    patch:
+      consumes:
+      - application/json
+      description: Update the description of an existing property.
+      parameters:
+      - description: Property ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UpdatePropertyDescriptionRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/property.UpdatePropertyDescriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Update property description
       tags:
       - Properties
   /v1/properties/{id}/location:

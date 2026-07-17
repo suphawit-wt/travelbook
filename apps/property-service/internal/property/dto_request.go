@@ -83,3 +83,70 @@ func (r *UpdatePropertyLocationRequest) ToDomain() *Location {
 		Longitude:    r.Longitude,
 	}
 }
+
+// UpdatePropertyDescriptionRequest defines the expected payload for updating a property's description, including the about section, highlights, and area information.
+type UpdatePropertyDescriptionRequest struct {
+	About    string          `json:"about"    binding:"required"`
+	Hilights hilightsRequest `json:"hilights" binding:"required"`
+	AreaInfo areaInfoRequest `json:"areaInfo" binding:"omitempty"`
+}
+
+type hilightsRequest struct {
+	RoomsWith     []string `json:"roomsWith"     binding:"required"`
+	BreakfastInfo []string `json:"breakfastInfo" binding:"omitempty"`
+}
+
+type areaInfoRequest struct {
+	NearbyPlaces    []areaItemRequest `json:"nearbyPlaces"    binding:"omitempty"`
+	RestaurantsCafe []areaItemRequest `json:"restaurantsCafe" binding:"omitempty"`
+	TopAttractions  []areaItemRequest `json:"topAttractions"  binding:"omitempty"`
+	NaturalBeauty   []areaItemRequest `json:"naturalBeauty"   binding:"omitempty"`
+	Beaches         []areaItemRequest `json:"beaches"         binding:"omitempty"`
+	PublicTransit   []areaItemRequest `json:"publicTransit"   binding:"omitempty"`
+	ClosestAirports []areaItemRequest `json:"closestAirports" binding:"omitempty"`
+}
+
+type areaItemRequest struct {
+	Name      string  `json:"name"      binding:"required"`
+	Type      *Type   `json:"type"      binding:"omitempty,eq=cafeBar|eq=peak|eq=train|eq=bus"`
+	DistanceM float64 `json:"distanceM" binding:"required"`
+}
+
+// ToDomain converts the UpdatePropertyDescriptionRequest into a PropertyDescription, preparing it for use in the domain layer.
+func (r *UpdatePropertyDescriptionRequest) ToDomain() *Description {
+	return &Description{
+		About: r.About,
+		Hilights: Hilights{
+			RoomsWith:     r.Hilights.RoomsWith,
+			BreakfastInfo: r.Hilights.BreakfastInfo,
+		},
+		AreaInfo: AreaInfo{
+			NearbyPlaces:    toDomainAreaItems(r.AreaInfo.NearbyPlaces),
+			RestaurantsCafe: toDomainAreaItems(r.AreaInfo.RestaurantsCafe),
+			TopAttractions:  toDomainAreaItems(r.AreaInfo.TopAttractions),
+			NaturalBeauty:   toDomainAreaItems(r.AreaInfo.NaturalBeauty),
+			Beaches:         toDomainAreaItems(r.AreaInfo.Beaches),
+			PublicTransit:   toDomainAreaItems(r.AreaInfo.PublicTransit),
+			ClosestAirports: toDomainAreaItems(r.AreaInfo.ClosestAirports),
+		},
+	}
+}
+
+func toDomainAreaItems(items []areaItemRequest) []AreaItem {
+	domainItems := make([]AreaItem, len(items))
+	for i, item := range items {
+		var areaType *AreaType
+		if item.Type != nil {
+			at := AreaType(*item.Type)
+			areaType = &at
+		}
+
+		domainItems[i] = AreaItem{
+			Name:      item.Name,
+			Type:      areaType,
+			DistanceM: item.DistanceM,
+		}
+	}
+
+	return domainItems
+}
