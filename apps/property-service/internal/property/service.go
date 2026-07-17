@@ -42,6 +42,12 @@ type CreateProperty struct {
 // Service defines the business logic contract for property-related operations.
 type Service interface {
 	CreateProperty(ctx context.Context, req *CreateProperty) (*Property, error)
+	UpdateLocation(
+		ctx context.Context,
+		partnerID uuid.UUID,
+		propertyID uuid.UUID,
+		location *Location,
+	) error
 }
 
 type service struct {
@@ -114,13 +120,13 @@ func (s *service) CreateProperty(
 
 		property = propertyCreated
 
-		partnerPropertyID, uuidErr := uuid.NewV7()
-		if uuidErr != nil {
-			return fmt.Errorf("failed to generate id uuid v7: %w", uuidErr)
+		partnerPropertyID, err := uuid.NewV7()
+		if err != nil {
+			return fmt.Errorf("failed to generate id uuid v7: %w", err)
 		}
 
 		payloadMap := map[string]any{
-			"id":          partnerPropertyID,
+			"id":          partnerPropertyID.String(),
 			"partner_id":  req.PartnerID.String(),
 			"property_id": propertyID,
 			"role":        partner.RoleOwner,
@@ -174,4 +180,36 @@ func (s *service) CreateProperty(
 	}
 
 	return property, nil
+}
+
+func (s *service) UpdateLocation(
+	ctx context.Context,
+	partnerID uuid.UUID,
+	propertyID uuid.UUID,
+	location *Location,
+) error {
+	logger := s.logger.Named("update_location")
+
+	err := s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if err := s.propertyRepo.UpdateLocation(
+			txCtx,
+			tx,
+			partnerID,
+			propertyID,
+			location,
+		); err != nil {
+			logger.Error("failed to update property location in database", zap.Error(err))
+			return dberr.ValidatePostgresError(err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		logger.Error("failed to execute transaction for update location",
+			zap.Error(err),
+		)
+		return fmt.Errorf("Service.UpdateLocation: %w", err)
+	}
+
+	return nil
 }
