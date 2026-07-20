@@ -54,6 +54,12 @@ type Service interface {
 		propertyID uuid.UUID,
 		description *Description,
 	) error
+	UpdatePolicies(
+		ctx context.Context,
+		partnerID uuid.UUID,
+		propertyID uuid.UUID,
+		policy *Policies,
+	) error
 }
 
 type service struct {
@@ -102,7 +108,7 @@ func (s *service) CreateProperty(
 	err = s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		propertyID, uuidErr := uuid.NewV7()
 		if uuidErr != nil {
-			return fmt.Errorf("failed to generate id uuid v7: %w", uuidErr)
+			return fmt.Errorf("failed to generate outbox id uuid v7: %w", uuidErr)
 		}
 
 		propertyReq := Property{
@@ -128,11 +134,11 @@ func (s *service) CreateProperty(
 
 		partnerPropertyID, uuidErr := uuid.NewV7()
 		if uuidErr != nil {
-			return fmt.Errorf("failed to generate id uuid v7: %w", uuidErr)
+			return fmt.Errorf("failed to generate outbox id uuid v7: %w", uuidErr)
 		}
 
 		payloadMap := map[string]any{
-			"id":          partnerPropertyID,
+			"id":          partnerPropertyID.String(),
 			"partner_id":  req.PartnerID.String(),
 			"property_id": propertyID,
 			"role":        partner.RoleOwner,
@@ -235,6 +241,27 @@ func (s *service) UpdateDescription(
 		description,
 	); err != nil {
 		logger.Error("failed to update property description in database", zap.Error(err))
+		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
+}
+
+func (s *service) UpdatePolicies(
+	ctx context.Context,
+	partnerID uuid.UUID,
+	propertyID uuid.UUID,
+	policy *Policies,
+) error {
+	logger := s.logger.Named("update_policies")
+
+	if err := s.propertyRepo.UpdatePolicies(
+		ctx,
+		partnerID,
+		propertyID,
+		policy,
+	); err != nil {
+		logger.Error("failed to update property policies in database", zap.Error(err))
 		return dberr.ValidatePostgresError(err)
 	}
 
