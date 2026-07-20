@@ -59,6 +59,7 @@ type ImageUpload struct {
 // Service defines the business logic contract for property-related operations.
 type Service interface {
 	CreateProperty(ctx context.Context, req *CreateProperty) (*Property, error)
+	CreatePropertyImages(ctx context.Context, propertyID uuid.UUID, images []Image) error
 	GenerateImageUploadURLs(
 		ctx context.Context,
 		propertyID uuid.UUID,
@@ -128,9 +129,9 @@ func (s *service) CreateProperty(
 
 	var property *Property
 	err = s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		propertyID, err := uuid.NewV7()
-		if err != nil {
-			return fmt.Errorf("failed to generate id uuid v7: %w", err)
+		propertyID, uuidErr := uuid.NewV7()
+		if uuidErr != nil {
+			return fmt.Errorf("failed to generate id uuid v7: %w", uuidErr)
 		}
 
 		propertyReq := Property{
@@ -214,6 +215,31 @@ func (s *service) CreateProperty(
 	}
 
 	return property, nil
+}
+
+func (s *service) CreatePropertyImages(
+	ctx context.Context,
+	propertyID uuid.UUID,
+	images []Image,
+) error {
+	logger := s.logger.Named("create_property_images")
+
+	err := s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if err := s.propertyRepo.CreateImages(txCtx, tx, propertyID, images); err != nil {
+			logger.Error("failed to insert property images in database", zap.Error(err))
+			return dberr.ValidatePostgresError(err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		logger.Error("failed to execute transaction for create property images",
+			zap.Error(err),
+		)
+		return fmt.Errorf("Service.CreatePropertyImages: %w", err)
+	}
+
+	return nil
 }
 
 func (s *service) GenerateImageUploadURLs(
