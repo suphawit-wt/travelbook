@@ -183,6 +183,7 @@ func registerRoutes(
 	authorizedPropertiesV1.POST("", propertyHandler.CreateProperty)
 	authorizedPropertiesV1.PATCH(":id/location", propertyHandler.UpdateLocation)
 	authorizedPropertiesV1.PATCH(":id/description", propertyHandler.UpdateDescription)
+	authorizedPropertiesV1.PATCH(":id/policies", propertyHandler.UpdatePolicies)
 
 	router.GET("health", propertyHandler.HealthCheck)
 }

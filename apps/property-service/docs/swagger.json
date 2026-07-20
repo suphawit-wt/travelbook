@@ -250,6 +250,82 @@
                     }
                 }
             }
+        },
+        "/v1/properties/{id}/policies": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update the policies of an existing property, including cancellation policy, house rules, and health and safety measures.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Properties"
+                ],
+                "summary": "Update property policies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Property ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "UpdatePropertyPoliciesRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/property.UpdatePropertyPoliciesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/property.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -412,6 +488,34 @@
                 }
             }
         },
+        "property.UpdatePropertyPoliciesRequest": {
+            "type": "object",
+            "required": [
+                "rules"
+            ],
+            "properties": {
+                "finePrint": {
+                    "type": "string"
+                },
+                "rules": {
+                    "$ref": "#/definitions/property.rulesRequest"
+                }
+            }
+        },
+        "property.ageRangeRequest": {
+            "type": "object",
+            "required": [
+                "min"
+            ],
+            "properties": {
+                "max": {
+                    "type": "integer"
+                },
+                "min": {
+                    "type": "integer"
+                }
+            }
+        },
         "property.areaInfoRequest": {
             "type": "object",
             "properties": {
@@ -477,6 +581,63 @@
                 }
             }
         },
+        "property.bedPolicyRequest": {
+            "type": "object",
+            "required": [
+                "ageRange"
+            ],
+            "properties": {
+                "ageRange": {
+                    "$ref": "#/definitions/property.ageRangeRequest"
+                },
+                "free": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "$ref": "#/definitions/property.moneyRequest"
+                }
+            }
+        },
+        "property.childPoliciesRequest": {
+            "type": "object",
+            "properties": {
+                "allowed": {
+                    "type": "boolean"
+                },
+                "chargedAsAdultsAge": {
+                    "type": "integer"
+                },
+                "minAgeAllowed": {
+                    "type": "integer"
+                }
+            }
+        },
+        "property.cribAndExtraBedPoliciesRequest": {
+            "type": "object",
+            "required": [
+                "crib",
+                "extraBed"
+            ],
+            "properties": {
+                "crib": {
+                    "$ref": "#/definitions/property.bedPolicyRequest"
+                },
+                "extraBed": {
+                    "$ref": "#/definitions/property.bedPolicyRequest"
+                }
+            }
+        },
+        "property.damageDepositRequest": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "required": {
+                    "type": "boolean"
+                }
+            }
+        },
         "property.hilightsRequest": {
             "type": "object",
             "required": [
@@ -494,6 +655,56 @@
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "property.moneyRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "currency"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                }
+            }
+        },
+        "property.rulesRequest": {
+            "type": "object",
+            "required": [
+                "acceptedPayment",
+                "childPolicies",
+                "cribAndExtraBedPolicies",
+                "minCheckInAge"
+            ],
+            "properties": {
+                "acceptedPayment": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "childPolicies": {
+                    "$ref": "#/definitions/property.childPoliciesRequest"
+                },
+                "cribAndExtraBedPolicies": {
+                    "$ref": "#/definitions/property.cribAndExtraBedPoliciesRequest"
+                },
+                "damageDeposit": {
+                    "$ref": "#/definitions/property.damageDepositRequest"
+                },
+                "minCheckInAge": {
+                    "type": "integer"
+                },
+                "partiesAllowed": {
+                    "type": "boolean"
+                },
+                "petsAllowed": {
+                    "type": "boolean"
                 }
             }
         }

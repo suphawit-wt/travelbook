@@ -111,6 +111,24 @@ definitions:
     - longitude
     - zipCode
     type: object
+  property.UpdatePropertyPoliciesRequest:
+    properties:
+      finePrint:
+        type: string
+      rules:
+        $ref: '#/definitions/property.rulesRequest'
+    required:
+    - rules
+    type: object
+  property.ageRangeRequest:
+    properties:
+      max:
+        type: integer
+      min:
+        type: integer
+    required:
+    - min
+    type: object
   property.areaInfoRequest:
     properties:
       beaches:
@@ -154,6 +172,43 @@ definitions:
     - distanceM
     - name
     type: object
+  property.bedPolicyRequest:
+    properties:
+      ageRange:
+        $ref: '#/definitions/property.ageRangeRequest'
+      free:
+        type: boolean
+      price:
+        $ref: '#/definitions/property.moneyRequest'
+    required:
+    - ageRange
+    type: object
+  property.childPoliciesRequest:
+    properties:
+      allowed:
+        type: boolean
+      chargedAsAdultsAge:
+        type: integer
+      minAgeAllowed:
+        type: integer
+    type: object
+  property.cribAndExtraBedPoliciesRequest:
+    properties:
+      crib:
+        $ref: '#/definitions/property.bedPolicyRequest'
+      extraBed:
+        $ref: '#/definitions/property.bedPolicyRequest'
+    required:
+    - crib
+    - extraBed
+    type: object
+  property.damageDepositRequest:
+    properties:
+      price:
+        type: number
+      required:
+        type: boolean
+    type: object
   property.hilightsRequest:
     properties:
       breakfastInfo:
@@ -166,6 +221,40 @@ definitions:
         type: array
     required:
     - roomsWith
+    type: object
+  property.moneyRequest:
+    properties:
+      amount:
+        type: number
+      currency:
+        type: string
+    required:
+    - amount
+    - currency
+    type: object
+  property.rulesRequest:
+    properties:
+      acceptedPayment:
+        items:
+          type: string
+        type: array
+      childPolicies:
+        $ref: '#/definitions/property.childPoliciesRequest'
+      cribAndExtraBedPolicies:
+        $ref: '#/definitions/property.cribAndExtraBedPoliciesRequest'
+      damageDeposit:
+        $ref: '#/definitions/property.damageDepositRequest'
+      minCheckInAge:
+        type: integer
+      partiesAllowed:
+        type: boolean
+      petsAllowed:
+        type: boolean
+    required:
+    - acceptedPayment
+    - childPolicies
+    - cribAndExtraBedPolicies
+    - minCheckInAge
     type: object
 externalDocs:
   description: OpenAPI
@@ -322,6 +411,53 @@ paths:
       security:
       - Bearer: []
       summary: Update property location
+      tags:
+      - Properties
+  /v1/properties/{id}/policies:
+    patch:
+      consumes:
+      - application/json
+      description: Update the policies of an existing property, including cancellation
+        policy, house rules, and health and safety measures.
+      parameters:
+      - description: Property ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UpdatePropertyPoliciesRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/property.UpdatePropertyPoliciesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Update property policies
       tags:
       - Properties
 securityDefinitions:

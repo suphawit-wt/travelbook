@@ -150,3 +150,93 @@ func toDomainAreaItems(items []areaItemRequest) []AreaItem {
 
 	return domainItems
 }
+
+// UpdatePropertyPoliciesRequest defines the expected payload for updating a property's policies, including rules and fine print.
+type UpdatePropertyPoliciesRequest struct {
+	Rules     rulesRequest `json:"rules"     binding:"required"`
+	FinePrint string       `json:"finePrint" binding:"omitempty"`
+}
+
+type rulesRequest struct {
+	DamageDeposit           damageDepositRequest           `json:"damageDeposit"           binding:"omitempty"`
+	ChildPolicies           childPoliciesRequest           `json:"childPolicies"           binding:"required"`
+	CribAndExtraBedPolicies cribAndExtraBedPoliciesRequest `json:"cribAndExtraBedPolicies" binding:"required"`
+
+	MinCheckInAge uint16 `json:"minCheckInAge" binding:"required"`
+
+	PetsAllowed     bool     `json:"petsAllowed"`
+	PartiesAllowed  bool     `json:"partiesAllowed"`
+	AcceptedPayment []string `json:"acceptedPayment" binding:"required"`
+}
+
+type childPoliciesRequest struct {
+	Allowed            bool    `json:"allowed"`
+	MinAgeAllowed      *uint16 `json:"minAgeAllowed"      binding:"omitempty"`
+	ChargedAsAdultsAge *uint16 `json:"chargedAsAdultsAge" binding:"omitempty"`
+}
+
+type cribAndExtraBedPoliciesRequest struct {
+	Crib     bedPolicyRequest `json:"crib"     binding:"required"`
+	ExtraBed bedPolicyRequest `json:"extraBed" binding:"required"`
+}
+
+type bedPolicyRequest struct {
+	AgeRange ageRangeRequest `json:"ageRange" binding:"required"`
+	Free     bool            `json:"free"`
+	Price    *moneyRequest   `json:"price"    binding:"omitempty"`
+}
+
+type ageRangeRequest struct {
+	Min uint16  `json:"min" binding:"required"`
+	Max *uint16 `json:"max" binding:"omitempty"`
+}
+
+type moneyRequest struct {
+	Amount   float64 `json:"amount"   binding:"required"`
+	Currency string  `json:"currency" binding:"required,iso4217"`
+}
+
+type damageDepositRequest struct {
+	Required bool     `json:"required"`
+	Price    *float64 `json:"price"    binding:"omitempty"`
+}
+
+// ToDomain converts the UpdatePropertyPoliciesRequest into a PropertyPolicies, preparing it for use in the domain layer.
+func (r *UpdatePropertyPoliciesRequest) ToDomain() *Policies {
+	return &Policies{
+		Rules: Rules{
+			DamageDeposit: DamageDeposit{
+				Required: r.Rules.DamageDeposit.Required,
+				Price:    r.Rules.DamageDeposit.Price,
+			},
+			ChildPolicies: ChildPolicies{
+				Allowed:            r.Rules.ChildPolicies.Allowed,
+				MinAgeAllowed:      r.Rules.ChildPolicies.MinAgeAllowed,
+				ChargedAsAdultsAge: r.Rules.ChildPolicies.ChargedAsAdultsAge,
+			},
+			CribAndExtraBedPolicies: CribAndExtraBedPolicies{
+				Crib: BedPolicy{
+					AgeRange: AgeRange{
+						Min: r.Rules.CribAndExtraBedPolicies.Crib.AgeRange.Min,
+						Max: r.Rules.CribAndExtraBedPolicies.Crib.AgeRange.Max,
+					},
+					Free:  r.Rules.CribAndExtraBedPolicies.Crib.Free,
+					Price: (*Money)(r.Rules.CribAndExtraBedPolicies.Crib.Price),
+				},
+				ExtraBed: BedPolicy{
+					AgeRange: AgeRange{
+						Min: r.Rules.CribAndExtraBedPolicies.ExtraBed.AgeRange.Min,
+						Max: r.Rules.CribAndExtraBedPolicies.ExtraBed.AgeRange.Max,
+					},
+					Free:  r.Rules.CribAndExtraBedPolicies.ExtraBed.Free,
+					Price: (*Money)(r.Rules.CribAndExtraBedPolicies.ExtraBed.Price),
+				},
+			},
+			MinCheckInAge:   r.Rules.MinCheckInAge,
+			PetsAllowed:     r.Rules.PetsAllowed,
+			PartiesAllowed:  r.Rules.PartiesAllowed,
+			AcceptedPayment: r.Rules.AcceptedPayment,
+		},
+		FinePrint: &r.FinePrint,
+	}
+}

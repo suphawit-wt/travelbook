@@ -22,6 +22,7 @@ type Handler interface {
 	CreateProperty(c *gin.Context)
 	UpdateLocation(c *gin.Context)
 	UpdateDescription(c *gin.Context)
+	UpdatePolicies(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -238,6 +239,76 @@ func (h *handler) UpdateDescription(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Message:    "Update Property Description Successfully.",
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// UpdatePolicies godoc
+//
+//	@Summary		Update property policies
+//	@Description	Update the policies of an existing property, including cancellation policy, house rules, and health and safety measures.
+//	@Security		Bearer
+//	@Tags			Properties
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string							true	"Property ID (UUID)"
+//	@Param			req	body		UpdatePropertyPoliciesRequest	true	"UpdatePropertyPoliciesRequest"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		409	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/properties/{id}/policies [patch]
+func (h *handler) UpdatePolicies(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	partnerIDStr, ok := c.MustGet("partnerID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid partner ID format."))
+		return
+	}
+
+	partnerID, err := uuid.Parse(partnerIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid partner ID format."))
+		return
+	}
+
+	var uri URI
+
+	if err = c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	propertyID, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid property ID format."))
+		return
+	}
+
+	var req UpdatePropertyPoliciesRequest
+
+	if err = errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err = h.propertySvc.UpdatePolicies(
+		ctx,
+		partnerID,
+		propertyID,
+		req.ToDomain(),
+	); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Update Property Policies Successfully.",
 	}
 
 	c.JSON(http.StatusOK, res)
