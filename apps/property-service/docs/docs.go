@@ -181,6 +181,82 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/properties/{id}/images": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new property images.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Properties"
+                ],
+                "summary": "Create property images",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Property ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "CreatePropertyImagesRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/property.CreatePropertyImagesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/property.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/properties/{id}/images/presigned-urls": {
             "post": {
                 "security": [
@@ -448,6 +524,20 @@ const docTemplate = `{
                 }
             }
         },
+        "property.CreatePropertyImagesRequest": {
+            "type": "object",
+            "required": [
+                "images"
+            ],
+            "properties": {
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.ImageUploadRequst"
+                    }
+                }
+            }
+        },
         "property.CreatePropertyRequest": {
             "type": "object",
             "required": [
@@ -556,6 +646,34 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/property.ImageUploadURLsResponse"
                     }
+                }
+            }
+        },
+        "property.ImageUploadRequst": {
+            "type": "object",
+            "required": [
+                "id",
+                "imageUrl",
+                "key",
+                "orientation",
+                "position"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "orientation": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer",
+                    "minimum": 0
                 }
             }
         },

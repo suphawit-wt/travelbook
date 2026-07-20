@@ -181,6 +181,7 @@ func registerRoutes(
 		middleware.AuthorizedPartner(jwtSvc, jwtKeys.Partner.Access.Public),
 	)
 	authorizedPropertiesV1.POST("", propertyHandler.CreateProperty)
+	authorizedPropertiesV1.POST(":id/images", propertyHandler.CreatePropertyImages)
 	authorizedPropertiesV1.POST(
 		":id/images/presigned-urls",
 		propertyHandler.GenerateImageUploadURLs,

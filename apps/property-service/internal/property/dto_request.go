@@ -62,6 +62,36 @@ func (r *CreatePropertyRequest) ToDomain(partnerID uuid.UUID) (*CreateProperty, 
 	}, nil
 }
 
+// CreatePropertyImagesRequest defines the expected payload for creating new images for a property.
+type CreatePropertyImagesRequest struct {
+	Images []ImageUploadRequst `json:"images" binding:"required"`
+}
+
+// ImageUploadRequst defines the expected metadata for each image in the CreatePropertyImagesRequest.
+type ImageUploadRequst struct {
+	Id          string `json:"id"          binding:"required,uuid"`
+	Key         string `json:"key"         binding:"required"`
+	ImageUrl    string `json:"imageUrl"    binding:"required"`
+	Position    uint8  `json:"position"    binding:"required,gte=0"`
+	Orientation string `json:"orientation" binding:"required,eq=landscape|eq=portrait"`
+}
+
+// ToDomainModel converts the CreatePropertyImagesRequest into a slice of PropertyImage, preparing it for use in the domain layer.
+func (r *CreatePropertyImagesRequest) ToDomainModel() []Image {
+	images := make([]Image, len(r.Images))
+	for i, img := range r.Images {
+		images[i] = Image{
+			ID:          img.Id,
+			Key:         img.Key,
+			ImageUrl:    img.ImageUrl,
+			Position:    img.Position,
+			Orientation: img.Orientation,
+		}
+	}
+
+	return images
+}
+
 // GenerateImageUploadURLsRequest defines the expected payload for generating presigned URLs for image uploads.
 type GenerateImageUploadURLsRequest struct {
 	Files []FileMetadataRequest `json:"files" binding:"required"`

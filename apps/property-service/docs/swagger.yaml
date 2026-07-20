@@ -16,6 +16,15 @@ definitions:
       statusCode:
         type: integer
     type: object
+  property.CreatePropertyImagesRequest:
+    properties:
+      images:
+        items:
+          $ref: '#/definitions/property.ImageUploadRequst'
+        type: array
+    required:
+    - images
+    type: object
   property.CreatePropertyRequest:
     properties:
       checkInFrom:
@@ -90,6 +99,26 @@ definitions:
         items:
           $ref: '#/definitions/property.ImageUploadURLsResponse'
         type: array
+    type: object
+  property.ImageUploadRequst:
+    properties:
+      id:
+        type: string
+      imageUrl:
+        type: string
+      key:
+        type: string
+      orientation:
+        type: string
+      position:
+        minimum: 0
+        type: integer
+    required:
+    - id
+    - imageUrl
+    - key
+    - orientation
+    - position
     type: object
   property.ImageUploadURLsResponse:
     properties:
@@ -404,6 +433,52 @@ paths:
       security:
       - Bearer: []
       summary: Update property description
+      tags:
+      - Properties
+  /v1/properties/{id}/images:
+    post:
+      consumes:
+      - application/json
+      description: Create a new property images.
+      parameters:
+      - description: Property ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: CreatePropertyImagesRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/property.CreatePropertyImagesRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Create property images
       tags:
       - Properties
   /v1/properties/{id}/images/presigned-urls:
