@@ -45,9 +45,24 @@ type Policies struct {
 	FinePrint *string
 }
 
+// Image represents the details of an image associated with a property, including its ID, storage key, URL, position, and orientation.
+type Image struct {
+	ID          string
+	Key         string
+	ImageUrl    string
+	Position    uint8
+	Orientation string
+}
+
 // Repository defines the data access contract for property entities.
 type Repository interface {
 	Create(ctx context.Context, tx pgx.Tx, p *Property) (*Property, error)
+	CreateImages(
+		ctx context.Context,
+		tx pgx.Tx,
+		propertyID uuid.UUID,
+		images []Image,
+	) error
 	UpdateLocation(
 		ctx context.Context,
 		tx pgx.Tx,
@@ -122,6 +137,45 @@ func (r *repositoryDB) Create(
 	}
 
 	return p, nil
+}
+
+func (r *repositoryDB) CreateImages(
+	ctx context.Context,
+	tx pgx.Tx,
+	propertyID uuid.UUID,
+	images []Image,
+) error {
+	batch := &pgx.Batch{}
+	for _, img := range images {
+		batch.Queue(`
+            INSERT INTO property_images (
+                id, property_id, key, image_url, position, orientation
+            ) VALUES ($1, $2, $3, $4, $5, $6)
+        `,
+			img.ID,
+			propertyID,
+			img.Key,
+			img.ImageUrl,
+			img.Position,
+			img.Orientation,
+		)
+	}
+
+	br := tx.SendBatch(ctx, batch)
+
+	defer func() { _ = br.Close() }()
+
+	for range images {
+		if _, err := br.Exec(); err != nil {
+			return err
+		}
+	}
+
+	if err := br.Close(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *repositoryDB) UpdateLocation(
