@@ -62,6 +62,46 @@ definitions:
       message:
         type: string
     type: object
+  property.FileMetadataRequest:
+    properties:
+      contentType:
+        type: string
+      fileName:
+        type: string
+      size:
+        type: integer
+    required:
+    - contentType
+    - fileName
+    - size
+    type: object
+  property.GenerateImageUploadURLsRequest:
+    properties:
+      files:
+        items:
+          $ref: '#/definitions/property.FileMetadataRequest'
+        type: array
+    required:
+    - files
+    type: object
+  property.GenerateImageUploadURLsResponse:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/property.ImageUploadURLsResponse'
+        type: array
+    type: object
+  property.ImageUploadURLsResponse:
+    properties:
+      id:
+        type: string
+      imageUrl:
+        type: string
+      key:
+        type: string
+      uploadUrl:
+        type: string
+    type: object
   property.Type:
     enum:
     - hotel
@@ -364,6 +404,57 @@ paths:
       security:
       - Bearer: []
       summary: Update property description
+      tags:
+      - Properties
+  /v1/properties/{id}/images/presigned-urls:
+    post:
+      consumes:
+      - application/json
+      description: Generate presigned URLs for uploading property images to file storage.
+      parameters:
+      - description: Property ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: GenerateImageUploadURLsRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/property.GenerateImageUploadURLsRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/property.GenerateImageUploadURLsResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Generate image upload URLs
       tags:
       - Properties
   /v1/properties/{id}/location:

@@ -13,6 +13,37 @@ type CreatePropertyResponse struct {
 	Timezone string `json:"timezone"`
 }
 
+// GenerateImageUploadURLsResponse defines the structure of the response returned after generating presigned URLs for image uploads.
+type GenerateImageUploadURLsResponse struct {
+	Uploads []ImageUploadURLsResponse `json:"uploads"`
+}
+
+// ImageUploadURLsResponse defines the structure of each individual image upload URL response, including the presigned URL and the final image URL after upload.
+type ImageUploadURLsResponse struct {
+	Id        string `json:"id"`
+	Key       string `json:"key"`
+	UploadUrl string `json:"uploadUrl"`
+	ImageUrl  string `json:"imageUrl"`
+}
+
+// FromDomainModel converts a slice of ImageUpload to a GenerateImageUploadURLsResponse, mapping the relevant fields for the API response.
+func (r GenerateImageUploadURLsResponse) FromDomainModel(
+	uploads []ImageUpload,
+) *GenerateImageUploadURLsResponse {
+	uploadResponses := make([]ImageUploadURLsResponse, len(uploads))
+
+	for i, upload := range uploads {
+		uploadResponses[i] = ImageUploadURLsResponse{
+			Id:        upload.ID,
+			Key:       upload.Key,
+			UploadUrl: upload.UploadURL,
+			ImageUrl:  upload.ImageURL,
+		}
+	}
+
+	return &GenerateImageUploadURLsResponse{Uploads: uploadResponses}
+}
+
 // ApiResponse represents the standard structure for API responses, including status, status code, message, and optional error details.
 type ApiResponse struct {
 	Status     string        `json:"status"`

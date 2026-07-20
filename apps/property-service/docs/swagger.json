@@ -175,6 +175,94 @@
                 }
             }
         },
+        "/v1/properties/{id}/images/presigned-urls": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Generate presigned URLs for uploading property images to file storage.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Properties"
+                ],
+                "summary": "Generate image upload URLs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Property ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "GenerateImageUploadURLsRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/property.GenerateImageUploadURLsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponseWithData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/property.GenerateImageUploadURLsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/property.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/properties/{id}/location": {
             "patch": {
                 "security": [
@@ -417,6 +505,67 @@
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "property.FileMetadataRequest": {
+            "type": "object",
+            "required": [
+                "contentType",
+                "fileName",
+                "size"
+            ],
+            "properties": {
+                "contentType": {
+                    "type": "string"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "property.GenerateImageUploadURLsRequest": {
+            "type": "object",
+            "required": [
+                "files"
+            ],
+            "properties": {
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.FileMetadataRequest"
+                    }
+                }
+            }
+        },
+        "property.GenerateImageUploadURLsResponse": {
+            "type": "object",
+            "properties": {
+                "uploads": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.ImageUploadURLsResponse"
+                    }
+                }
+            }
+        },
+        "property.ImageUploadURLsResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "uploadUrl": {
                     "type": "string"
                 }
             }

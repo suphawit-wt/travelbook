@@ -62,6 +62,28 @@ func (r *CreatePropertyRequest) ToDomain(partnerID uuid.UUID) (*CreateProperty, 
 	}, nil
 }
 
+// GenerateImageUploadURLsRequest defines the expected payload for generating presigned URLs for image uploads.
+type GenerateImageUploadURLsRequest struct {
+	Files []FileMetadataRequest `json:"files" binding:"required"`
+}
+
+// FileMetadataRequest defines the expected metadata for each file in the GenerateImageUploadURLsRequest.
+type FileMetadataRequest struct {
+	FileName    string `json:"fileName"    binding:"required"`
+	ContentType string `json:"contentType" binding:"required"`
+	Size        uint32 `json:"size"        binding:"required,gt=0"`
+}
+
+// ToDomain converts the GenerateImageUploadURLsRequest into a slice of FileMetadata, preparing it for use in the domain layer.
+func (r *GenerateImageUploadURLsRequest) ToDomain() []FileMetadata {
+	files := make([]FileMetadata, len(r.Files))
+	for i, f := range r.Files {
+		files[i] = FileMetadata(f)
+	}
+
+	return files
+}
+
 // UpdatePropertyLocationRequest defines the expected payload for updating a property's location information.
 type UpdatePropertyLocationRequest struct {
 	AreaID       string  `json:"areaId"       binding:"required,uuid"`
