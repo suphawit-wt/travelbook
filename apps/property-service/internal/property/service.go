@@ -8,8 +8,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
 	"github.com/gosimple/slug"
@@ -39,9 +41,29 @@ type CreateProperty struct {
 	PartnerID     uuid.UUID
 }
 
+// FileMetadata represents the metadata for a file that is required to generate a presigned URL for image uploads.
+type FileMetadata struct {
+	FileName    string
+	ContentType string
+	Size        uint32
+}
+
+// ImageUpload represents the details of a single image upload, including the presigned URL and the final image URL after upload.
+type ImageUpload struct {
+	ID        string
+	Key       string
+	UploadURL string
+	ImageURL  string
+}
+
 // Service defines the business logic contract for property-related operations.
 type Service interface {
 	CreateProperty(ctx context.Context, req *CreateProperty) (*Property, error)
+	GenerateImageUploadURLs(
+		ctx context.Context,
+		propertyID uuid.UUID,
+		files []FileMetadata,
+	) ([]ImageUpload, error)
 	UpdateLocation(
 		ctx context.Context,
 		partnerID uuid.UUID,
@@ -106,9 +128,9 @@ func (s *service) CreateProperty(
 
 	var property *Property
 	err = s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		propertyID, uuidErr := uuid.NewV7()
-		if uuidErr != nil {
-			return fmt.Errorf("failed to generate outbox id uuid v7: %w", uuidErr)
+		propertyID, err := uuid.NewV7()
+		if err != nil {
+			return fmt.Errorf("failed to generate id uuid v7: %w", err)
 		}
 
 		propertyReq := Property{
@@ -132,9 +154,9 @@ func (s *service) CreateProperty(
 
 		property = propertyCreated
 
-		partnerPropertyID, uuidErr := uuid.NewV7()
-		if uuidErr != nil {
-			return fmt.Errorf("failed to generate outbox id uuid v7: %w", uuidErr)
+		partnerPropertyID, err := uuid.NewV7()
+		if err != nil {
+			return fmt.Errorf("failed to generate id uuid v7: %w", err)
 		}
 
 		payloadMap := map[string]any{
@@ -192,6 +214,53 @@ func (s *service) CreateProperty(
 	}
 
 	return property, nil
+}
+
+func (s *service) GenerateImageUploadURLs(
+	ctx context.Context,
+	propertyID uuid.UUID,
+	files []FileMetadata,
+) ([]ImageUpload, error) {
+	var UploadURLs []ImageUpload
+
+	for _, file := range files {
+		fileId := uuid.New()
+		ext := filepath.Ext(file.FileName)
+
+		fileKey := fmt.Sprintf(
+			"properties/%s/images/%s%s",
+			propertyID.String(),
+			fileId.String(),
+			ext,
+		)
+
+		presignInput := &s3.PutObjectInput{
+			Bucket:      aws.String(s.storageCfg.S3.Bucket),
+			Key:         aws.String(fileKey),
+			ContentType: aws.String(file.ContentType),
+			// ContentLength: aws.Int64(int64(file.Size)), // Strictly file size check
+		}
+
+		presignedURL, err := s.s3PresignClient.PresignPutObject(
+			ctx,
+			presignInput,
+			s3.WithPresignExpires(15*time.Minute),
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		imageURL := fmt.Sprintf("%s/%s", s.storageCfg.CDN.BaseURL, fileKey)
+
+		UploadURLs = append(UploadURLs, ImageUpload{
+			ID:        fileId.String(),
+			Key:       fileKey,
+			UploadURL: presignedURL.URL,
+			ImageURL:  imageURL,
+		})
+	}
+
+	return UploadURLs, nil
 }
 
 func (s *service) UpdateLocation(
