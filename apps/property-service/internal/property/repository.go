@@ -39,6 +39,12 @@ type Hilights struct {
 	BreakfastInfo []string
 }
 
+// Policies represents the policies of a property, including rules and fine print information.
+type Policies struct {
+	Rules     Rules
+	FinePrint *string
+}
+
 // Repository defines the data access contract for property entities.
 type Repository interface {
 	Create(ctx context.Context, tx pgx.Tx, p *Property) (*Property, error)
@@ -54,6 +60,12 @@ type Repository interface {
 		partnerID uuid.UUID,
 		propertyID uuid.UUID,
 		description *Description,
+	) error
+	UpdatePolicies(
+		ctx context.Context,
+		partnerID uuid.UUID,
+		propertyID uuid.UUID,
+		policy *Policies,
 	) error
 }
 
@@ -228,6 +240,37 @@ func (r *repositoryDB) UpdateDescription(
 		description.About,
 		description.Hilights,
 		description.AreaInfo,
+		time.Now().UTC(),
+		propertyID,
+		partnerID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) UpdatePolicies(
+	ctx context.Context,
+	partnerID, propertyID uuid.UUID,
+	policy *Policies,
+) error {
+	query := `
+	UPDATE properties
+	SET
+		rules = $1,
+		fine_print = $2,
+		updated_at = $3
+	WHERE id = $4
+	AND partner_id = $5
+	`
+
+	_, err := r.db.Exec(
+		ctx,
+		query,
+		policy.Rules,
+		policy.FinePrint,
 		time.Now().UTC(),
 		propertyID,
 		partnerID,
