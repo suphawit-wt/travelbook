@@ -60,6 +60,7 @@ type ImageUpload struct {
 type Service interface {
 	CreateProperty(ctx context.Context, req *CreateProperty) (*Property, error)
 	CreatePropertyImages(ctx context.Context, propertyID uuid.UUID, images []Image) error
+	CreatePropertyRoom(ctx context.Context, propertyID uuid.UUID, req *CreatePropertyRoom) error
 	GenerateImageUploadURLs(
 		ctx context.Context,
 		propertyID uuid.UUID,
@@ -155,9 +156,9 @@ func (s *service) CreateProperty(
 
 		property = propertyCreated
 
-		partnerPropertyID, err := uuid.NewV7()
-		if err != nil {
-			return fmt.Errorf("failed to generate id uuid v7: %w", err)
+		partnerPropertyID, uuidErr := uuid.NewV7()
+		if uuidErr != nil {
+			return fmt.Errorf("failed to generate id uuid v7: %w", uuidErr)
 		}
 
 		payloadMap := map[string]any{
@@ -237,6 +238,31 @@ func (s *service) CreatePropertyImages(
 			zap.Error(err),
 		)
 		return fmt.Errorf("Service.CreatePropertyImages: %w", err)
+	}
+
+	return nil
+}
+
+func (s *service) CreatePropertyRoom(
+	ctx context.Context,
+	propertyID uuid.UUID,
+	req *CreatePropertyRoom,
+) error {
+	logger := s.logger.Named("create_property_room")
+
+	err := s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if err := s.propertyRepo.CreateRoom(txCtx, tx, propertyID, req); err != nil {
+			logger.Error("failed to insert property room in database", zap.Error(err))
+			return dberr.ValidatePostgresError(err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		logger.Error("failed to execute transaction for create property room",
+			zap.Error(err),
+		)
+		return fmt.Errorf("Service.CreatePropertyRoom: %w", err)
 	}
 
 	return nil
