@@ -54,6 +54,22 @@ type Image struct {
 	Orientation string
 }
 
+// CreatePropertyRoom represents the necessary information to create a new room for a property.
+type CreatePropertyRoom struct {
+	Name           string
+	MaxAdults      uint8
+	MaxChildren    uint8
+	BasePriceCents int64
+	TotalRooms     uint8
+	Beds           []CreateBed
+}
+
+// CreateBed represents the details of a bed type and its quantity, used when creating rooms for a property.
+type CreateBed struct {
+	BedType  string
+	Quantity uint8
+}
+
 // Repository defines the data access contract for property entities.
 type Repository interface {
 	Create(ctx context.Context, tx pgx.Tx, p *Property) (*Property, error)
@@ -62,6 +78,12 @@ type Repository interface {
 		tx pgx.Tx,
 		propertyID uuid.UUID,
 		images []Image,
+	) error
+	CreateRoom(
+		ctx context.Context,
+		tx pgx.Tx,
+		propertyID uuid.UUID,
+		req *CreatePropertyRoom,
 	) error
 	UpdateLocation(
 		ctx context.Context,
@@ -173,6 +195,89 @@ func (r *repositoryDB) CreateImages(
 
 	if err := br.Close(); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) CreateRoom(
+	ctx context.Context,
+	tx pgx.Tx,
+	propertyID uuid.UUID,
+	req *CreatePropertyRoom,
+) error {
+	var currentMaxAdults, currentMaxChildren uint8
+	queryCurrentMax := `
+        SELECT COALESCE(MAX(max_adults), 0), COALESCE(MAX(max_children), 0)
+        FROM room_types
+        WHERE property_id = $1
+    `
+	if err := tx.QueryRow(ctx, queryCurrentMax, propertyID).
+		Scan(&currentMaxAdults, &currentMaxChildren); err != nil {
+		return fmt.Errorf("failed to fetch current max capacities: %w", err)
+	}
+
+	roomTypeID, uuidErr := uuid.NewV7()
+	if uuidErr != nil {
+		return fmt.Errorf("failed to generate id uuid v7: %w", uuidErr)
+	}
+
+	if err := r.insertRoomType(ctx, tx, roomTypeID, propertyID, req); err != nil {
+		return err
+	}
+
+	if len(req.Beds) > 0 {
+		if err := r.insertRoomBeds(ctx, tx, roomTypeID, req.Beds); err != nil {
+			return err
+		}
+	}
+
+	if err := r.syncInventory(ctx, tx, roomTypeID, propertyID, req); err != nil {
+		return err
+	}
+
+	finalMaxAdults := currentMaxAdults
+	if req.MaxAdults > currentMaxAdults {
+		finalMaxAdults = req.MaxAdults
+	}
+
+	finalMaxChildren := currentMaxChildren
+	if req.MaxChildren > currentMaxChildren {
+		finalMaxChildren = req.MaxChildren
+	}
+
+	payloadMap := map[string]any{
+		"max_adults":   finalMaxAdults,
+		"max_children": finalMaxChildren,
+	}
+
+	payloadBytes, err := json.Marshal(payloadMap)
+	if err != nil {
+		return fmt.Errorf("failed to marshal outbox payload: %w", err)
+	}
+
+	outboxQuery := `
+        INSERT INTO outbox (id, aggregate_type, aggregate_id, event_type, topic, payload)
+        VALUES ($1, $2, $3, $4, $5, $6)
+    `
+
+	outboxID, err := uuid.NewV7()
+	if err != nil {
+		return fmt.Errorf("failed to generate outbox id uuid v7: %w", err)
+	}
+
+	_, err = tx.Exec(
+		ctx,
+		outboxQuery,
+		outboxID,
+		"property",
+		propertyID,
+		"PropertyCapacityUpdated",
+		"dev.property.inventory.search.v1",
+		payloadBytes,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to insert outbox for capacity update: %w", err)
 	}
 
 	return nil
