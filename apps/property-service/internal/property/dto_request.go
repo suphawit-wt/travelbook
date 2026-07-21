@@ -92,6 +92,42 @@ func (r *CreatePropertyImagesRequest) ToDomainModel() []Image {
 	return images
 }
 
+// CreatePropertyRoomRequest defines the expected payload for creating a new room within a property.
+type CreatePropertyRoomRequest struct {
+	Name           string       `json:"name"           binding:"required"`
+	MaxAdults      uint8        `json:"maxAdults"      binding:"required,gt=0"`
+	MaxChildren    uint8        `json:"maxChildren"    binding:"required,gte=0"`
+	BasePriceCents int64        `json:"basePriceCents" binding:"required,gte=0"`
+	TotalRooms     uint8        `json:"totalRooms"     binding:"required,gt=0"`
+	Beds           []bedRequest `json:"beds"           binding:"required"`
+}
+
+type bedRequest struct {
+	BedType  string `json:"bedType"  binding:"required"`
+	Quantity uint8  `json:"quantity" binding:"required,gt=0"`
+}
+
+// ToDomainModel converts the CreatePropertyRoomRequest into a CreatePropertyRoom.
+func (r *CreatePropertyRoomRequest) ToDomainModel() *CreatePropertyRoom {
+	return &CreatePropertyRoom{
+		Name:           r.Name,
+		MaxAdults:      r.MaxAdults,
+		MaxChildren:    r.MaxChildren,
+		BasePriceCents: r.BasePriceCents,
+		TotalRooms:     r.TotalRooms,
+		Beds:           r.toDomainBeds(),
+	}
+}
+
+func (r *CreatePropertyRoomRequest) toDomainBeds() []CreateBed {
+	beds := make([]CreateBed, len(r.Beds))
+	for i, b := range r.Beds {
+		beds[i] = CreateBed(b)
+	}
+
+	return beds
+}
+
 // GenerateImageUploadURLsRequest defines the expected payload for generating presigned URLs for image uploads.
 type GenerateImageUploadURLsRequest struct {
 	Files []FileMetadataRequest `json:"files" binding:"required"`

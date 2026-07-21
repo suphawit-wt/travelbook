@@ -21,6 +21,7 @@ import (
 type Handler interface {
 	CreateProperty(c *gin.Context)
 	CreatePropertyImages(c *gin.Context)
+	CreatePropertyRoom(c *gin.Context)
 	GenerateImageUploadURLs(c *gin.Context)
 	UpdateLocation(c *gin.Context)
 	UpdateDescription(c *gin.Context)
@@ -154,6 +155,59 @@ func (h *handler) CreatePropertyImages(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusCreated,
 		Message:    "Create Property images successfully.",
+	}
+
+	c.JSON(http.StatusCreated, res)
+}
+
+// CreatePropertyRoom godoc
+//
+//	@Summary		Create property room
+//	@Description	Create a new property room
+//	@Tags			Properties
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string						true	"Property ID (UUID)"
+//	@Param			req	body		CreatePropertyRoomRequest	true	"CreatePropertyRoomRequest"
+//	@Success		201	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		409	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/properties/{id}/rooms [post]
+func (h *handler) CreatePropertyRoom(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri URI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	propertyID, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid property ID format."))
+		return
+	}
+
+	var req CreatePropertyRoomRequest
+
+	if err = errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err = h.propertySvc.CreatePropertyRoom(ctx, propertyID, req.ToDomainModel()); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusCreated,
+		Message:    "Create Property Room successfully.",
 	}
 
 	c.JSON(http.StatusCreated, res)

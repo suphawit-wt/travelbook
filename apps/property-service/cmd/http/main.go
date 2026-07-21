@@ -186,6 +186,7 @@ func registerRoutes(
 		":id/images/presigned-urls",
 		propertyHandler.GenerateImageUploadURLs,
 	)
+	authorizedPropertiesV1.POST(":id/rooms", propertyHandler.CreatePropertyRoom)
 	authorizedPropertiesV1.PATCH(":id/location", propertyHandler.UpdateLocation)
 	authorizedPropertiesV1.PATCH(":id/description", propertyHandler.UpdateDescription)
 	authorizedPropertiesV1.PATCH(":id/policies", propertyHandler.UpdatePolicies)

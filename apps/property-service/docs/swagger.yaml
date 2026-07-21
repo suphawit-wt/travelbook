@@ -64,6 +64,32 @@ definitions:
       type:
         $ref: '#/definitions/property.Type'
     type: object
+  property.CreatePropertyRoomRequest:
+    properties:
+      basePriceCents:
+        minimum: 0
+        type: integer
+      beds:
+        items:
+          $ref: '#/definitions/property.bedRequest'
+        type: array
+      maxAdults:
+        type: integer
+      maxChildren:
+        minimum: 0
+        type: integer
+      name:
+        type: string
+      totalRooms:
+        type: integer
+    required:
+    - basePriceCents
+    - beds
+    - maxAdults
+    - maxChildren
+    - name
+    - totalRooms
+    type: object
   property.ErrResponse:
     properties:
       field:
@@ -251,6 +277,16 @@ definitions:
         $ref: '#/definitions/property.moneyRequest'
     required:
     - ageRange
+    type: object
+  property.bedRequest:
+    properties:
+      bedType:
+        type: string
+      quantity:
+        type: integer
+    required:
+    - bedType
+    - quantity
     type: object
   property.childPoliciesRequest:
     properties:
@@ -624,6 +660,52 @@ paths:
       security:
       - Bearer: []
       summary: Update property policies
+      tags:
+      - Properties
+  /v1/properties/{id}/rooms:
+    post:
+      consumes:
+      - application/json
+      description: Create a new property room
+      parameters:
+      - description: Property ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: CreatePropertyRoomRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/property.CreatePropertyRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Create property room
       tags:
       - Properties
 securityDefinitions:

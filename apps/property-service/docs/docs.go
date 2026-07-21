@@ -496,6 +496,82 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/properties/{id}/rooms": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new property room",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Properties"
+                ],
+                "summary": "Create property room",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Property ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "CreatePropertyRoomRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/property.CreatePropertyRoomRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/property.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -591,6 +667,42 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/property.Type"
+                }
+            }
+        },
+        "property.CreatePropertyRoomRequest": {
+            "type": "object",
+            "required": [
+                "basePriceCents",
+                "beds",
+                "maxAdults",
+                "maxChildren",
+                "name",
+                "totalRooms"
+            ],
+            "properties": {
+                "basePriceCents": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "beds": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.bedRequest"
+                    }
+                },
+                "maxAdults": {
+                    "type": "integer"
+                },
+                "maxChildren": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "name": {
+                    "type": "string"
+                },
+                "totalRooms": {
+                    "type": "integer"
                 }
             }
         },
@@ -868,6 +980,21 @@ const docTemplate = `{
                 },
                 "price": {
                     "$ref": "#/definitions/property.moneyRequest"
+                }
+            }
+        },
+        "property.bedRequest": {
+            "type": "object",
+            "required": [
+                "bedType",
+                "quantity"
+            ],
+            "properties": {
+                "bedType": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
                 }
             }
         },
