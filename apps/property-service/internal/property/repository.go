@@ -70,6 +70,14 @@ type CreateBed struct {
 	Quantity uint8
 }
 
+// CreateRatePlan represents a pricing strategy for a room, including details such as price modifiers and included amenities.
+type CreateRatePlan struct {
+	Name              string
+	PriceModifier     float64
+	Refundable        bool
+	BreakfastIncluded bool
+}
+
 // Repository defines the data access contract for property entities.
 type Repository interface {
 	Create(ctx context.Context, tx pgx.Tx, p *Property) (*Property, error)
@@ -85,6 +93,7 @@ type Repository interface {
 		propertyID uuid.UUID,
 		req *CreatePropertyRoom,
 	) error
+	CreateRatePlan(ctx context.Context, id uuid.UUID, ratePlan *CreateRatePlan) error
 	UpdateLocation(
 		ctx context.Context,
 		tx pgx.Tx,
@@ -278,6 +287,37 @@ func (r *repositoryDB) CreateRoom(
 	)
 	if err != nil {
 		return fmt.Errorf("failed to insert outbox for capacity update: %w", err)
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) CreateRatePlan(
+	ctx context.Context,
+	roomID uuid.UUID,
+	ratePlan *CreateRatePlan,
+) error {
+	query := `INSERT INTO rate_plans
+		(id, room_type_id, name, price_modifier_usd, refundable, breakfast_included)
+		VALUES ($1, $2, $3, $4, $5, $6)`
+
+	ratePlanID, err := uuid.NewV7()
+	if err != nil {
+		return fmt.Errorf("failed to generate id uuid v7: %w", err)
+	}
+
+	_, err = r.db.Exec(
+		ctx,
+		query,
+		ratePlanID,
+		roomID,
+		ratePlan.Name,
+		ratePlan.PriceModifier,
+		ratePlan.Refundable,
+		ratePlan.BreakfastIncluded,
+	)
+	if err != nil {
+		return err
 	}
 
 	return nil
