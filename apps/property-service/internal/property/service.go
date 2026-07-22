@@ -61,6 +61,7 @@ type Service interface {
 	CreateProperty(ctx context.Context, req *CreateProperty) (*Property, error)
 	CreatePropertyImages(ctx context.Context, propertyID uuid.UUID, images []Image) error
 	CreatePropertyRoom(ctx context.Context, propertyID uuid.UUID, req *CreatePropertyRoom) error
+	CreateRatePlan(ctx context.Context, id uuid.UUID, ratePlan *CreateRatePlan) error
 	GenerateImageUploadURLs(
 		ctx context.Context,
 		propertyID uuid.UUID,
@@ -162,7 +163,7 @@ func (s *service) CreateProperty(
 		}
 
 		payloadMap := map[string]any{
-			"id":          partnerPropertyID.String(),
+			"id":          partnerPropertyID,
 			"partner_id":  req.PartnerID.String(),
 			"property_id": propertyID,
 			"role":        partner.RoleOwner,
@@ -263,6 +264,21 @@ func (s *service) CreatePropertyRoom(
 			zap.Error(err),
 		)
 		return fmt.Errorf("Service.CreatePropertyRoom: %w", err)
+	}
+
+	return nil
+}
+
+func (s *service) CreateRatePlan(
+	ctx context.Context,
+	id uuid.UUID,
+	ratePlan *CreateRatePlan,
+) error {
+	logger := s.logger.Named("create_rate_plan")
+
+	if err := s.propertyRepo.CreateRatePlan(ctx, id, ratePlan); err != nil {
+		logger.Error("failed to insert rate plan in database", zap.Error(err))
+		return err
 	}
 
 	return nil
