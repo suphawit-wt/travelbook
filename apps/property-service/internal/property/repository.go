@@ -117,6 +117,7 @@ type Repository interface {
 		policy *Policies,
 	) error
 	Publish(ctx context.Context, tx pgx.Tx, partnerID, propertyID uuid.UUID) error
+	Unpublish(ctx context.Context, tx pgx.Tx, partnerID, propertyID uuid.UUID) error
 }
 
 type repositoryDB struct {
@@ -276,7 +277,7 @@ func (r *repositoryDB) CreateRoom(
 
 	outboxID, err := uuid.NewV7()
 	if err != nil {
-		return fmt.Errorf("failed to generate id uuid v7: %w", err)
+		return fmt.Errorf("failed to generate outbox id uuid v7: %w", err)
 	}
 
 	_, err = tx.Exec(
@@ -546,6 +547,74 @@ func (r *repositoryDB) Publish(
 
 	payloadMap := search.IndexPayload{
 		Status: string(StatusActive),
+	}
+
+	payloadBytes, err := json.Marshal(payloadMap)
+	if err != nil {
+		return fmt.Errorf("failed to marshal outbox payload for status update: %w", err)
+	}
+
+	outboxQuery := `
+        INSERT INTO outbox (
+            id, 
+            aggregate_type, 
+            aggregate_id, 
+            event_type, 
+            topic, 
+            payload
+        ) VALUES ($1, $2, $3, $4, $5, $6)
+    `
+
+	outboxID, err := uuid.NewV7()
+	if err != nil {
+		return fmt.Errorf("failed to generate outbox id uuid v7: %w", err)
+	}
+
+	_, err = tx.Exec(
+		ctx,
+		outboxQuery,
+		outboxID,
+		"property",
+		propertyID,
+		"PropertyStatusUpdated",
+		"dev.property.inventory.search.v1",
+		payloadBytes,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to insert outbox record for status update: %w", err)
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) Unpublish(
+	ctx context.Context,
+	tx pgx.Tx,
+	partnerID, propertyID uuid.UUID,
+) error {
+	query := `
+	UPDATE properties
+	SET
+		status = $1,
+		updated_at = $2
+	WHERE id = $3
+	AND partner_id = $4
+	`
+
+	_, err := tx.Exec(
+		ctx,
+		query,
+		StatusInactive,
+		time.Now().UTC(),
+		propertyID,
+		partnerID,
+	)
+	if err != nil {
+		return err
+	}
+
+	payloadMap := search.IndexPayload{
+		Status: string(StatusInactive),
 	}
 
 	payloadBytes, err := json.Marshal(payloadMap)
