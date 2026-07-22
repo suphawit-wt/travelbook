@@ -90,6 +90,21 @@ definitions:
     - name
     - totalRooms
     type: object
+  property.CreateRatePlanRequest:
+    properties:
+      breakfastIncluded:
+        type: boolean
+      name:
+        maxLength: 20
+        type: string
+      priceModifier:
+        type: number
+      refundable:
+        type: boolean
+    required:
+    - name
+    - priceModifier
+    type: object
   property.ErrResponse:
     properties:
       field:
@@ -706,6 +721,51 @@ paths:
       security:
       - Bearer: []
       summary: Create property room
+      tags:
+      - Properties
+  /v1/properties/rooms/{id}/rate-plans:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new rate plan for the specified room ID. Requires partner
+        authentication.
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: CreateRatePlanRequest
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/property.CreateRatePlanRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      summary: Create a new rate plan for a room
       tags:
       - Properties
 securityDefinitions:

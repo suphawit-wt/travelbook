@@ -17,6 +17,11 @@ type URI struct {
 	ID string `uri:"id" binding:"required,uuid"`
 }
 
+// RoomURI represents the URI parameters for room-related endpoints, specifically the room ID.
+type RoomURI struct {
+	ID string `uri:"id" binding:"required,uuid"`
+}
+
 // CreatePropertyRequest defines the expected payload for creating a new property.
 type CreatePropertyRequest struct {
 	Name          string `json:"name"          binding:"required,lte=90"`
@@ -126,6 +131,14 @@ func (r *CreatePropertyRoomRequest) toDomainBeds() []CreateBed {
 	}
 
 	return beds
+}
+
+// CreateRatePlanRequest represents the request body for creating a new rate plan for a room.
+type CreateRatePlanRequest struct {
+	Name              string  `json:"name"              binding:"required,lte=20"`
+	PriceModifier     float64 `json:"priceModifier"     binding:"required"`
+	Refundable        bool    `json:"refundable"`
+	BreakfastIncluded bool    `json:"breakfastIncluded"`
 }
 
 // GenerateImageUploadURLsRequest defines the expected payload for generating presigned URLs for image uploads.

@@ -22,6 +22,7 @@ type Handler interface {
 	CreateProperty(c *gin.Context)
 	CreatePropertyImages(c *gin.Context)
 	CreatePropertyRoom(c *gin.Context)
+	CreateRatePlan(c *gin.Context)
 	GenerateImageUploadURLs(c *gin.Context)
 	UpdateLocation(c *gin.Context)
 	UpdateDescription(c *gin.Context)
@@ -208,6 +209,63 @@ func (h *handler) CreatePropertyRoom(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusCreated,
 		Message:    "Create Property Room successfully.",
+	}
+
+	c.JSON(http.StatusCreated, res)
+}
+
+// CreateRatePlan godoc
+//
+//	@Summary		Create a new rate plan for a room
+//	@Description	Creates a new rate plan for the specified room ID. Requires partner authentication.
+//	@Tags			Properties
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string					true	"Room ID"
+//	@Param			req	body		CreateRatePlanRequest	true	"CreateRatePlanRequest"
+//	@Success		201	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		409	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/properties/rooms/{id}/rate-plans [post]
+func (h *handler) CreateRatePlan(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri RoomURI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	roomId, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid property ID format."))
+		return
+	}
+
+	var req CreateRatePlanRequest
+
+	if err := errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err := h.propertySvc.CreateRatePlan(ctx, roomId, &CreateRatePlan{
+		Name:              req.Name,
+		PriceModifier:     req.PriceModifier,
+		Refundable:        req.Refundable,
+		BreakfastIncluded: req.BreakfastIncluded,
+	}); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusCreated,
+		Message:    "Create Rate plan successfully.",
 	}
 
 	c.JSON(http.StatusCreated, res)

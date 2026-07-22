@@ -191,5 +191,7 @@ func registerRoutes(
 	authorizedPropertiesV1.PATCH(":id/description", propertyHandler.UpdateDescription)
 	authorizedPropertiesV1.PATCH(":id/policies", propertyHandler.UpdatePolicies)
 
+	authorizedPropertiesV1.POST("/rooms/:id/rate-plans", propertyHandler.CreateRatePlan)
+
 	router.GET("health", propertyHandler.HealthCheck)
 }

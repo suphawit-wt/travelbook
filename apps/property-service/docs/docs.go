@@ -105,6 +105,77 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/properties/rooms/{id}/rate-plans": {
+            "post": {
+                "description": "Creates a new rate plan for the specified room ID. Requires partner authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Properties"
+                ],
+                "summary": "Create a new rate plan for a room",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Room ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "CreateRatePlanRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/property.CreateRatePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/property.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/properties/{id}/descripion": {
             "patch": {
                 "security": [
@@ -703,6 +774,28 @@ const docTemplate = `{
                 },
                 "totalRooms": {
                     "type": "integer"
+                }
+            }
+        },
+        "property.CreateRatePlanRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "priceModifier"
+            ],
+            "properties": {
+                "breakfastIncluded": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "priceModifier": {
+                    "type": "number"
+                },
+                "refundable": {
+                    "type": "boolean"
                 }
             }
         },
