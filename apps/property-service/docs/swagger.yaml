@@ -763,6 +763,46 @@ paths:
       summary: Create property room
       tags:
       - Properties
+  /v1/properties/{id}/unpublish:
+    patch:
+      consumes:
+      - application/json
+      description: Unpublish an property listing
+      parameters:
+      - description: Property ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      security:
+      - Bearer: []
+      summary: Unpublish property listing
+      tags:
+      - Properties
   /v1/properties/rooms/{id}/rate-plans:
     post:
       consumes:
