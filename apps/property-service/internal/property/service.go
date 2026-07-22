@@ -86,6 +86,7 @@ type Service interface {
 		policy *Policies,
 	) error
 	PublishProperty(ctx context.Context, partnerID, propertyID uuid.UUID) error
+	UnpublishProperty(ctx context.Context, partnerID, propertyID uuid.UUID) error
 }
 
 type service struct {
@@ -425,6 +426,33 @@ func (s *service) PublishProperty(
 			zap.Error(err),
 		)
 		return err
+	}
+
+	return nil
+}
+
+func (s *service) UnpublishProperty(
+	ctx context.Context,
+	partnerID, propertyID uuid.UUID,
+) error {
+	logger := s.logger.Named("unpublish_property")
+
+	err := s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if err := s.propertyRepo.Unpublish(txCtx, tx, partnerID, propertyID); err != nil {
+			logger.Error(
+				"failed to update property status to unpublish in database",
+				zap.Error(err),
+			)
+			return dberr.ValidatePostgresError(err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		logger.Error("failed to execute transaction for publish property",
+			zap.Error(err),
+		)
+		return fmt.Errorf("Service.PublishProperty: %w", err)
 	}
 
 	return nil
