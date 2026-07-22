@@ -27,6 +27,7 @@ type Handler interface {
 	UpdateLocation(c *gin.Context)
 	UpdateDescription(c *gin.Context)
 	UpdatePolicies(c *gin.Context)
+	PublishProperty(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -535,6 +536,63 @@ func (h *handler) UpdatePolicies(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Message:    "Update Property Policies Successfully.",
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// PublishProperty godoc
+//
+//	@Summary		Publish property listing
+//	@Description	Publish an property listing
+//	@Tags			Properties
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Property ID (UUID)"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		409	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/properties/{id}/publish [patch]
+func (h *handler) PublishProperty(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	partnerIDStr, ok := c.MustGet("partnerID").(string)
+	if !ok {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid partner ID format."))
+		return
+	}
+
+	partnerID, err := uuid.Parse(partnerIDStr)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid partner ID format."))
+		return
+	}
+
+	var uri URI
+
+	if err = c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	propertyID, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid property ID format."))
+		return
+	}
+
+	if err = h.propertySvc.PublishProperty(ctx, partnerID, propertyID); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Publish Property successfully.",
 	}
 
 	c.JSON(http.StatusOK, res)

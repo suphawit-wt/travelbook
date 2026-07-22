@@ -190,6 +190,7 @@ func registerRoutes(
 	authorizedPropertiesV1.PATCH(":id/location", propertyHandler.UpdateLocation)
 	authorizedPropertiesV1.PATCH(":id/description", propertyHandler.UpdateDescription)
 	authorizedPropertiesV1.PATCH(":id/policies", propertyHandler.UpdatePolicies)
+	authorizedPropertiesV1.PATCH(":id/publish", propertyHandler.PublishProperty)
 
 	authorizedPropertiesV1.POST("/rooms/:id/rate-plans", propertyHandler.CreateRatePlan)
 
