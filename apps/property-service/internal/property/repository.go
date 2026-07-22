@@ -14,6 +14,9 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
+
+	"github.com/suphawit-wt/travelbook/apps/property-service/internal/search"
+	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 )
 
 // Location represents the location details of a property, including country code, province, city, area, zip code, address lines, latitude, and longitude.
@@ -113,6 +116,7 @@ type Repository interface {
 		propertyID uuid.UUID,
 		policy *Policies,
 	) error
+	Publish(ctx context.Context, tx pgx.Tx, partnerID, propertyID uuid.UUID) error
 }
 
 type repositoryDB struct {
@@ -272,7 +276,7 @@ func (r *repositoryDB) CreateRoom(
 
 	outboxID, err := uuid.NewV7()
 	if err != nil {
-		return fmt.Errorf("failed to generate outbox id uuid v7: %w", err)
+		return fmt.Errorf("failed to generate id uuid v7: %w", err)
 	}
 
 	_, err = tx.Exec(
@@ -476,6 +480,107 @@ func (r *repositoryDB) UpdatePolicies(
 	)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) Publish(
+	ctx context.Context,
+	tx pgx.Tx,
+	partnerID, propertyID uuid.UUID,
+) error {
+	query := `
+	UPDATE properties p
+	SET
+		status = $1,
+		updated_at = $2
+	WHERE p.id = $3
+	AND p.partner_id = $4
+
+	AND p.area_id IS NOT NULL
+	AND p.address_line1 IS NOT NULL
+	AND p.latitude IS NOT NULL
+	AND p.longitude IS NOT NULL
+
+	AND EXISTS (
+		SELECT 1 FROM property_images pi
+		WHERE pi.property_id = p.id
+	)
+
+	AND EXISTS (
+		SELECT 1 FROM room_types rt
+		WHERE rt.property_id = p.id
+	)
+
+	AND EXISTS (
+		SELECT 1
+		FROM rate_plans rp
+		JOIN room_types rt ON rt.id = rp.room_type_id
+		WHERE rt.property_id = p.id
+	)
+
+	AND EXISTS (
+		SELECT 1
+		FROM room_inventory ri
+		JOIN room_types rt ON rt.id = ri.room_type_id
+		WHERE rt.property_id = p.id
+	)
+	`
+
+	cmdTag, err := tx.Exec(
+		ctx,
+		query,
+		StatusActive,
+		time.Now().UTC(),
+		propertyID,
+		partnerID,
+	)
+	if err != nil {
+		return err
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return errs.NewUnprocessableContentError("Property not ready to publish.")
+	}
+
+	payloadMap := search.IndexPayload{
+		Status: string(StatusActive),
+	}
+
+	payloadBytes, err := json.Marshal(payloadMap)
+	if err != nil {
+		return fmt.Errorf("failed to marshal outbox payload for status update: %w", err)
+	}
+
+	outboxQuery := `
+        INSERT INTO outbox (
+            id, 
+            aggregate_type, 
+            aggregate_id, 
+            event_type, 
+            topic, 
+            payload
+        ) VALUES ($1, $2, $3, $4, $5, $6)
+    `
+
+	outboxID, err := uuid.NewV7()
+	if err != nil {
+		return fmt.Errorf("failed to generate outbox id uuid v7: %w", err)
+	}
+
+	_, err = tx.Exec(
+		ctx,
+		outboxQuery,
+		outboxID,
+		"property",
+		propertyID,
+		"PropertyStatusUpdated",
+		"dev.property.inventory.search.v1",
+		payloadBytes,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to insert outbox record for status update: %w", err)
 	}
 
 	return nil
