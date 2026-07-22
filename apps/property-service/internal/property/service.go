@@ -85,6 +85,7 @@ type Service interface {
 		propertyID uuid.UUID,
 		policy *Policies,
 	) error
+	PublishProperty(ctx context.Context, partnerID, propertyID uuid.UUID) error
 }
 
 type service struct {
@@ -163,7 +164,7 @@ func (s *service) CreateProperty(
 		}
 
 		payloadMap := map[string]any{
-			"id":          partnerPropertyID,
+			"id":          partnerPropertyID.String(),
 			"partner_id":  req.PartnerID.String(),
 			"property_id": propertyID,
 			"role":        partner.RoleOwner,
@@ -400,6 +401,30 @@ func (s *service) UpdatePolicies(
 	); err != nil {
 		logger.Error("failed to update property policies in database", zap.Error(err))
 		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
+}
+
+func (s *service) PublishProperty(
+	ctx context.Context,
+	partnerID, propertyID uuid.UUID,
+) error {
+	logger := s.logger.Named("publish_property")
+
+	err := s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if err := s.propertyRepo.Publish(txCtx, tx, partnerID, propertyID); err != nil {
+			logger.Error("failed to update property status to publish in database", zap.Error(err))
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		logger.Error("failed to execute transaction for publish property",
+			zap.Error(err),
+		)
+		return err
 	}
 
 	return nil
