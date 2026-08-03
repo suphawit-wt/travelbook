@@ -176,6 +176,128 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/properties/search": {
+            "get": {
+                "description": "Search for properties that match the specified criteria, Returns a list of properties that meet the search parameters along with pagination metadata.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Properties"
+                ],
+                "summary": "Retrieve properties based on search criteria",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Destination city or area (e.g., Chiang)",
+                        "name": "dest",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Check-in date (YYYY-MM-DD)",
+                        "name": "checkin",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Check-out date (YYYY-MM-DD)",
+                        "name": "checkout",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 2,
+                        "description": "Number of adults",
+                        "name": "adults",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Number of children",
+                        "name": "children",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Number of rooms",
+                        "name": "room",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "current page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of results per page",
+                        "name": "per_page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponseWithData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/property.SearchPropertyResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/property.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/properties/{id}/descripion": {
             "patch": {
                 "security": [
@@ -1033,6 +1155,44 @@ const docTemplate = `{
                 }
             }
         },
+        "property.SearchPropertyResponse": {
+            "type": "object",
+            "properties": {
+                "area": {
+                    "type": "string"
+                },
+                "avgRating": {
+                    "type": "number"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "countryCode": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reviewCount": {
+                    "type": "integer"
+                },
+                "room": {
+                    "$ref": "#/definitions/property.roomResponse"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "startingPrice": {
+                    "type": "number"
+                }
+            }
+        },
         "property.Type": {
             "type": "string",
             "enum": [
@@ -1225,6 +1385,17 @@ const docTemplate = `{
                 }
             }
         },
+        "property.bedsResponse": {
+            "type": "object",
+            "properties": {
+                "quantity": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "property.childPoliciesRequest": {
             "type": "object",
             "properties": {
@@ -1296,6 +1467,23 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "currency": {
+                    "type": "string"
+                }
+            }
+        },
+        "property.roomResponse": {
+            "type": "object",
+            "properties": {
+                "beds": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.bedsResponse"
+                    }
+                },
+                "breakfastIncluded": {
+                    "type": "boolean"
+                },
+                "name": {
                     "type": "string"
                 }
             }

@@ -4,6 +4,32 @@
 
 package property
 
+// SearchPropertyResponse defines the structure of each property in the response for the SearchProperties endpoint.
+type SearchPropertyResponse struct {
+	Id            string       `json:"id"`
+	Slug          string       `json:"slug"`
+	Name          string       `json:"name"`
+	CountryCode   string       `json:"countryCode"`
+	City          string       `json:"city"`
+	Area          string       `json:"area"`
+	AvgRating     float64      `json:"avgRating"`
+	ReviewCount   uint32       `json:"reviewCount"`
+	StartingPrice float64      `json:"startingPrice"`
+	Room          roomResponse `json:"room"`
+	Image         *string      `json:"image"`
+}
+
+type roomResponse struct {
+	Name              string         `json:"name"`
+	Beds              []bedsResponse `json:"beds"`
+	BreakfastIncluded bool           `json:"breakfastIncluded"`
+}
+
+type bedsResponse struct {
+	Type     string `json:"type"`
+	Quantity uint8  `json:"quantity"`
+}
+
 // CreatePropertyResponse defines the structure of the response returned after successfully creating a property.
 type CreatePropertyResponse struct {
 	Id       string `json:"id"`

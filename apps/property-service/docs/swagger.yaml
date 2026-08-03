@@ -172,6 +172,31 @@ definitions:
       uploadUrl:
         type: string
     type: object
+  property.SearchPropertyResponse:
+    properties:
+      area:
+        type: string
+      avgRating:
+        type: number
+      city:
+        type: string
+      countryCode:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      reviewCount:
+        type: integer
+      room:
+        $ref: '#/definitions/property.roomResponse'
+      slug:
+        type: string
+      startingPrice:
+        type: number
+    type: object
   property.Type:
     enum:
     - hotel
@@ -303,6 +328,13 @@ definitions:
     - bedType
     - quantity
     type: object
+  property.bedsResponse:
+    properties:
+      quantity:
+        type: integer
+      type:
+        type: string
+    type: object
   property.childPoliciesRequest:
     properties:
       allowed:
@@ -351,6 +383,17 @@ definitions:
     required:
     - amount
     - currency
+    type: object
+  property.roomResponse:
+    properties:
+      beds:
+        items:
+          $ref: '#/definitions/property.bedsResponse'
+        type: array
+      breakfastIncluded:
+        type: boolean
+      name:
+        type: string
     type: object
   property.rulesRequest:
     properties:
@@ -846,6 +889,86 @@ paths:
           schema:
             $ref: '#/definitions/property.ApiResponse'
       summary: Create a new rate plan for a room
+      tags:
+      - Properties
+  /v1/properties/search:
+    get:
+      consumes:
+      - application/json
+      description: Search for properties that match the specified criteria, Returns
+        a list of properties that meet the search parameters along with pagination
+        metadata.
+      parameters:
+      - description: Destination city or area (e.g., Chiang)
+        in: query
+        name: dest
+        required: true
+        type: string
+      - description: Check-in date (YYYY-MM-DD)
+        in: query
+        name: checkin
+        required: true
+        type: string
+      - description: Check-out date (YYYY-MM-DD)
+        in: query
+        name: checkout
+        required: true
+        type: string
+      - default: 2
+        description: Number of adults
+        in: query
+        name: adults
+        required: true
+        type: integer
+      - default: 0
+        description: Number of children
+        in: query
+        name: children
+        required: true
+        type: integer
+      - default: 1
+        description: Number of rooms
+        in: query
+        name: room
+        type: integer
+      - default: 1
+        description: current page
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of results per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponseWithData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/property.SearchPropertyResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      summary: Retrieve properties based on search criteria
       tags:
       - Properties
 securityDefinitions:

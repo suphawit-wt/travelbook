@@ -15,10 +15,12 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/enums/api"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/validator"
+	"github.com/suphawit-wt/travelbook/pkg/shared/constants"
 )
 
 // Handler defines the HTTP interface for handling property-related HTTP requests.
 type Handler interface {
+	SearchProperties(c *gin.Context)
 	CreateProperty(c *gin.Context)
 	CreatePropertyImages(c *gin.Context)
 	CreatePropertyRoom(c *gin.Context)
@@ -44,6 +46,87 @@ func NewHandler(
 	propertySvc Service,
 ) Handler {
 	return &handler{vdt: vdt, propertySvc: propertySvc}
+}
+
+// SearchProperties godoc
+//
+//	@Summary		Retrieve properties based on search criteria
+//	@Description	Search for properties that match the specified criteria, Returns a list of properties that meet the search parameters along with pagination metadata.
+//	@Tags			Properties
+//	@Accept			json
+//	@Produce		json
+//	@Param			dest		query		string	true	"Destination city or area (e.g., Chiang)"
+//	@Param			checkin		query		string	true	"Check-in date (YYYY-MM-DD)"
+//	@Param			checkout	query		string	true	"Check-out date (YYYY-MM-DD)"
+//	@Param			adults		query		int		true	"Number of adults"				default(2)
+//	@Param			children	query		int		true	"Number of children"			default(0)
+//	@Param			room		query		int		false	"Number of rooms"				default(1)
+//	@Param			page		query		int		false	"current page"					default(1)
+//	@Param			per_page	query		int		false	"Number of results per page"	default(10)
+//	@Success		200			{object}	ApiResponseWithData{data=[]SearchPropertyResponse}
+//	@Failure		400			{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		500			{object}	ApiResponse
+//	@Router			/v1/properties/search [get]
+func (h *handler) SearchProperties(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var req SearchPropertiesRequest
+
+	if err := c.ShouldBindQuery(&req); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError(err.Error()))
+		return
+	}
+
+	currencyCode := c.GetHeader("X-Currency")
+	if currencyCode == "" {
+		currencyCode = constants.DefaultCurrency
+	}
+
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+
+	if req.PerPage <= 0 || req.PerPage > 50 {
+		req.PerPage = 10
+	}
+
+	if req.Room <= 0 {
+		req.Room = 1
+	}
+
+	properties, totalCount, hasNext, err := h.propertySvc.SearchProperties(
+		ctx,
+		req.Destination,
+		req.CheckIn,
+		req.CheckOut,
+		req.Adults,
+		req.Children,
+		req.Room,
+		req.Page,
+		req.PerPage,
+		currencyCode,
+	)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	var searchResults SearchPropertyResponse
+
+	res := ApiResponseWithDataAndPagination[[]SearchPropertyResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       searchResults.FromDomainModel(properties),
+		Pagination: &PaginationMeta{
+			Page:       req.Page,
+			PerPage:    req.PerPage,
+			TotalCount: totalCount,
+			HasNext:    hasNext,
+		},
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // CreateProperty godoc

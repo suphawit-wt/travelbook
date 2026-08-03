@@ -189,6 +189,8 @@ func registerRoutes(
 		propertiesV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
+	propertiesV1.GET("/search", propertyHandler.SearchProperties)
+
 	authorizedPropertiesV1 := propertiesV1.Use(
 		middleware.AuthorizedPartner(jwtSvc, jwtKeys.Partner.Access.Public),
 	)

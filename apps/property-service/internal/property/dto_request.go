@@ -12,6 +12,50 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 )
 
+// SearchPropertiesRequest defines the query parameters for the SearchProperties endpoint.
+type SearchPropertiesRequest struct {
+	Destination string `form:"dest"     binding:"required"`
+	CheckIn     string `form:"checkin"  binding:"required"`
+	CheckOut    string `form:"checkout" binding:"required"`
+	Adults      uint8  `form:"adults"   binding:"required,gte=1,lte=30"`
+	Children    uint8  `form:"children" binding:"gte=0,lte=10"`
+	Room        uint8  `form:"room"     binding:"required,gte=1,lte=30"`
+	Page        int    `form:"page"`
+	PerPage     int    `form:"per_page"`
+}
+
+// FromDomainModel converts a slice of domain SearchProperty models into a slice of SearchPropertyResponse suitable for API responses.
+func (r *SearchPropertyResponse) FromDomainModel(
+	model []SearchProperty,
+) []SearchPropertyResponse {
+	responses := make([]SearchPropertyResponse, len(model))
+	for i := range model {
+		beds := make([]bedsResponse, len(model[i].Room.Beds))
+		for j, bed := range model[i].Room.Beds {
+			beds[j] = bedsResponse(bed)
+		}
+
+		responses[i] = SearchPropertyResponse{
+			Id:            model[i].Id,
+			Slug:          model[i].Slug,
+			Name:          model[i].Name,
+			CountryCode:   model[i].CountryCode,
+			City:          model[i].City,
+			Area:          model[i].Area,
+			AvgRating:     model[i].AvgRating,
+			ReviewCount:   model[i].ReviewCount,
+			StartingPrice: model[i].StartingPrice,
+			Image:         model[i].Image,
+			Room: roomResponse{
+				Name:              model[i].Room.Name,
+				Beds:              beds,
+				BreakfastIncluded: model[i].Room.BreakfastIncluded,
+			},
+		}
+	}
+	return responses
+}
+
 // URI defines the expected URI parameters for property-related endpoints.
 type URI struct {
 	ID string `uri:"id" binding:"required,uuid"`
