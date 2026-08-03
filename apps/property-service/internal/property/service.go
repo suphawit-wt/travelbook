@@ -23,6 +23,7 @@ import (
 	"github.com/suphawit-wt/travelbook/apps/property-service/internal/search"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/config"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/database"
+	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/secret"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
 	"github.com/suphawit-wt/travelbook/pkg/shared/dberr"
@@ -58,6 +59,13 @@ type ImageUpload struct {
 
 // Service defines the business logic contract for property-related operations.
 type Service interface {
+	SearchProperties(
+		ctx context.Context,
+		destination, checkIn, checkOut string,
+		adults, children, room uint8,
+		page, perPage int,
+		currencyCode string,
+	) (properties []SearchProperty, totalCount int, hasNext bool, err error)
 	CreateProperty(ctx context.Context, req *CreateProperty) (*Property, error)
 	CreatePropertyImages(ctx context.Context, propertyID uuid.UUID, images []Image) error
 	CreatePropertyRoom(ctx context.Context, propertyID uuid.UUID, req *CreatePropertyRoom) error
@@ -94,6 +102,7 @@ type service struct {
 	storageCfg      *config.StorageConfig
 	s3PresignClient *s3.PresignClient
 	propertyRepo    Repository
+	searchRepo      search.Repository
 	outboxRepo      outbox.Repository
 	txMgr           database.TxManager
 }
@@ -104,6 +113,7 @@ func NewService(
 	storageCfg *config.StorageConfig,
 	s3PresignClient *s3.PresignClient,
 	propertyRepo Repository,
+	searchRepo search.Repository,
 	outboxRepo outbox.Repository,
 	txMgr database.TxManager,
 ) Service {
@@ -112,9 +122,125 @@ func NewService(
 		storageCfg:      storageCfg,
 		s3PresignClient: s3PresignClient,
 		propertyRepo:    propertyRepo,
+		searchRepo:      searchRepo,
 		outboxRepo:      outboxRepo,
 		txMgr:           txMgr,
 	}
+}
+
+func (s *service) SearchProperties(
+	ctx context.Context,
+	destination, checkIn, checkOut string,
+	adults, children, room uint8,
+	page, perPage int,
+	currencyCode string,
+) (finalProperties []SearchProperty, totalCount int, hasNext bool, err error) {
+	logger := s.logger.Named("search_properties")
+
+	logger.Debug("searching properties",
+		zap.String("destination", destination),
+		zap.String("check_in", checkIn),
+		zap.String("check_out", checkOut),
+		zap.Uint8("adults", adults),
+		zap.Uint8("children", children),
+		zap.Uint8("room", room),
+		zap.Int("page", page),
+		zap.Int("per_page", perPage),
+		zap.String("currency", currencyCode),
+	)
+
+	parsedCheckIn, err := time.Parse(time.DateOnly, checkIn)
+	if err != nil {
+		logger.Warn("invalid check-in date format",
+			zap.String("check_in", checkIn),
+			zap.Error(err),
+		)
+		return nil, 0, false, errs.NewBadRequestError("check in format not valid.")
+	}
+	parsedCheckOut, err := time.Parse(time.DateOnly, checkOut)
+	if err != nil {
+		logger.Warn("invalid check-out date format",
+			zap.String("check_out", checkOut),
+			zap.Error(err),
+		)
+		return nil, 0, false, errs.NewBadRequestError("check out format not valid.")
+	}
+
+	if !parsedCheckOut.After(parsedCheckIn) {
+		logger.Warn("invalid date range: check-out must be after check-in",
+			zap.Time("check_in", parsedCheckIn),
+			zap.Time("check_out", parsedCheckOut),
+		)
+		return nil, 0, false, errs.NewBadRequestError("check out must be after check in")
+	}
+
+	nights := uint8(parsedCheckOut.Sub(parsedCheckIn).Hours() / 24)
+	if nights <= 0 {
+		logger.Warn("invalid stay duration calculated",
+			zap.Uint8("nights", nights),
+		)
+		return nil, 0, false, fmt.Errorf("invalid stay duration")
+	}
+
+	propertyType := ""
+	var minRating float32 = 0
+
+	propertyIDs, err := s.searchRepo.SearchRawIDs(
+		ctx, destination, propertyType, adults, children, minRating, page, perPage,
+	)
+	if err != nil {
+		logger.Error("failed to query raw property IDs from elasticsearch",
+			zap.String("destination", destination),
+			zap.Error(err),
+		)
+		return nil, 0, false, fmt.Errorf("search raw property ids: %w", err)
+	}
+
+	if len(propertyIDs) == 0 {
+		logger.Info("no property IDs found in elasticsearch",
+			zap.String("destination", destination),
+		)
+		return []SearchProperty{}, 0, false, nil
+	}
+
+	availableProperties, err := s.propertyRepo.FilterAvailableProperties(
+		ctx,
+		propertyIDs,
+		parsedCheckIn,
+		parsedCheckOut,
+		adults,
+		children,
+		room,
+		nights,
+		currencyCode,
+	)
+	if err != nil {
+		logger.Error("failed to filter available properties from database",
+			zap.Int("input_property_ids_count", len(propertyIDs)),
+			zap.Error(err),
+		)
+		return nil, 0, false, err
+	}
+
+	totalCount = len(availableProperties)
+
+	limit := int(perPage)
+	hasNext = false
+
+	if len(availableProperties) > limit {
+		hasNext = true
+		finalProperties = availableProperties[:limit]
+	} else {
+		finalProperties = availableProperties
+	}
+
+	logger.Info("successfully searched properties",
+		zap.Int("matched_raw_ids", len(propertyIDs)),
+		zap.Int("available_properties", len(finalProperties)),
+		zap.Bool("has_next", hasNext),
+	)
+
+	return finalProperties, totalCount, hasNext, nil
 }
 
 func (s *service) CreateProperty(

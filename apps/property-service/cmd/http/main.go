@@ -21,6 +21,7 @@ import (
 	"github.com/suphawit-wt/travelbook/apps/property-service/docs"
 	"github.com/suphawit-wt/travelbook/apps/property-service/internal/outbox"
 	"github.com/suphawit-wt/travelbook/apps/property-service/internal/property"
+	"github.com/suphawit-wt/travelbook/apps/property-service/internal/search"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/config"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/database"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/jwt"
@@ -109,6 +110,15 @@ func run() error {
 		}
 	}()
 
+	esClient, err := database.NewElasticsearschClient(
+		cfg.App.Mode,
+		&cfg.DB.Elasticsearch,
+		infraLogger,
+	)
+	if err != nil {
+		return fmt.Errorf("init elasticsearch client: %w", err)
+	}
+
 	s3Client, err := storage.NewS3Client(&cfg.Storage.S3)
 	if err != nil {
 		return fmt.Errorf("init s3 client: %w", err)
@@ -134,12 +144,14 @@ func run() error {
 	}
 
 	outboxRepo := outbox.NewRepositoryDB(pgPool)
+	searchRepo := search.NewRepositoryDB(esClient.Client)
 	propertyRepo := property.NewRepositoryDB(pgPool, rdb)
 	propertyService := property.NewService(
 		appLogger.Named("service"),
 		&cfg.Storage,
 		s3PresignClient,
 		propertyRepo,
+		searchRepo,
 		outboxRepo,
 		txManager,
 	)
