@@ -81,8 +81,43 @@ type CreateRatePlan struct {
 	BreakfastIncluded bool
 }
 
+// SearchProperty represents the summary information of a property used in search results.
+type SearchProperty struct {
+	Id            string
+	Slug          string
+	Name          string
+	CountryCode   string
+	City          string
+	Area          string
+	AvgRating     float64
+	ReviewCount   uint32
+	StartingPrice float64
+	Room          RoomResponse
+	Image         *string
+}
+
+// RoomResponse represents the details of a room type, including its name, bed information, and whether breakfast is included.
+type RoomResponse struct {
+	Name              string
+	Beds              []BedsResponse
+	BreakfastIncluded bool
+}
+
+// BedsResponse represents the details of a bed type and its quantity, used in room responses.
+type BedsResponse struct {
+	Type     string
+	Quantity uint8
+}
+
 // Repository defines the data access contract for property entities.
 type Repository interface {
+	FilterAvailableProperties(
+		ctx context.Context,
+		propertyIDs []string,
+		checkIn, checkOut time.Time,
+		adults, children, room, nights uint8,
+		currencyCode string,
+	) ([]SearchProperty, error)
 	Create(ctx context.Context, tx pgx.Tx, p *Property) (*Property, error)
 	CreateImages(
 		ctx context.Context,
@@ -131,6 +166,34 @@ func NewRepositoryDB(
 	rdb *redis.Client,
 ) Repository {
 	return &repositoryDB{db: db, rdb: rdb}
+}
+
+func (r *repositoryDB) FilterAvailableProperties(
+	ctx context.Context,
+	propertyIDs []string,
+	checkIn, checkOut time.Time,
+	adults, children, room, nights uint8,
+	currencyCode string,
+) ([]SearchProperty, error) {
+	rate, err := r.getCurrencyRate(ctx, currencyCode)
+	if err != nil {
+		return nil, err
+	}
+
+	properties, roomTypeIDs, roomToPropertyIdx, err := r.queryAvailableProperties(
+		ctx, propertyIDs, checkIn, checkOut, nights, adults, children, room, rate,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(roomTypeIDs) > 0 {
+		if err := r.fetchRoomBeds(ctx, roomTypeIDs, roomToPropertyIdx, properties); err != nil {
+			return nil, err
+		}
+	}
+
+	return properties, nil
 }
 
 func (r *repositoryDB) Create(
@@ -306,15 +369,10 @@ func (r *repositoryDB) CreateRatePlan(
 		(id, room_type_id, name, price_modifier_usd, refundable, breakfast_included)
 		VALUES ($1, $2, $3, $4, $5, $6)`
 
-	ratePlanID, err := uuid.NewV7()
-	if err != nil {
-		return fmt.Errorf("failed to generate id uuid v7: %w", err)
-	}
-
-	_, err = r.db.Exec(
+	_, err := r.db.Exec(
 		ctx,
 		query,
-		ratePlanID,
+		,
 		roomID,
 		ratePlan.Name,
 		ratePlan.PriceModifier,

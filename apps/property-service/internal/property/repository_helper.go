@@ -22,6 +22,151 @@ type locationNames struct {
 	ProvinceNameLocal string
 }
 
+func (r *repositoryDB) getCurrencyRate(ctx context.Context, currencyCode string) (float64, error) {
+	var rate float64
+	var precision uint8
+	query := `SELECT rate_to_usd, precision FROM currencies WHERE code = $1`
+
+	if err := r.db.QueryRow(ctx, query, currencyCode).Scan(&rate, &precision); err != nil {
+		return 0, fmt.Errorf("failed to find currency rate: %w", err)
+	}
+	return rate, nil
+}
+
+func (r *repositoryDB) queryAvailableProperties(
+	ctx context.Context,
+	propertyIDs []string,
+	checkIn, checkOut time.Time,
+	nights, adults, children, room uint8,
+	currencyRate float64,
+) (properties []SearchProperty, roomTypeIDs []string, roomToPropertyIdx map[string]int, err error) {
+	query := `
+        SELECT 
+            p.id, p.slug, p.name, co.code AS country_code, ci.key AS city, a.key AS area,
+            p.avg_rating, p.review_count, cheapest.total_price AS starting_price,
+            cheapest.room_type_id, cheapest.room_name, cheapest.breakfast_included, pi.image_url
+        FROM properties p
+        LEFT JOIN areas a ON p.area_id = a.id
+        LEFT JOIN cities ci ON a.city_id = ci.id
+        LEFT JOIN provinces pr ON ci.province_id = pr.id
+        LEFT JOIN countries co ON pr.country_id = co.id
+        JOIN LATERAL (
+            SELECT 
+                rt.id AS room_type_id, rt.name AS room_name, rp.breakfast_included,
+                SUM(ri.price_usd) AS total_price
+            FROM room_types rt
+            JOIN rate_plans rp ON rp.room_type_id = rt.id
+            JOIN room_inventory ri ON ri.room_type_id = rt.id
+            WHERE 
+                rt.property_id = p.id
+                AND ri.date >= $2 AND ri.date < $3      
+                AND ri.available_rooms >= $7 
+                AND rt.max_adults >= $5 AND rt.max_children >= $6  
+            GROUP BY rt.id, rp.id
+            HAVING COUNT(DISTINCT ri.date) = $4
+            ORDER BY total_price ASC
+            LIMIT 1
+        ) cheapest ON true
+        JOIN property_availability pa ON pa.property_id = p.id
+        LEFT JOIN property_images pi ON pi.property_id = p.id AND pi.position = 1
+        WHERE p.status = 'active'
+        AND p.id = ANY($1) 
+        AND pa.date >= $2 AND pa.date < $3
+        AND pa.available_rooms >= $7
+        GROUP BY 
+            p.id, co.code, ci.key, a.key, p.avg_rating, p.review_count,
+            cheapest.total_price, cheapest.room_type_id, cheapest.room_name,
+            cheapest.breakfast_included, pi.image_url
+        HAVING COUNT(DISTINCT pa.date) = $4 
+        ORDER BY array_position($1, p.id);
+    `
+
+	rows, err := r.db.Query(
+		ctx,
+		query,
+		propertyIDs,
+		checkIn,
+		checkOut,
+		nights,
+		adults,
+		children,
+		room,
+	)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("failed to query available properties: %w", err)
+	}
+
+	var availableProperties []SearchProperty
+	roomToPropertyIdx = make(map[string]int)
+
+	for rows.Next() {
+		var p SearchProperty
+		var roomTypeID string
+
+		err := rows.Scan(
+			&p.Id, &p.Slug, &p.Name, &p.CountryCode, &p.City, &p.Area,
+			&p.AvgRating, &p.ReviewCount, &p.StartingPrice, &roomTypeID,
+			&p.Room.Name, &p.Room.BreakfastIncluded, &p.Image,
+		)
+		if err != nil {
+			rows.Close()
+			return nil, nil, nil, fmt.Errorf("failed to scan property row: %w", err)
+		}
+
+		p.StartingPrice *= currencyRate
+		p.Room.Beds = []BedsResponse{}
+
+		availableProperties = append(availableProperties, p)
+		roomToPropertyIdx[roomTypeID] = len(availableProperties) - 1
+		roomTypeIDs = append(roomTypeIDs, roomTypeID)
+	}
+
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return nil, nil, nil, fmt.Errorf("error iterating property rows: %w", err)
+	}
+	rows.Close()
+
+	return availableProperties, roomTypeIDs, roomToPropertyIdx, nil
+}
+
+func (r *repositoryDB) fetchRoomBeds(
+	ctx context.Context,
+	roomTypeIDs []string,
+	roomToPropertyIdx map[string]int,
+	properties []SearchProperty,
+) error {
+	if len(roomTypeIDs) == 0 {
+		return nil
+	}
+
+	bedsQuery := `
+        SELECT room_type_id, bed_type, quantity 
+        FROM room_beds 
+        WHERE room_type_id = ANY($1)
+    `
+	bedRows, err := r.db.Query(ctx, bedsQuery, roomTypeIDs)
+	if err != nil {
+		return fmt.Errorf("failed to query room beds: %w", err)
+	}
+	defer bedRows.Close()
+
+	for bedRows.Next() {
+		var roomTypeId string
+		var bed BedsResponse
+
+		if err := bedRows.Scan(&roomTypeId, &bed.Type, &bed.Quantity); err != nil {
+			return fmt.Errorf("failed to scan bed row: %w", err)
+		}
+
+		if idx, found := roomToPropertyIdx[roomTypeId]; found {
+			properties[idx].Room.Beds = append(properties[idx].Room.Beds, bed)
+		}
+	}
+
+	return nil
+}
+
 func (r *repositoryDB) getLocationNamesByAreaID(
 	ctx context.Context,
 	tx pgx.Tx,
