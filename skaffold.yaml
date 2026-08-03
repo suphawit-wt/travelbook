@@ -18,3 +18,5 @@ requires:
     path: apps/user-service/skaffold.yaml
   - configs: ["property-service"]
     path: apps/property-service/skaffold.yaml
+  - configs: ["search-consumer"]
+    path: apps/search-consumer/skaffold.yaml

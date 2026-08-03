@@ -1,0 +1,31 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: search-consumer
+build:
+  local:
+    push: false
+    useBuildkit: true
+    concurrency: 0
+  artifacts:
+    - image: tb-registry/search-consumer
+      context: ../..
+      docker:
+        dockerfile: apps/search-consumer/Dockerfile.dev
+      sync:
+        manual:
+          - src: 'apps/search-consumer/**/*.go'
+            dest: /app
+          - src: 'pkg/**/*.go'
+            dest: /app
+deploy:
+  helm:
+    releases:
+      - name: search-consumer
+        chartPath: ../../deploy/helm/search-consumer
+        valuesFiles:
+          - ../../deploy/helm/search-consumer/values.yaml
+          - ../../deploy/helm/search-consumer/values-dev.yaml
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_tb_registry_search_consumer}}"
+          image.tag: "{{.IMAGE_TAG_tb_registry_search_consumer}}"

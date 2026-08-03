@@ -1,0 +1,10 @@
+app:
+  name: Search Consumer - Travelbook
+
+messaging:
+  kafka:
+    consumer:
+      group_id: tb-search-consumer
+      topics:
+        - dev.property.inventory.search.v1
+      auto_offset_reset: earliest
