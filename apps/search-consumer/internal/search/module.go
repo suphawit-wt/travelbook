@@ -20,6 +20,7 @@ import (
 type Module struct {
 	logger        *zaplog.Logger
 	kafkaConsumer messaging.KafkaConsumer
+	service       Service
 }
 
 // NewModule initializes a new instance of the user module with the provided database connection pool.
@@ -28,9 +29,14 @@ func NewModule(
 	kafkaConsumer messaging.KafkaConsumer,
 	esBulk *database.BulkIndexer,
 ) *Module {
+	svcLogger := logger.Named("service")
+
+	svc := NewService(svcLogger, esBulk)
+
 	return &Module{
 		logger:        logger,
 		kafkaConsumer: kafkaConsumer,
+		service:       svc,
 	}
 }
 
@@ -61,7 +67,9 @@ func (m *Module) processMessage(ctx context.Context, msg *kafka.Message) error {
 		zap.String("event_type", eventType),
 	)
 
-	var kafkaConnectEnvelope OutboxEvent
+	var kafkaConnectEnvelope struct {
+		Payload json.RawMessage `json:"payload"`
+	}
 
 	// Check for malformed JSON envelope (Poison Pill handling)
 	if err := json.Unmarshal(msg.Value, &kafkaConnectEnvelope); err != nil {
@@ -73,6 +81,48 @@ func (m *Module) processMessage(ctx context.Context, msg *kafka.Message) error {
 	}
 
 	switch eventType {
+	case "PropertyCreated":
+		var propertyDoc PropertyDocument
+		if err := json.Unmarshal(kafkaConnectEnvelope.Payload, &propertyDoc); err != nil {
+			m.logger.Error(
+				"Failed to parse inner property json payload for creation",
+				zap.Error(err),
+			)
+			return nil // Malformed business payload: skip & commit
+		}
+
+		if err := m.service.CreatePropertyIndex(ctx, &propertyDoc); err != nil {
+			m.logger.Error("Failed to create full property index in elasticsearch", zap.Error(err))
+			return err // Return error DO NOT commit offset (allows retry)
+		}
+
+	case "PropertyLocationUpdated", "PropertyCapacityUpdated", "PropertyStatusUpdated":
+		var partialMap map[string]any
+		if err := json.Unmarshal(kafkaConnectEnvelope.Payload, &partialMap); err != nil {
+			m.logger.Error(
+				"Failed to parse inner property json payload for partial update",
+				zap.Error(err),
+			)
+			return nil // Malformed business payload: skip & commit
+		}
+
+		if err := m.service.UpdatePropertyIndex(
+			ctx,
+			aggregateID,
+			partialMap,
+		); err != nil {
+			m.logger.Error(
+				"Failed to partially update property index in elasticsearch",
+				zap.Error(err),
+			)
+			return err // Return error DO NOT commit offset (allows retry)
+		}
+
+		m.logger.Info("Successfully executed partial update on search index",
+			zap.String("event_type", eventType),
+			zap.String("id", aggregateID),
+		)
+
 	default:
 		m.logger.Warn(
 			"Unknown event type skipped without processing",
