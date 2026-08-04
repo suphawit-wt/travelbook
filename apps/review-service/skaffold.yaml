@@ -1,0 +1,31 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: review-service
+build:
+  local:
+    push: false
+    useBuildkit: true
+    concurrency: 0
+  artifacts:
+    - image: tb-registry/review-service
+      context: ../..
+      docker:
+        dockerfile: apps/review-service/Dockerfile.dev
+      sync:
+        manual:
+          - src: 'apps/review-service/**/*.go'
+            dest: /app
+          - src: 'pkg/**/*.go'
+            dest: /app
+deploy:
+  helm:
+    releases:
+      - name: review-service
+        chartPath: ../../deploy/helm/review-service
+        valuesFiles:
+          - ../../deploy/helm/review-service/values.yaml
+          - ../../deploy/helm/review-service/values-dev.yaml
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_tb_registry_review_service}}"
+          image.tag: "{{.IMAGE_TAG_tb_registry_review_service}}"

@@ -20,3 +20,5 @@ requires:
     path: apps/property-service/skaffold.yaml
   - configs: ["search-consumer"]
     path: apps/search-consumer/skaffold.yaml
+  - configs: ["review-service"]
+    path: apps/review-service/skaffold.yaml

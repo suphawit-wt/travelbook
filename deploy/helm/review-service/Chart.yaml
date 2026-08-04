@@ -1,0 +1,5 @@
+apiVersion: v2
+name: review-service
+description: Subchart for review-service
+type: application
+version: 0.1.0

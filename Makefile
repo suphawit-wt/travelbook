@@ -42,6 +42,9 @@ dev-property-service:
 dev-search-consumer:
 	skaffold dev -m search-consumer
 
+dev-review-service:
+	skaffold dev -m review-service
+
 lint-auth-service:
 	golangci-lint run --fix ./apps/auth-service/...
 
@@ -62,6 +65,9 @@ lint-property-service:
 
 lint-search-consumer:
 	golangci-lint run --fix ./apps/search-consumer/...
+
+lint-review-service:
+	golangci-lint run --fix ./apps/review-service/...
 
 test-auth-service:
 	go test -v ./apps/auth-service/...
@@ -84,6 +90,9 @@ test-property-service:
 test-search-consumer:
 	go test -v ./apps/search-consumer/...
 
+test-review-service:
+	go test -v ./apps/review-service/...
+
 swag-auth:
 	swag init -d apps/auth-service -g cmd/http/main.go -o apps/auth-service/docs
 
@@ -92,3 +101,6 @@ swag-user:
 
 swag-property:
 	swag init -d apps/property-service -g cmd/http/main.go -o apps/property-service/docs
+
+swag-review:
+	swag init -d apps/review-service -g cmd/http/main.go -o apps/review-service/docs
