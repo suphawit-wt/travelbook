@@ -9,12 +9,186 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "https://suphawit.dev/terms/",
+        "contact": {
+            "name": "Suphawit Watthanataetakun",
+            "url": "https://suphawit.dev/support",
+            "email": "support@suphwit.dev"
+        },
+        "license": {
+            "name": "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0",
+            "url": "https://creativecommons.org/licenses/by-nc-nd/4.0"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {},
+    "paths": {
+        "/v1/reviews": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create review by user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Create review by user",
+                "parameters": [
+                    {
+                        "description": "CreateReviewRequest",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/review.CreateReviewRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/review.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/review.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/review.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/review.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/review.ApiResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "review.ApiResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "statusCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "review.CreateReviewRequest": {
+            "type": "object",
+            "required": [
+                "bookingId",
+                "propertyId",
+                "rating"
+            ],
+            "properties": {
+                "bookingId": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "propertyId": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                },
+                "subRatings": {
+                    "$ref": "#/definitions/review.SubRatings"
+                }
+            }
+        },
+        "review.ErrResponse": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "review.SubRatings": {
+            "type": "object",
+            "properties": {
+                "cleanliness": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                },
+                "comfort": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                },
+                "facilities": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                },
+                "location": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                },
+                "staff": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                },
+                "value": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                },
+                "wifi": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "Bearer": {
             "description": "Put **_ONLY_** your JWT Bearer token in textbox below",
@@ -22,17 +196,21 @@ const docTemplate = `{
             "name": "Authorization",
             "in": "header"
         }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0.0",
+	Host:             "api.travelbook.localhost",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Review Service - Travelbook API",
+	Description:      "Review Service manages property reviews, ratings, and user feedback within the TravelBook ecosystem.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

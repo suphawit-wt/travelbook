@@ -18,6 +18,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/suphawit-wt/travelbook/apps/review-service/docs"
+	"github.com/suphawit-wt/travelbook/apps/review-service/internal/outbox"
 	"github.com/suphawit-wt/travelbook/apps/review-service/internal/review"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/config"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/database"
@@ -26,6 +27,8 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/server"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
 	"github.com/suphawit-wt/travelbook/pkg/shared/jwtkey"
+	"github.com/suphawit-wt/travelbook/pkg/shared/middleware"
+	"github.com/suphawit-wt/travelbook/pkg/userclient"
 )
 
 //	@title			Review Service - Travelbook API
@@ -120,7 +123,13 @@ func run() error {
 		return fmt.Errorf("init http server: %w", err)
 	}
 
-	reviewHandler := review.NewHandler(srv.Validator)
+	txMgr := database.NewTxManager(pgPool)
+	userClient := userclient.New()
+
+	outboxRepo := outbox.NewRepositoryDB(pgPool)
+	reviewRepo := review.NewReposityDB(pgPool, casSess)
+	reviewService := review.NewService(appLogger.Named("service"), txMgr, reviewRepo, outboxRepo)
+	reviewHandler := review.NewHandler(srv.Validator, reviewService, userClient)
 
 	registerRoutes(srv.Router, &cfg.App, jwtSvc, jwtKeys, reviewHandler)
 
@@ -153,6 +162,10 @@ func registerRoutes(
 
 		reviewsV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
+
+	authorizedUserReviewsV1 := v1.Group("reviews").
+		Use(middleware.AuthorizedUser(jwtSvc, jwtKeys.User.Access.Public))
+	authorizedUserReviewsV1.POST("", reviewHandler.CreateReview)
 
 	router.GET("/health", reviewHandler.HealthCheck)
 }

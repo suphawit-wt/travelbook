@@ -4,6 +4,48 @@
 
 package review
 
+import "time"
+
+// Response represents the JSON response payload for a review.
+type Response struct {
+	ID              string      `json:"id"`
+	PropertyID      string      `json:"propertyId"`
+	BookingID       string      `json:"bookingId"`
+	UserID          string      `json:"userId"`
+	UserDisplayName *string     `json:"userDisplayName"`
+	UserCountryCode *string     `json:"userCountryCode"`
+	Rating          int16       `json:"rating"`
+	SubRatings      *SubRatings `json:"subRatings,omitempty"`
+	Comment         *string     `json:"comment,omitempty"`
+	CreatedAt       time.Time   `json:"createdAt"`
+	UpdatedAt       time.Time   `json:"updatedAt"`
+}
+
+// FromDomain converts a domain Review entity into a Response DTO pointer.
+func (r *Response) FromDomain(d *Review) *Response {
+	return &Response{
+		ID:              d.ID.String(),
+		PropertyID:      d.PropertyID.String(),
+		BookingID:       d.BookingID.String(),
+		UserID:          d.UserID.String(),
+		UserDisplayName: d.UserDisplayName,
+		UserCountryCode: d.UserCountryCode,
+		Rating:          d.Rating,
+		SubRatings: &SubRatings{
+			Staff:       d.SubRatings.Staff,
+			Cleanliness: d.SubRatings.Cleanliness,
+			Facilities:  d.SubRatings.Facilities,
+			Comfort:     d.SubRatings.Comfort,
+			Value:       d.SubRatings.Value,
+			Location:    d.SubRatings.Location,
+			Wifi:        d.SubRatings.Wifi,
+		},
+		Comment:   d.Comment,
+		CreatedAt: d.CreatedAt,
+		UpdatedAt: d.UpdatedAt,
+	}
+}
+
 // SubRatings contains detailed ratings across individual categories.
 type SubRatings struct {
 	Staff       *int16 `json:"staff,omitempty"       binding:"omitempty,gte=1,lte=10"`
