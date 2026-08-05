@@ -20,6 +20,7 @@ import (
 type Module struct {
 	logger        *zaplog.Logger
 	kafkaConsumer messaging.KafkaConsumer
+	service       Service
 }
 
 // NewModule initializes a new instance of the review module with the provided database connection pool.
@@ -28,9 +29,16 @@ func NewModule(
 	casSess *gocql.Session,
 	kafkaConsumer messaging.KafkaConsumer,
 ) *Module {
+	svcLogger := logger.Named("service")
+
+	repo := NewRepositoryDB(casSess)
+
+	svc := NewService(svcLogger, repo)
+
 	return &Module{
 		logger:        logger,
 		kafkaConsumer: kafkaConsumer,
+		service:       svc,
 	}
 }
 
@@ -74,6 +82,18 @@ func (m *Module) processMessage(ctx context.Context, msg *kafka.Message) error {
 	}
 
 	switch eventType {
+	case "ReviewCreated":
+		var review Review
+		if err := json.Unmarshal(kafkaConnectEnvelope.Payload, &review); err != nil {
+			m.logger.Error("Failed to parse inner user json payload", zap.Error(err))
+			return nil // Malformed business payload: skip & commit
+		}
+
+		if err := m.service.CreateReview(ctx, &review); err != nil {
+			m.logger.Error("Failed to create user", zap.Error(err))
+			return err // Return error DO NOT commit offset (allows retry)
+		}
+
 	default:
 		m.logger.Warn(
 			"Unknown event type skipped without processing",
