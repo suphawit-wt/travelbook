@@ -21,6 +21,7 @@ import (
 
 // Service defines the data access contract for review-related operations.
 type Service interface {
+	GetReviewsByPropertyID(ctx context.Context, propertyID uuid.UUID) ([]Review, error)
 	CreateReview(ctx context.Context, review *Review) (*Review, error)
 }
 
@@ -44,6 +45,24 @@ func NewService(
 		reviewRepo: reviewRepo,
 		outboxRepo: outboxRepo,
 	}
+}
+
+func (s *service) GetReviewsByPropertyID(
+	ctx context.Context,
+	propertyID uuid.UUID,
+) ([]Review, error) {
+	logger := s.logger.Named("get_reviews_by_property_id")
+
+	reviews, err := s.reviewRepo.GetReviewsByPropertyID(ctx, propertyID, 5)
+	if err != nil {
+		logger.Error("failed to query reviews by property id",
+			zap.String("propertyId", propertyID.String()),
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	return reviews, nil
 }
 
 func (s *service) CreateReview(
