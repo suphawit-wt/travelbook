@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: review-consumer-config
+  namespace: {{ .Values.namespace }}
+data:
+  {{- range $line := .Files.Lines ".env" }}
+  {{- if and $line (not (hasPrefix "#" $line)) }}
+  {{- $pair := splitList "=" $line }}
+  {{ (index $pair 0) }}: {{ (join "=" (slice $pair 1)) | quote }}
+  {{- end }}
+  {{- end }}

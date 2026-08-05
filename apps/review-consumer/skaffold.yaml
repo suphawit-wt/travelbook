@@ -1,0 +1,31 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: review-consumer
+build:
+  local:
+    push: false
+    useBuildkit: true
+    concurrency: 0
+  artifacts:
+    - image: tb-registry/review-consumer
+      context: ../..
+      docker:
+        dockerfile: apps/review-consumer/Dockerfile.dev
+      sync:
+        manual:
+          - src: 'apps/review-consumer/**/*.go'
+            dest: /app
+          - src: 'pkg/**/*.go'
+            dest: /app
+deploy:
+  helm:
+    releases:
+      - name: review-consumer
+        chartPath: ../../deploy/helm/review-consumer
+        valuesFiles:
+          - ../../deploy/helm/review-consumer/values.yaml
+          - ../../deploy/helm/review-consumer/values-dev.yaml
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_tb_registry_review_consumer}}"
+          image.tag: "{{.IMAGE_TAG_tb_registry_review_consumer}}"

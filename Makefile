@@ -45,6 +45,9 @@ dev-search-consumer:
 dev-review-service:
 	skaffold dev -m review-service
 
+dev-review-consumer:
+	skaffold dev -m review-consumer
+
 lint-auth-service:
 	golangci-lint run --fix ./apps/auth-service/...
 
@@ -69,6 +72,9 @@ lint-search-consumer:
 lint-review-service:
 	golangci-lint run --fix ./apps/review-service/...
 
+lint-review-consumer:
+	golangci-lint run --fix ./apps/review-consumer/...
+
 test-auth-service:
 	go test -v ./apps/auth-service/...
 
@@ -92,6 +98,9 @@ test-search-consumer:
 
 test-review-service:
 	go test -v ./apps/review-service/...
+
+test-review-consumer:
+	go test -v ./apps/review-consumer/...
 
 swag-auth:
 	swag init -d apps/auth-service -g cmd/http/main.go -o apps/auth-service/docs
