@@ -162,6 +162,7 @@ func registerRoutes(
 
 		reviewsV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
+	reviewsV1.GET("/properties/:id", reviewHandler.GetReviewsByPropertyID)
 
 	authorizedUserReviewsV1 := v1.Group("reviews").
 		Use(middleware.AuthorizedUser(jwtSvc, jwtKeys.User.Access.Public))

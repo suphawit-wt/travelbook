@@ -46,6 +46,23 @@ func (r *Response) FromDomain(d *Review) *Response {
 	}
 }
 
+// FromDomainList converts a slice of domain reviews to a slice of Response DTOs.
+func (r *Response) FromDomainList(domainReviews []Review) []Response {
+	if domainReviews == nil {
+		return []Response{}
+	}
+
+	// Pre-allocate slice capacity for optimal memory allocation
+	responses := make([]Response, 0, len(domainReviews))
+	for i := range domainReviews {
+		var res Response
+		reviewRes := res.FromDomain(&domainReviews[i])
+		responses = append(responses, *reviewRes)
+	}
+
+	return responses
+}
+
 // SubRatings contains detailed ratings across individual categories.
 type SubRatings struct {
 	Staff       *int16 `json:"staff,omitempty"       binding:"omitempty,gte=1,lte=10"`

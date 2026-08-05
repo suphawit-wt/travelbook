@@ -6,6 +6,11 @@ package review
 
 import "github.com/google/uuid"
 
+// GetReviewsByPropertyIDURI represents the URI parameter for fetching reviews by property ID.
+type GetReviewsByPropertyIDURI struct {
+	ID string `uri:"id" binding:"required,uuid"`
+}
+
 // CreateReviewRequest represents the request body for creating a review.
 type CreateReviewRequest struct {
 	PropertyID string      `json:"propertyId"           binding:"required,uuid"`

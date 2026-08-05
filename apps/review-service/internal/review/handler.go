@@ -21,6 +21,7 @@ import (
 
 // Handler defines HTTP request handler methods for reviews.
 type Handler interface {
+	GetReviewsByPropertyID(c *gin.Context)
 	CreateReview(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
@@ -39,6 +40,50 @@ func NewHandler(
 	userClient userclient.Client,
 ) Handler {
 	return &handler{vdt: vdt, reviewSvc: reviewSvc, userClient: userClient}
+}
+
+// GetReviewsByPropertyID godoc
+//
+//	@Summary		Get reviews by property ID
+//	@Description	Get reviews associated with a specific property
+//	@Tags			Reviews
+//	@Security		Bearer
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	ApiResponseWithData{data=[]Response}
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/reviews/properties/{id} [get]
+func (h *handler) GetReviewsByPropertyID(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri GetReviewsByPropertyIDURI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	propertyID, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("invalid uuid format"))
+		return
+	}
+
+	reviews, err := h.reviewSvc.GetReviewsByPropertyID(ctx, propertyID)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	var response Response
+	res := ApiResponseWithData[[]Response]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       response.FromDomainList(reviews),
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // CreateReview godoc
