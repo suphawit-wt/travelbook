@@ -20,6 +20,7 @@ import (
 
 // Handler defines the HTTP interface for handling property-related HTTP requests.
 type Handler interface {
+	GetPropertyBySlug(c *gin.Context)
 	SearchProperties(c *gin.Context)
 	CreateProperty(c *gin.Context)
 	CreatePropertyImages(c *gin.Context)
@@ -46,6 +47,80 @@ func NewHandler(
 	propertySvc Service,
 ) Handler {
 	return &handler{vdt: vdt, propertySvc: propertySvc}
+}
+
+// GetPropertyBySlug godoc
+//
+//	@Summary		Get property by slug
+//	@Description	Retrieve detailed information of a property using its unique slug identifier.
+//	@Tags			Properties
+//	@Accept			json
+//	@Produce		json
+//	@Param			slug		path		string	true	"Property slug"
+//	@Param			checkin		query		string	true	"Check-in date (YYYY-MM-DD)"
+//	@Param			checkout	query		string	true	"Check-out date (YYYY-MM-DD)"
+//	@Param			adults		query		int		true	"Number of adults"
+//	@Param			children	query		int		false	"Number of children"
+//	@Param			room		query		int		true	"Number of rooms"
+//	@Success		200			{object}	ApiResponseWithData{data=DetailResponse}
+//	@Failure		400			{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		500			{object}	ApiResponse
+//	@Router			/v1/properties/by-slug/{slug} [get]
+func (h *handler) GetPropertyBySlug(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri GetPropertySlugURI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	var req GetPropertyBySlugRequest
+
+	if err := c.ShouldBindQuery(&req); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError(err.Error()))
+		return
+	}
+
+	currencyCode := c.GetHeader("X-Currency")
+	if currencyCode == "" {
+		currencyCode = constants.DefaultCurrency
+	}
+
+	if req.Adults == 0 {
+		req.Adults = 1
+	}
+
+	if req.Room == 0 {
+		req.Room = 1
+	}
+
+	property, err := h.propertySvc.GetPropertyBySlug(
+		ctx,
+		uri.Slug,
+		req.CheckIn,
+		req.CheckOut,
+		req.Adults,
+		req.Children,
+		req.Room,
+		currencyCode,
+	)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	var propertyDetailResponse *DetailResponse
+
+	res := ApiResponseWithData[*DetailResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       propertyDetailResponse.FromDomainModel(property),
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // SearchProperties godoc

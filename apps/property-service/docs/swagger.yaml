@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  property.AgeRange:
+    properties:
+      max:
+        type: integer
+      min:
+        type: integer
+    type: object
   property.ApiResponse:
     properties:
       message:
@@ -14,6 +21,76 @@ definitions:
       status:
         type: string
       statusCode:
+        type: integer
+    type: object
+  property.AreaInfo:
+    properties:
+      beaches:
+        items:
+          $ref: '#/definitions/property.AreaItem'
+        type: array
+      closestAirports:
+        items:
+          $ref: '#/definitions/property.AreaItem'
+        type: array
+      naturalBeauty:
+        items:
+          $ref: '#/definitions/property.AreaItem'
+        type: array
+      nearbyPlaces:
+        items:
+          $ref: '#/definitions/property.AreaItem'
+        type: array
+      publicTransit:
+        items:
+          $ref: '#/definitions/property.AreaItem'
+        type: array
+      restaurantsCafe:
+        items:
+          $ref: '#/definitions/property.AreaItem'
+        type: array
+      topAttractions:
+        items:
+          $ref: '#/definitions/property.AreaItem'
+        type: array
+    type: object
+  property.AreaItem:
+    properties:
+      distanceM:
+        type: number
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/property.AreaType'
+    type: object
+  property.AreaType:
+    enum:
+    - cafeBar
+    - peak
+    - train
+    - bus
+    type: string
+    x-enum-varnames:
+    - AreaTypeCafeBar
+    - AreaTypePeak
+    - AreaTypeTrain
+    - AreaTypeBus
+  property.BedPolicy:
+    properties:
+      ageRange:
+        $ref: '#/definitions/property.AgeRange'
+      free:
+        type: boolean
+      price:
+        $ref: '#/definitions/property.Money'
+    type: object
+  property.ChildPolicies:
+    properties:
+      allowed:
+        type: boolean
+      chargedAsAdultsAge:
+        type: integer
+      minAgeAllowed:
         type: integer
     type: object
   property.CreatePropertyImagesRequest:
@@ -105,6 +182,79 @@ definitions:
     - name
     - priceModifier
     type: object
+  property.CribAndExtraBedPolicies:
+    properties:
+      crib:
+        $ref: '#/definitions/property.BedPolicy'
+      extraBed:
+        $ref: '#/definitions/property.BedPolicy'
+    type: object
+  property.DamageDeposit:
+    properties:
+      price:
+        type: number
+      required:
+        type: boolean
+    type: object
+  property.DetailResponse:
+    properties:
+      about:
+        type: string
+      area:
+        type: string
+      areaInfo:
+        $ref: '#/definitions/property.AreaInfo'
+      avgRating:
+        type: number
+      checkInFrom:
+        type: string
+      checkInUntil:
+        type: string
+      checkOutFrom:
+        type: string
+      checkOutUntil:
+        type: string
+      city:
+        type: string
+      countryCode:
+        type: string
+      facilities:
+        items:
+          $ref: '#/definitions/property.facilityGroup'
+        type: array
+      finePrint:
+        type: string
+      highlights:
+        $ref: '#/definitions/property.Highlights'
+      id:
+        type: string
+      images:
+        items:
+          $ref: '#/definitions/property.image'
+        type: array
+      name:
+        type: string
+      reviewCount:
+        type: integer
+      reviews:
+        items:
+          $ref: '#/definitions/property.review'
+        type: array
+      rooms:
+        items:
+          $ref: '#/definitions/property.roomAvailability'
+        type: array
+      rules:
+        $ref: '#/definitions/property.Rules'
+      slug:
+        type: string
+      timezone:
+        type: string
+      type:
+        $ref: '#/definitions/property.Type'
+      zipCode:
+        type: string
+    type: object
   property.ErrResponse:
     properties:
       field:
@@ -141,6 +291,17 @@ definitions:
           $ref: '#/definitions/property.ImageUploadURLsResponse'
         type: array
     type: object
+  property.Highlights:
+    properties:
+      breakfastInfo:
+        items:
+          type: string
+        type: array
+      roomsWith:
+        items:
+          type: string
+        type: array
+    type: object
   property.ImageUploadRequst:
     properties:
       id:
@@ -171,6 +332,32 @@ definitions:
         type: string
       uploadUrl:
         type: string
+    type: object
+  property.Money:
+    properties:
+      amount:
+        type: number
+      currency:
+        type: string
+    type: object
+  property.Rules:
+    properties:
+      acceptedPayment:
+        items:
+          type: string
+        type: array
+      childPolicies:
+        $ref: '#/definitions/property.ChildPolicies'
+      cribAndExtraBedPolicies:
+        $ref: '#/definitions/property.CribAndExtraBedPolicies'
+      damageDeposit:
+        $ref: '#/definitions/property.DamageDeposit'
+      minCheckInAge:
+        type: integer
+      partiesAllowed:
+        type: boolean
+      petsAllowed:
+        type: boolean
     type: object
   property.SearchPropertyResponse:
     properties:
@@ -361,6 +548,15 @@ definitions:
       required:
         type: boolean
     type: object
+  property.facilityGroup:
+    properties:
+      category:
+        type: string
+      items:
+        items:
+          type: string
+        type: array
+    type: object
   property.hilightsRequest:
     properties:
       breakfastInfo:
@@ -374,6 +570,17 @@ definitions:
     required:
     - roomsWith
     type: object
+  property.image:
+    properties:
+      id:
+        type: string
+      orientation:
+        type: string
+      position:
+        type: integer
+      url:
+        type: string
+    type: object
   property.moneyRequest:
     properties:
       amount:
@@ -383,6 +590,51 @@ definitions:
     required:
     - amount
     - currency
+    type: object
+  property.ratePlan:
+    properties:
+      breakfastIncluded:
+        type: boolean
+      id:
+        type: string
+      maxGuest:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      refundable:
+        type: boolean
+    type: object
+  property.review:
+    properties:
+      comment:
+        type: string
+      countryCode:
+        type: string
+      displayName:
+        type: string
+      id:
+        type: string
+    type: object
+  property.roomAvailability:
+    properties:
+      availableRooms:
+        type: integer
+      bedInfo:
+        type: string
+      facilities:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      ratePlans:
+        items:
+          $ref: '#/definitions/property.ratePlan'
+        type: array
+      roomId:
+        type: string
     type: object
   property.roomResponse:
     properties:
@@ -844,6 +1096,70 @@ paths:
       security:
       - Bearer: []
       summary: Unpublish property listing
+      tags:
+      - Properties
+  /v1/properties/by-slug/{slug}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve detailed information of a property using its unique slug
+        identifier.
+      parameters:
+      - description: Property slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - description: Check-in date (YYYY-MM-DD)
+        in: query
+        name: checkin
+        required: true
+        type: string
+      - description: Check-out date (YYYY-MM-DD)
+        in: query
+        name: checkout
+        required: true
+        type: string
+      - description: Number of adults
+        in: query
+        name: adults
+        required: true
+        type: integer
+      - description: Number of children
+        in: query
+        name: children
+        type: integer
+      - description: Number of rooms
+        in: query
+        name: room
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/property.DetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/property.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/property.ErrResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/property.ApiResponse'
+      summary: Get property by slug
       tags:
       - Properties
   /v1/properties/rooms/{id}/rate-plans:

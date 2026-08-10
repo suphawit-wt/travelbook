@@ -12,6 +12,20 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 )
 
+// GetPropertySlugURI defines the URI parameters for the GetPropertyBySlug endpoint.
+type GetPropertySlugURI struct {
+	Slug string `uri:"slug" binding:"required"`
+}
+
+// GetPropertyBySlugRequest defines the query parameters for the GetPropertyBySlug endpoint.
+type GetPropertyBySlugRequest struct {
+	CheckIn  string `form:"checkin"  binding:"required"`
+	CheckOut string `form:"checkout" binding:"required"`
+	Adults   uint8  `form:"adults"   binding:"required,gte=1"`
+	Children uint8  `form:"children" binding:"gte=0"`
+	Room     uint8  `form:"room"     binding:"required,gte=1"`
+}
+
 // SearchPropertiesRequest defines the query parameters for the SearchProperties endpoint.
 type SearchPropertiesRequest struct {
 	Destination string `form:"dest"     binding:"required"`

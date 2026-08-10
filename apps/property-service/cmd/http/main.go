@@ -192,6 +192,7 @@ func registerRoutes(
 		propertiesV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
+	propertiesV1.GET("/by-slug/:slug", propertyHandler.GetPropertyBySlug)
 	propertiesV1.GET("/search", propertyHandler.SearchProperties)
 
 	authorizedPropertiesV1 := propertiesV1.Use(

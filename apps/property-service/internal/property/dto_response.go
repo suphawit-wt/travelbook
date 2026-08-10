@@ -4,6 +4,155 @@
 
 package property
 
+import "github.com/google/uuid"
+
+// DetailResponse defines the structure of the response for the GetPropertyBySlug endpoint.
+type DetailResponse struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Slug          string `json:"slug"`
+	Type          Type   `json:"type"`
+	Timezone      string `json:"timezone"`
+	CheckInFrom   string `json:"checkInFrom"`
+	CheckInUntil  string `json:"checkInUntil"`
+	CheckOutFrom  string `json:"checkOutFrom"`
+	CheckOutUntil string `json:"checkOutUntil"`
+
+	CountryCode string `json:"countryCode"`
+	City        string `json:"city"`
+	Area        string `json:"area"`
+	ZipCode     string `json:"zipCode"`
+
+	AvgRating   float64 `json:"avgRating"`
+	ReviewCount uint32  `json:"reviewCount"`
+
+	About      string     `json:"about"`
+	Highlights Highlights `json:"highlights"`
+	AreaInfo   AreaInfo   `json:"areaInfo"`
+
+	Rules     Rules  `json:"rules"`
+	FinePrint string `json:"finePrint"`
+
+	Reviews []review `json:"reviews"`
+
+	Images     []image         `json:"images"`
+	Facilities []facilityGroup `json:"facilities"`
+
+	Rooms []roomAvailability `json:"rooms"`
+}
+
+type review struct {
+	ID          string `json:"id"`
+	DisplayName string `json:"displayName"`
+	CountryCode string `json:"countryCode"`
+	Comment     string `json:"comment"`
+}
+
+type image struct {
+	ID          string `json:"id"`
+	URL         string `json:"url"`
+	Position    int    `json:"position"`
+	Orientation string `json:"orientation"`
+}
+
+type facilityGroup struct {
+	Category string   `json:"category"`
+	Items    []string `json:"items"`
+}
+
+type roomAvailability struct {
+	RoomID uuid.UUID `json:"roomId"`
+	Name   string    `json:"name"`
+
+	BedInfo string `json:"bedInfo"`
+
+	Facilities []string   `json:"facilities"`
+	RatePlans  []ratePlan `json:"ratePlans"`
+
+	AvailableRooms uint8 `json:"availableRooms"`
+}
+
+type ratePlan struct {
+	ID                uuid.UUID `json:"id"`
+	Name              string    `json:"name"`
+	MaxGuest          uint8     `json:"maxGuest"`
+	Price             float64   `json:"price"`
+	Refundable        bool      `json:"refundable"`
+	BreakfastIncluded bool      `json:"breakfastIncluded"`
+}
+
+// FromDomainModel converts a domain PropertyDetail model into a PropertyDetailResponse suitable for API responses.
+func (r *DetailResponse) FromDomainModel(
+	model *Detail,
+) *DetailResponse {
+	if model == nil {
+		return nil
+	}
+
+	reviews := make([]review, len(model.Reviews))
+	for i, rev := range model.Reviews {
+		reviews[i] = review(rev)
+	}
+
+	images := make([]image, len(model.Images))
+	for i, img := range model.Images {
+		images[i] = image{
+			ID:          img.ID,
+			URL:         img.ImageUrl,
+			Position:    int(img.Position),
+			Orientation: img.Orientation,
+		}
+	}
+
+	facilityGroups := make([]facilityGroup, len(model.Facilities))
+	for i, fg := range model.Facilities {
+		facilityGroups[i] = facilityGroup(fg)
+	}
+
+	roomAvailabilities := make([]roomAvailability, len(model.Rooms))
+	for i, room := range model.Rooms {
+		ratePlans := make([]ratePlan, len(room.RatePlans))
+		for j, rp := range room.RatePlans {
+			ratePlans[j] = ratePlan(rp)
+		}
+
+		roomAvailabilities[i] = roomAvailability{
+			RoomID:         room.RoomId,
+			Name:           room.Name,
+			BedInfo:        room.BedInfo,
+			Facilities:     room.Facilities,
+			RatePlans:      ratePlans,
+			AvailableRooms: room.AvailableRooms,
+		}
+	}
+
+	return &DetailResponse{
+		ID:            model.ID,
+		Name:          model.Name,
+		Slug:          model.Slug,
+		Type:          model.Type,
+		CheckInFrom:   model.CheckInFrom.Format("15:04"),
+		CheckInUntil:  model.CheckInUntil.Format("15:04"),
+		CheckOutFrom:  model.CheckOutFrom.Format("15:04"),
+		CheckOutUntil: model.CheckOutUntil.Format("15:04"),
+		CountryCode:   model.CountryCode,
+		City:          model.City,
+		Area:          model.Area,
+		ZipCode:       model.ZipCode,
+		AvgRating:     model.AvgRating,
+		ReviewCount:   model.ReviewCount,
+		About:         model.About,
+		Highlights:    model.Highlights,
+		AreaInfo:      model.AreaInfo,
+		Rules:         model.Rules,
+		FinePrint:     model.FinePrint,
+		Reviews:       reviews,
+		Images:        images,
+		Facilities:    facilityGroups,
+		Rooms:         roomAvailabilities,
+	}
+}
+
 // SearchPropertyResponse defines the structure of each property in the response for the SearchProperties endpoint.
 type SearchPropertyResponse struct {
 	Id            string       `json:"id"`

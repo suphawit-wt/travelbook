@@ -105,6 +105,108 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/properties/by-slug/{slug}": {
+            "get": {
+                "description": "Retrieve detailed information of a property using its unique slug identifier.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Properties"
+                ],
+                "summary": "Get property by slug",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Property slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Check-in date (YYYY-MM-DD)",
+                        "name": "checkin",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Check-out date (YYYY-MM-DD)",
+                        "name": "checkout",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of adults",
+                        "name": "adults",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of children",
+                        "name": "children",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of rooms",
+                        "name": "room",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponseWithData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/property.DetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/property.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/property.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/property.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/properties/rooms/{id}/rate-plans": {
             "post": {
                 "description": "Creates a new rate plan for the specified room ID. Requires partner authentication.",
@@ -902,6 +1004,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "property.AgeRange": {
+            "type": "object",
+            "properties": {
+                "max": {
+                    "type": "integer"
+                },
+                "min": {
+                    "type": "integer"
+                }
+            }
+        },
         "property.ApiResponse": {
             "type": "object",
             "properties": {
@@ -923,6 +1036,110 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "statusCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "property.AreaInfo": {
+            "type": "object",
+            "properties": {
+                "beaches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.AreaItem"
+                    }
+                },
+                "closestAirports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.AreaItem"
+                    }
+                },
+                "naturalBeauty": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.AreaItem"
+                    }
+                },
+                "nearbyPlaces": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.AreaItem"
+                    }
+                },
+                "publicTransit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.AreaItem"
+                    }
+                },
+                "restaurantsCafe": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.AreaItem"
+                    }
+                },
+                "topAttractions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.AreaItem"
+                    }
+                }
+            }
+        },
+        "property.AreaItem": {
+            "type": "object",
+            "properties": {
+                "distanceM": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/property.AreaType"
+                }
+            }
+        },
+        "property.AreaType": {
+            "type": "string",
+            "enum": [
+                "cafeBar",
+                "peak",
+                "train",
+                "bus"
+            ],
+            "x-enum-varnames": [
+                "AreaTypeCafeBar",
+                "AreaTypePeak",
+                "AreaTypeTrain",
+                "AreaTypeBus"
+            ]
+        },
+        "property.BedPolicy": {
+            "type": "object",
+            "properties": {
+                "ageRange": {
+                    "$ref": "#/definitions/property.AgeRange"
+                },
+                "free": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "$ref": "#/definitions/property.Money"
+                }
+            }
+        },
+        "property.ChildPolicies": {
+            "type": "object",
+            "properties": {
+                "allowed": {
+                    "type": "boolean"
+                },
+                "chargedAsAdultsAge": {
+                    "type": "integer"
+                },
+                "minAgeAllowed": {
                     "type": "integer"
                 }
             }
@@ -1055,6 +1272,117 @@ const docTemplate = `{
                 }
             }
         },
+        "property.CribAndExtraBedPolicies": {
+            "type": "object",
+            "properties": {
+                "crib": {
+                    "$ref": "#/definitions/property.BedPolicy"
+                },
+                "extraBed": {
+                    "$ref": "#/definitions/property.BedPolicy"
+                }
+            }
+        },
+        "property.DamageDeposit": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "required": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "property.DetailResponse": {
+            "type": "object",
+            "properties": {
+                "about": {
+                    "type": "string"
+                },
+                "area": {
+                    "type": "string"
+                },
+                "areaInfo": {
+                    "$ref": "#/definitions/property.AreaInfo"
+                },
+                "avgRating": {
+                    "type": "number"
+                },
+                "checkInFrom": {
+                    "type": "string"
+                },
+                "checkInUntil": {
+                    "type": "string"
+                },
+                "checkOutFrom": {
+                    "type": "string"
+                },
+                "checkOutUntil": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "countryCode": {
+                    "type": "string"
+                },
+                "facilities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.facilityGroup"
+                    }
+                },
+                "finePrint": {
+                    "type": "string"
+                },
+                "highlights": {
+                    "$ref": "#/definitions/property.Highlights"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.image"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reviewCount": {
+                    "type": "integer"
+                },
+                "reviews": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.review"
+                    }
+                },
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.roomAvailability"
+                    }
+                },
+                "rules": {
+                    "$ref": "#/definitions/property.Rules"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "timezone": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/property.Type"
+                },
+                "zipCode": {
+                    "type": "string"
+                }
+            }
+        },
         "property.ErrResponse": {
             "type": "object",
             "properties": {
@@ -1110,6 +1438,23 @@ const docTemplate = `{
                 }
             }
         },
+        "property.Highlights": {
+            "type": "object",
+            "properties": {
+                "breakfastInfo": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "roomsWith": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "property.ImageUploadRequst": {
             "type": "object",
             "required": [
@@ -1152,6 +1497,46 @@ const docTemplate = `{
                 },
                 "uploadUrl": {
                     "type": "string"
+                }
+            }
+        },
+        "property.Money": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                }
+            }
+        },
+        "property.Rules": {
+            "type": "object",
+            "properties": {
+                "acceptedPayment": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "childPolicies": {
+                    "$ref": "#/definitions/property.ChildPolicies"
+                },
+                "cribAndExtraBedPolicies": {
+                    "$ref": "#/definitions/property.CribAndExtraBedPolicies"
+                },
+                "damageDeposit": {
+                    "$ref": "#/definitions/property.DamageDeposit"
+                },
+                "minCheckInAge": {
+                    "type": "integer"
+                },
+                "partiesAllowed": {
+                    "type": "boolean"
+                },
+                "petsAllowed": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1436,6 +1821,20 @@ const docTemplate = `{
                 }
             }
         },
+        "property.facilityGroup": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "property.hilightsRequest": {
             "type": "object",
             "required": [
@@ -1456,6 +1855,23 @@ const docTemplate = `{
                 }
             }
         },
+        "property.image": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "orientation": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "property.moneyRequest": {
             "type": "object",
             "required": [
@@ -1467,6 +1883,75 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "currency": {
+                    "type": "string"
+                }
+            }
+        },
+        "property.ratePlan": {
+            "type": "object",
+            "properties": {
+                "breakfastIncluded": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "maxGuest": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "refundable": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "property.review": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "countryCode": {
+                    "type": "string"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "property.roomAvailability": {
+            "type": "object",
+            "properties": {
+                "availableRooms": {
+                    "type": "integer"
+                },
+                "bedInfo": {
+                    "type": "string"
+                },
+                "facilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ratePlans": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/property.ratePlan"
+                    }
+                },
+                "roomId": {
                     "type": "string"
                 }
             }
