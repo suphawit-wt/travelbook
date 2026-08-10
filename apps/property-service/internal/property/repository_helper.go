@@ -7,6 +7,7 @@ package property
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,6 +21,226 @@ type locationNames struct {
 	CityNameLocal     string
 	ProvinceNameEN    string
 	ProvinceNameLocal string
+}
+
+type roomInternal struct {
+	RoomAvailability
+	basePrice float64
+}
+
+func (r *repositoryDB) fetchBasicInfo(
+	ctx context.Context,
+	tx pgx.Tx,
+	slug string,
+	detail *Detail,
+) error {
+	return tx.QueryRow(ctx, `
+        SELECT 
+			p.id,
+			p.name, 
+			p.slug, 
+			p.type, 
+			p.check_in_from, 
+			p.check_in_until, 
+			p.check_out_from, 
+			p.check_out_until, 
+			co.code AS country_code, 
+			ci.key AS city, 
+			a.key AS area, 
+			p.zip_code,
+            p.avg_rating, 
+			p.review_count, 
+			p.about, 
+			p.highlights, 
+			p.area_info, 
+			p.rules, 
+			p.fine_print
+        FROM properties p 
+		LEFT JOIN areas a ON p.area_id = a.id
+		LEFT JOIN cities ci ON a.city_id = ci.id
+		LEFT JOIN provinces pr ON ci.province_id = pr.id
+		LEFT JOIN countries co ON pr.country_id = co.id
+		WHERE slug = $1 AND status = 'active'
+    `, slug).Scan(
+		&detail.ID, &detail.Name, &detail.Slug, &detail.Type, &detail.CheckInFrom, &detail.CheckInUntil, &detail.CheckOutFrom, &detail.CheckOutUntil, &detail.CountryCode,
+		&detail.City, &detail.Area, &detail.ZipCode, &detail.AvgRating, &detail.ReviewCount,
+		&detail.About, &detail.Highlights, &detail.AreaInfo, &detail.Rules, &detail.FinePrint,
+	)
+}
+
+func (r *repositoryDB) fetchPropertyMetadata(
+	ctx context.Context,
+	tx pgx.Tx,
+	detail *Detail,
+) error {
+	imgRows, err := tx.Query(
+		ctx,
+		`SELECT id, image_url, position, orientation FROM property_images WHERE property_id = $1 ORDER BY position`,
+		detail.ID,
+	)
+	if err != nil {
+		return err
+	}
+	defer imgRows.Close()
+	for imgRows.Next() {
+		var img Image
+		if err := imgRows.Scan(
+			&img.ID,
+			&img.ImageUrl,
+			&img.Position,
+			&img.Orientation,
+		); err != nil {
+			return err
+		}
+		detail.Images = append(detail.Images, img)
+	}
+
+	fRows, _ := tx.Query(ctx, `
+        SELECT fc.name, f.name FROM property_facilities pf 
+        JOIN facilities f ON f.id = pf.facility_id 
+        JOIN facility_categories fc ON fc.id = f.category_id 
+        WHERE pf.property_id = $1`, detail.ID)
+	defer fRows.Close()
+	facMap := make(map[string][]string)
+	for fRows.Next() {
+		var cat, name string
+		if err := fRows.Scan(&cat, &name); err != nil {
+			return err
+		}
+		facMap[cat] = append(facMap[cat], name)
+	}
+	for k, v := range facMap {
+		detail.Facilities = append(detail.Facilities, FacilityGroup{Category: k, Items: v})
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) fetchAvailability(
+	ctx context.Context, tx pgx.Tx, detail *Detail,
+	checkIn, checkOut time.Time, adults, children, room, nights uint8, currency string,
+) error {
+	rows, err := tx.Query(ctx, `
+        SELECT rt.id, rt.name, rt.base_price_usd, MIN(ri.available_rooms)
+        FROM room_types rt
+        JOIN room_inventory ri ON ri.room_type_id = rt.id
+        WHERE rt.property_id = $1 AND ri.date >= $2 AND ri.date < $3
+          AND rt.max_adults >= $4 AND rt.max_children >= $5
+        GROUP BY rt.id HAVING MIN(ri.available_rooms) >= $6`,
+		detail.ID, checkIn, checkOut, adults, children, room)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	roomMap := make(map[uuid.UUID]*roomInternal)
+	var roomIDs []uuid.UUID
+
+	for rows.Next() {
+		ri := &roomInternal{}
+		if err := rows.Scan(&ri.RoomId, &ri.Name, &ri.basePrice, &ri.AvailableRooms); err != nil {
+			return err
+		}
+		roomMap[ri.RoomId] = ri
+		roomIDs = append(roomIDs, ri.RoomId)
+	}
+	if len(roomIDs) == 0 {
+		return nil
+	}
+
+	if err := r.attachBeds(ctx, tx, roomIDs, roomMap); err != nil {
+		return err
+	}
+	if err := r.attachRates(ctx, tx, roomIDs, roomMap, nights, currency); err != nil {
+		return err
+	}
+
+	for _, ri := range roomMap {
+		detail.Rooms = append(detail.Rooms, ri.RoomAvailability)
+	}
+	return nil
+}
+
+func (r *repositoryDB) attachBeds(
+	ctx context.Context,
+	tx pgx.Tx,
+	ids []uuid.UUID,
+	roomMap map[uuid.UUID]*roomInternal,
+) error {
+	rows, err := tx.Query(
+		ctx,
+		`SELECT room_type_id, bed_type, quantity FROM room_beds WHERE room_type_id = ANY($1)`,
+		ids,
+	)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	bedStrings := make(map[uuid.UUID][]string)
+	for rows.Next() {
+		var id uuid.UUID
+		var bType string
+		var qty int
+		if err := rows.Scan(&id, &bType, &qty); err != nil {
+			return err
+		}
+		bedStrings[id] = append(bedStrings[id], fmt.Sprintf("%d %s", qty, bType))
+	}
+	for id, beds := range bedStrings {
+		if room, ok := roomMap[id]; ok {
+			room.BedInfo = strings.Join(beds, ", ")
+		}
+	}
+	return nil
+}
+
+func (r *repositoryDB) attachRates(
+	ctx context.Context,
+	tx pgx.Tx,
+	ids []uuid.UUID,
+	roomMap map[uuid.UUID]*roomInternal,
+	nights uint8,
+	currency string,
+) error {
+	var rate float64
+	err := r.db.QueryRow(ctx, `SELECT rate_to_usd FROM currencies WHERE code = $1`, currency).
+		Scan(&rate)
+	if err != nil {
+		return err
+	}
+
+	rows, err := tx.Query(ctx, `
+        SELECT rp.id, rp.room_type_id, rp.name, rp.refundable, rp.breakfast_included, rp.price_modifier_usd, rt.max_adults
+        FROM rate_plans rp JOIN room_types rt ON rt.id = rp.room_type_id
+        WHERE rp.room_type_id = ANY($1)`, ids)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var rp RatePlanItem
+		var roomID uuid.UUID
+		var modifier float64
+		if err := rows.Scan(
+			&rp.ID,
+			&roomID,
+			&rp.Name,
+			&rp.Refundable,
+			&rp.BreakfastIncluded,
+			&modifier,
+			&rp.MaxGuest,
+		); err != nil {
+			return err
+		}
+
+		if room, ok := roomMap[roomID]; ok {
+			rp.Price = (room.basePrice + modifier) * rate * float64(nights)
+			room.RatePlans = append(room.RatePlans, rp)
+		}
+	}
+	return rows.Err()
 }
 
 func (r *repositoryDB) getCurrencyRate(ctx context.Context, currencyCode string) (float64, error) {

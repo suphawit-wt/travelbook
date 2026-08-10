@@ -7,6 +7,7 @@ package property
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 
 	"github.com/suphawit-wt/travelbook/apps/property-service/internal/search"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
+	"github.com/suphawit-wt/travelbook/pkg/reviewclient"
 )
 
 // Location represents the location details of a property, including country code, province, city, area, zip code, address lines, latitude, and longitude.
@@ -109,8 +111,119 @@ type BedsResponse struct {
 	Quantity uint8
 }
 
+// Detail represents the detailed information of a property.
+type Detail struct {
+	ID            string
+	Name          string
+	Slug          string
+	Type          Type
+	CheckInFrom   time.Time
+	CheckInUntil  time.Time
+	CheckOutFrom  time.Time
+	CheckOutUntil time.Time
+
+	CountryCode string
+	City        string
+	Area        string
+	ZipCode     string
+
+	AvgRating   float64
+	ReviewCount uint32
+
+	About      string
+	Highlights Highlights
+	AreaInfo   AreaInfo
+
+	Rules     Rules
+	FinePrint string
+
+	Reviews []Review
+
+	Images     []Image
+	Facilities []FacilityGroup
+
+	Rooms []RoomAvailability
+}
+
+// Review represents a guest review for a property, including the reviewer's display name, country code, and comment.
+type Review struct {
+	ID          string
+	DisplayName string
+	CountryCode string
+	Comment     string
+}
+
+// FromListReviewResponse converts a slice of review client DTOs into a slice of Review structs.
+func (r Review) FromListReviewResponse(list []reviewclient.ReviewResponse) []Review {
+	if list == nil {
+		return []Review{}
+	}
+
+	reviews := make([]Review, 0, len(list))
+	for i := range list {
+		item := &list[i]
+		var displayName, countryCode, comment string
+
+		if item.UserDisplayName != nil {
+			displayName = *item.UserDisplayName
+		}
+		if item.UserCountryCode != nil {
+			countryCode = *item.UserCountryCode
+		}
+		if item.Comment != nil {
+			comment = *item.Comment
+		}
+
+		reviews = append(reviews, Review{
+			ID:          item.ID,
+			DisplayName: displayName,
+			CountryCode: countryCode,
+			Comment:     comment,
+		})
+	}
+
+	return reviews
+}
+
+// FacilityGroup represents a group of facilities categorized under a specific category, including the category name and a list of facility items.
+type FacilityGroup struct {
+	Category string
+	Items    []string
+}
+
+// RoomAvailability represents the availability details of a specific room type within a property, including its ID, name, bed information, facilities, rate plans, and the number of available rooms.
+type RoomAvailability struct {
+	RoomId uuid.UUID
+	Name   string
+
+	BedInfo string
+
+	Facilities []string
+	RatePlans  []RatePlanItem
+
+	AvailableRooms uint8
+}
+
+// RatePlanItem represents the details of a specific rate plan for a room, including its ID, name, maximum guest capacity, price, refundability, and breakfast inclusion.
+type RatePlanItem struct {
+	ID                uuid.UUID
+	Name              string
+	MaxGuest          uint8
+	Price             float64
+	Refundable        bool
+	BreakfastIncluded bool
+}
+
 // Repository defines the data access contract for property entities.
 type Repository interface {
+	GetBySlug(
+		ctx context.Context,
+		tx pgx.Tx,
+		slug string,
+		checkIn, checkOut time.Time,
+		adults, children, room, nights uint8,
+		currencyCode string,
+	) (*Detail, error)
 	FilterAvailableProperties(
 		ctx context.Context,
 		propertyIDs []string,
@@ -166,6 +279,46 @@ func NewRepositoryDB(
 	rdb *redis.Client,
 ) Repository {
 	return &repositoryDB{db: db, rdb: rdb}
+}
+
+func (r *repositoryDB) GetBySlug(
+	ctx context.Context,
+	tx pgx.Tx,
+	slug string,
+	checkIn, checkOut time.Time,
+	adults, children, room, nights uint8,
+	currencyCode string,
+) (detail *Detail, err error) {
+	detail = &Detail{}
+
+	if err := r.fetchBasicInfo(ctx, tx, slug, detail); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, errs.NewNotFoundError("Property not found.")
+		}
+
+		return nil, err
+	}
+
+	if err := r.fetchPropertyMetadata(ctx, tx, detail); err != nil {
+		return nil, err
+	}
+
+	if err := r.fetchAvailability(
+		ctx,
+		tx,
+		detail,
+		checkIn,
+		checkOut,
+		adults,
+		children,
+		room,
+		nights,
+		currencyCode,
+	); err != nil {
+		return nil, err
+	}
+
+	return detail, nil
 }
 
 func (r *repositoryDB) FilterAvailableProperties(
@@ -369,10 +522,15 @@ func (r *repositoryDB) CreateRatePlan(
 		(id, room_type_id, name, price_modifier_usd, refundable, breakfast_included)
 		VALUES ($1, $2, $3, $4, $5, $6)`
 
-	_, err := r.db.Exec(
+	ratePlanID, err := uuid.NewV7()
+	if err != nil {
+		return fmt.Errorf("failed to generate id uuid v7: %w", err)
+	}
+
+	_, err = r.db.Exec(
 		ctx,
 		query,
-		,
+		ratePlanID,
 		roomID,
 		ratePlan.Name,
 		ratePlan.PriceModifier,
