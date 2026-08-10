@@ -26,6 +26,7 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/secret"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
+	"github.com/suphawit-wt/travelbook/pkg/reviewclient"
 	"github.com/suphawit-wt/travelbook/pkg/shared/dberr"
 )
 
@@ -59,6 +60,12 @@ type ImageUpload struct {
 
 // Service defines the business logic contract for property-related operations.
 type Service interface {
+	GetPropertyBySlug(
+		ctx context.Context,
+		propertySlug, checkIn, checkOut string,
+		adults, children, room uint8,
+		currencyCode string,
+	) (*Detail, error)
 	SearchProperties(
 		ctx context.Context,
 		destination, checkIn, checkOut string,
@@ -105,6 +112,7 @@ type service struct {
 	searchRepo      search.Repository
 	outboxRepo      outbox.Repository
 	txMgr           database.TxManager
+	reviewClient    reviewclient.Client
 }
 
 // NewService creates a new instance of Service with the provided dependencies.
@@ -116,6 +124,7 @@ func NewService(
 	searchRepo search.Repository,
 	outboxRepo outbox.Repository,
 	txMgr database.TxManager,
+	reviewClient reviewclient.Client,
 ) Service {
 	return &service{
 		logger:          logger,
@@ -125,7 +134,116 @@ func NewService(
 		searchRepo:      searchRepo,
 		outboxRepo:      outboxRepo,
 		txMgr:           txMgr,
+		reviewClient:    reviewClient,
 	}
+}
+
+func (s *service) GetPropertyBySlug(
+	ctx context.Context,
+	propertySlug, checkIn, checkOut string,
+	adults, children, room uint8,
+	currencyCode string,
+) (*Detail, error) {
+	logger := s.logger.Named("get_property_by_slug")
+
+	logger.Debug("fetching property details by slug",
+		zap.String("slug", propertySlug),
+		zap.String("check_in", checkIn),
+		zap.String("check_out", checkOut),
+		zap.Uint8("adults", adults),
+		zap.Uint8("children", children),
+		zap.Uint8("room", room),
+		zap.String("currency", currencyCode),
+	)
+
+	parsedCheckIn, err := time.Parse(time.DateOnly, checkIn)
+	if err != nil {
+		logger.Warn("invalid check-in date format",
+			zap.String("slug", propertySlug),
+			zap.String("check_in", checkIn),
+			zap.Error(err),
+		)
+		return nil, errs.NewBadRequestError("check in format not valid.")
+	}
+	parsedCheckOut, err := time.Parse(time.DateOnly, checkOut)
+	if err != nil {
+		logger.Warn("invalid check-out date format",
+			zap.String("slug", propertySlug),
+			zap.String("check_out", checkOut),
+			zap.Error(err),
+		)
+		return nil, errs.NewBadRequestError("check out format not valid.")
+	}
+
+	if !parsedCheckOut.After(parsedCheckIn) {
+		logger.Warn("invalid date range: check-out must be after check-in",
+			zap.String("slug", propertySlug),
+			zap.Time("check_in", parsedCheckIn),
+			zap.Time("check_out", parsedCheckOut),
+		)
+		return nil, errs.NewBadRequestError("check out must be after check in")
+	}
+
+	nights := uint8(parsedCheckOut.Sub(parsedCheckIn).Hours() / 24)
+	if nights <= 0 {
+		logger.Warn("invalid stay duration calculated",
+			zap.String("slug", propertySlug),
+			zap.Uint8("nights", nights),
+		)
+		return nil, fmt.Errorf("invalid stay duration")
+	}
+
+	var propertyDetail *Detail
+	err = s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		property, getErr := s.propertyRepo.GetBySlug(
+			txCtx,
+			tx,
+			propertySlug,
+			parsedCheckIn,
+			parsedCheckOut,
+			adults,
+			children,
+			room,
+			nights,
+			currencyCode,
+		)
+		if getErr != nil {
+			logger.Error("failed to get property by slug from repository",
+				zap.String("slug", propertySlug),
+				zap.Error(getErr),
+			)
+			return err
+		}
+
+		propertyDetail = property
+		return nil
+	})
+	if err != nil {
+		logger.Error("failed to execute transaction for get property by slug",
+			zap.String("slug", propertySlug),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("Service.GetPropertyBySlug: %w", err)
+	}
+
+	reviewsRes, err := s.reviewClient.GetReviewsByPropertyID(ctx, propertyDetail.ID)
+	if err != nil {
+		logger.Error("failed to get reviews by property id",
+			zap.String("propertyId", propertyDetail.ID),
+			zap.Error(err),
+		)
+	}
+
+	reviews := Review{}.FromListReviewResponse(reviewsRes)
+
+	propertyDetail.Reviews = reviews
+
+	logger.Info("successfully retrieved property details",
+		zap.String("slug", propertySlug),
+		zap.Uint8("nights", nights),
+	)
+
+	return propertyDetail, nil
 }
 
 func (s *service) SearchProperties(

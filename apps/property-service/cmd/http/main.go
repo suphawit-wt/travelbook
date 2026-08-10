@@ -29,6 +29,7 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/server"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/storage"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
+	"github.com/suphawit-wt/travelbook/pkg/reviewclient"
 	"github.com/suphawit-wt/travelbook/pkg/shared/jwtkey"
 	"github.com/suphawit-wt/travelbook/pkg/shared/middleware"
 )
@@ -137,6 +138,7 @@ func run() error {
 	jwtSvc := jwt.NewService(cfg.Security.JWT)
 	txManager := database.NewTxManager(pgPool)
 	s3PresignClient := s3.NewPresignClient(s3Client)
+	reviewClient := reviewclient.New()
 
 	srv, err := server.NewHTTPGin(cfg, serverLogger)
 	if err != nil {
@@ -154,6 +156,7 @@ func run() error {
 		searchRepo,
 		outboxRepo,
 		txManager,
+		reviewClient,
 	)
 	propertyHandler := property.NewHandler(srv.Validator, propertyService)
 
