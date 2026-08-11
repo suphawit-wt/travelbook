@@ -2,11 +2,13 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
+import { ApiResponseWithData } from '@/shared/types/api';
 import type { PropertyServiceInterface } from './property.service.interface';
 import type {
   DestinationTrip,
   EasyTripPlanner,
   PropertyItem,
+  PropertyItemWithRoom,
   PropertyType,
   TrendingDestination,
   TripArticle,
@@ -684,4 +686,25 @@ export class PropertyServiceMock implements PropertyServiceInterface {
 
     return Promise.resolve(data);
   }
+
+  async searchProperties(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    dest: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    checkin: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    checkout: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    adults: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    children: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    room: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    page: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    perPage: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    currency: string,
+  ): Promise<ApiResponseWithData<PropertyItemWithRoom[]>> {}
 }
