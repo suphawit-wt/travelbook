@@ -4,6 +4,7 @@
 
 import { FilterSidebar } from '@/features/search/ui/filter-sidebar';
 import { HeaderSearch } from '@/features/search/ui/header-search';
+import { SearchResult } from '@/features/search/ui/search-result';
 import { getTranslation } from '@/shared/i18n/hooks/get-translation';
 import { Breadcrumbs, Container } from '@/shared/ui';
 
@@ -66,6 +67,7 @@ const Search: FC<SearchProps> = async ({ searchParams }) => {
           </Breadcrumbs.List>
         </Breadcrumbs.Root>
         <FilterSidebar />
+        <SearchResult searchQuery={searchQuery} />
       </Container>
     </>
   );
