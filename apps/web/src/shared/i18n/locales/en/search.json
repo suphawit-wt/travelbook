@@ -24,6 +24,32 @@
     "cta": "Search"
   },
 
+  "results": {
+    "loadMore": "Load more results",
+    "summary": "{{destination}}: {{count, number}} properties found",
+    "notFound": "No properties found. Try adjusting your search or explore nearby destinations."
+  },
+
+  "layout": {
+    "list": "List",
+    "grid": "Grid"
+  },
+
+  "sort": {
+    "current": "Sort by: {{label}}",
+    "options": {
+      "topPicks": "Our top picks",
+      "homesFirst": "Homes & apartments first",
+      "priceLow": "Price (lowest first)",
+      "priceHigh": "Price (highest first)",
+      "bestValue": "Best reviewed & lowest price",
+      "ratingHigh": "Property rating (high to low)",
+      "ratingLow": "Property rating (low to high)",
+      "ratingAndPrice": "Property rating and price",
+      "topReviewed": "Top reviewed"
+    }
+  },
+
   "filters": {
     "title": "Filter by",
     "budget": "Your budget (per night)",
