@@ -16,6 +16,30 @@
     "cabin": "กระท่อม"
   },
 
+  "overview": {
+    "location": {
+      "greatWithMap": "ทำเลยอดเยี่ยม - แสดงแผนที่",
+      "topRated": "สุดยอดทำเล: ได้คะแนนสูงจากผู้เข้าพักเมื่อเร็ว ๆ นี้ ({{score}})"
+    },
+
+    "actions": {
+      "reserve": "สำรอง",
+      "share": "แชร์ที่พักนี้"
+    },
+
+    "highlights": {
+      "title": "จุดเด่นของที่พัก",
+      "perfectStay": "เหมาะสำหรับทริป {{nights}} คืน!",
+      "breakfast": "ข้อมูลอาหารเช้า",
+      "roomsWith": "ห้องพักมี"
+    },
+
+    "about": {
+      "title": "เกี่ยวกับที่พัก",
+      "distanceDisclaimer": "ระยะทางที่แสดงในคำอธิบายที่พักนั้นคำนวณโดยใช้ © OpenStreetMap"
+    }
+  },
+
   "beds": {
     "king": "เตียงคิงไซส์ {{count, number}} เตียง",
     "queen": "เตียงควีนไซส์ {{count, number}} เตียง",

@@ -38,6 +38,11 @@
     }
   },
 
+  "priceMatch": {
+    "title": "We Price Match",
+    "description": "Low rates • No booking fees • Find something cheaper? We'll refund the difference!"
+  },
+
   "reviews": "reviews",
 
   "dates": {

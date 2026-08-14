@@ -16,6 +16,30 @@
     "cabin": "Cabins"
   },
 
+  "overview": {
+    "location": {
+      "greatWithMap": "Great location - show map",
+      "topRated": "Top Location: Highly rated by recent guests ({{score}})"
+    },
+
+    "actions": {
+      "reserve": "Reserve",
+      "share": "Share this property"
+    },
+
+    "highlights": {
+      "title": "Property highlights",
+      "perfectStay": "Perfect for a {{nights}}-night stay!",
+      "breakfast": "Breakfast Info",
+      "roomsWith": "Rooms with"
+    },
+
+    "about": {
+      "title": "About this property",
+      "distanceDisclaimer": "Distance in property description is calculated using © OpenStreetMap"
+    }
+  },
+
   "beds": {
     "king": "{{count, number}} king bed",
     "queen": "{{count, number}} queen bed",
