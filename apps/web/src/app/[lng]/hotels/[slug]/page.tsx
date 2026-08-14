@@ -15,7 +15,14 @@ import { selectCurrency } from '@/features/user/store/user-preferences.selectors
 import { useAppSelector } from '@/shared/hooks/store';
 import { useTranslation } from '@/shared/i18n/hooks/use-translation';
 import { axiosClient } from '@/shared/lib/axios-client';
-import { Breadcrumbs, Container, Skeleton } from '@/shared/ui';
+import {
+  Breadcrumbs,
+  Button,
+  ButtonLink,
+  Container,
+  Skeleton,
+  Tabs,
+} from '@/shared/ui';
 
 const Hotels = () => {
   const propertyService = new PropertyService(axiosClient);
@@ -117,6 +124,63 @@ const Hotels = () => {
             </Breadcrumbs.Item>
           </Breadcrumbs.List>
         </Breadcrumbs.Root>
+
+        <Tabs.Root $variant="tabs" defaultValue="overview">
+          <Tabs.List>
+            <Tabs.Trigger asChild value="overview">
+              <ButtonLink
+                $variant="ghost"
+                href="#overview"
+                style={{ justifyContent: 'center' }}
+              >
+                {t('tabs.overview')}
+              </ButtonLink>
+            </Tabs.Trigger>
+            <Tabs.Trigger asChild value="info_and_price">
+              <ButtonLink
+                $variant="ghost"
+                href="#availability"
+                style={{ justifyContent: 'center' }}
+              >
+                {t('tabs.infoAndPrices')}
+              </ButtonLink>
+            </Tabs.Trigger>
+            <Tabs.Trigger asChild value="facilities">
+              <ButtonLink
+                $variant="ghost"
+                href="#facilities"
+                style={{ justifyContent: 'center' }}
+              >
+                {t('tabs.facilities')}
+              </ButtonLink>
+            </Tabs.Trigger>
+            <Tabs.Trigger asChild value="house_rules">
+              <ButtonLink
+                $variant="ghost"
+                href="#house_rules"
+                style={{ justifyContent: 'center' }}
+              >
+                {t('tabs.houseRules')}
+              </ButtonLink>
+            </Tabs.Trigger>
+            <Tabs.Trigger asChild value="fine_print">
+              <ButtonLink
+                $variant="ghost"
+                href="#fine_print"
+                style={{ justifyContent: 'center' }}
+              >
+                {t('tabs.finePrint')}
+              </ButtonLink>
+            </Tabs.Trigger>
+            <Tabs.Trigger asChild value="guest_reviews">
+              <Button $variant="ghost">
+                {t('tabs.guestReviews', {
+                  count: propertyDetails?.reviewCount ?? 0,
+                })}
+              </Button>
+            </Tabs.Trigger>
+          </Tabs.List>
+        </Tabs.Root>
       </Container>
     </>
   );
