@@ -15,8 +15,9 @@ export const withSearchDefaults: MiddlewareHandler = (req) => {
 
   // 1. Determine if the current route needs default booking parameters
   const isSearchPage = restPath === '/search';
+  const isHotelDetailPage = restPath.startsWith('/hotels/');
 
-  if (isSearchPage) {
+  if (isSearchPage || isHotelDetailPage) {
     const hasCheckin = searchParams.has('checkin');
     const hasCheckout = searchParams.has('checkout');
 
