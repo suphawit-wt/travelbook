@@ -10,6 +10,8 @@ import { useEffect } from 'react';
 
 import { PropertyService } from '@/features/property/lib/property.service';
 import type { PropertyWithDetail } from '@/features/property/lib/property.service.types';
+import { MobilePropertyOverview } from '@/features/property/ui/mobile';
+import { PropertyOverview } from '@/features/property/ui/property-overview';
 import { HeaderSearch } from '@/features/search/ui/header-search';
 import { selectCurrency } from '@/features/user/store/user-preferences.selectors';
 import { useAppSelector } from '@/shared/hooks/store';
@@ -23,6 +25,7 @@ import {
   Skeleton,
   Tabs,
 } from '@/shared/ui';
+import { calculateNights } from '@/shared/utils/date';
 
 const Hotels = () => {
   const propertyService = new PropertyService(axiosClient);
@@ -38,6 +41,7 @@ const Hotels = () => {
   const adult = Number(searchParams.get('adult') ?? 2);
   const children = Number(searchParams.get('children') ?? 0);
   const room = Number(searchParams.get('room') ?? 1);
+  const nights = calculateNights(checkIn, checkOut);
 
   const searchQuery = {
     destination,
@@ -86,6 +90,7 @@ const Hotels = () => {
   return (
     <>
       <HeaderSearch searchQuery={searchQuery} />
+      <MobilePropertyOverview propertyDetails={propertyDetails} />
       <Container $showOnly="desktop">
         <Breadcrumbs.Root $size="sm" style={{ marginBottom: '20px' }}>
           <Breadcrumbs.List>
@@ -181,6 +186,7 @@ const Hotels = () => {
             </Tabs.Trigger>
           </Tabs.List>
         </Tabs.Root>
+        <PropertyOverview nights={nights} propertyDetails={propertyDetails} />
       </Container>
     </>
   );
