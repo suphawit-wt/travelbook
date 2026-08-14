@@ -2,7 +2,7 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
-import { ApiResponseWithData } from '@/shared/types/api';
+import type { ApiResponseWithData } from '@/shared/types/api';
 import type { PropertyServiceInterface } from './property.service.interface';
 import type {
   DestinationTrip,
@@ -10,6 +10,7 @@ import type {
   PropertyItem,
   PropertyItemWithRoom,
   PropertyType,
+  PropertyWithDetail,
   TrendingDestination,
   TripArticle,
 } from './property.service.types';
@@ -707,4 +708,95 @@ export class PropertyServiceMock implements PropertyServiceInterface {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     currency: string,
   ): Promise<ApiResponseWithData<PropertyItemWithRoom[]>> {}
+
+  async getPropertyBySlugWithAvailability(
+    slug: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _checkin: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _checkout: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _adults: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _children: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _room: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _currency: string,
+  ): Promise<PropertyWithDetail> {
+    const data: PropertyWithDetail = {
+      id: '',
+      name: '',
+      slug,
+      type: 'hotel',
+      countryCode: '',
+      city: '',
+      area: '',
+      zipCode: '',
+      avgRating: 0,
+      reviewCount: 0,
+      about: '',
+      highlights: {
+        roomsWith: [],
+        breakfastInfo: null,
+      },
+      areaInfo: {
+        nearbyPlaces: null,
+        restaurantsCafe: null,
+        topAttractions: null,
+        naturalBeauty: null,
+        beaches: null,
+        publicTransit: null,
+        closestAirports: null,
+      },
+      rules: {
+        checkIn: {
+          from: '',
+          until: '',
+        },
+        checkOut: {
+          from: '',
+          until: '',
+        },
+        damageDeposit: {
+          required: false,
+          price: null,
+        },
+        childPolicies: {
+          allowed: false,
+          minAgeAllowed: null,
+          chargedAsAdultsAge: null,
+        },
+        cribAndExtraBedPolicies: {
+          crib: {
+            ageRange: {
+              min: null,
+              max: null,
+            },
+            free: false,
+            price: null,
+          },
+          extraBed: {
+            ageRange: {
+              min: null,
+              max: null,
+            },
+            free: false,
+            price: null,
+          },
+        },
+        minCheckinAge: 0,
+        petsAllowed: false,
+        partiesAllowed: false,
+        acceptedPayment: [],
+      },
+      finePrint: '',
+      reviews: [],
+      images: [],
+      facilities: [],
+      rooms: [],
+    };
+
+    return Promise.resolve(data);
+  }
 }

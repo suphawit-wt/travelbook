@@ -8,6 +8,7 @@ import type {
   PropertyItem,
   PropertyItemWithRoom,
   PropertyType,
+  PropertyWithDetail,
   TrendingDestination,
   TripArticle,
 } from './property.service.types';
@@ -29,4 +30,13 @@ export interface PropertyServiceInterface {
     perPage: number,
     currency: string,
   ) => Promise<ApiResponseWithData<PropertyItemWithRoom[]>>;
+  getPropertyBySlugWithAvailability: (
+    slug: string,
+    checkin: string,
+    checkout: string,
+    adults: number,
+    children: number,
+    room: number,
+    currency: string,
+  ) => Promise<PropertyWithDetail>;
 }

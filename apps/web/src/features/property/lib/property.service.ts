@@ -21,6 +21,7 @@ import type {
   PropertyItem,
   PropertyItemWithRoom,
   PropertyType,
+  PropertyWithDetail,
   TrendingDestination,
   TripArticle,
 } from './property.service.types';
@@ -187,6 +188,49 @@ export class PropertyService implements PropertyServiceInterface {
         const { status, message } = error.response.data as ApiResponse;
 
         switch (status) {
+          case ApiStatus.NotFound:
+            throw new NotFoundError(message);
+          default:
+            throw new UnexpectedError();
+        }
+      }
+
+      throw new UnexpectedError();
+    }
+  }
+
+  async getPropertyBySlugWithAvailability(
+    slug: string,
+    checkin: string,
+    checkout: string,
+    adults: number,
+    children: number,
+    room: number,
+    currency: string,
+  ): Promise<PropertyWithDetail> {
+    try {
+      const response = await this.axiosClient.get<
+        ApiResponseWithData<PropertyWithDetail>
+      >(`v1/${API_PREFIX}/by-slug/${slug}`, {
+        params: {
+          checkin,
+          checkout,
+          adults,
+          children,
+          room,
+        },
+        headers: {
+          'X-Currency': currency,
+        },
+      });
+      return response.data.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response) {
+        const { status, message } = error.response.data as ApiResponse;
+
+        switch (status) {
+          case ApiStatus.Unauthorized:
+            throw new UnauthorizedError(message);
           case ApiStatus.NotFound:
             throw new NotFoundError(message);
           default:
