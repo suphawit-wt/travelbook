@@ -1,4 +1,13 @@
 {
+  "tabs": {
+    "overview": "ข้อมูลโดยรวม",
+    "infoAndPrices": "ข้อมูลและราคา",
+    "facilities": "สิ่งอำนวยความสะดวก",
+    "houseRules": "ข้อกำหนดของที่พัก",
+    "finePrint": "ข้อควรทราบ",
+    "guestReviews": "รีวิวจากผู้เข้าพัก ({{count, number}})"
+  },
+
   "type": {
     "hotel": "โรงแรม",
     "apartment": "อพาร์ตเมนต์",

@@ -1,4 +1,13 @@
 {
+  "tabs": {
+    "overview": "Overview",
+    "infoAndPrices": "Info & prices",
+    "facilities": "Facilities",
+    "houseRules": "House rules",
+    "finePrint": "The fine print",
+    "guestReviews": "Guest reviews ({{count, number}})"
+  },
+
   "type": {
     "hotel": "Hotels",
     "apartment": "Apartments",
