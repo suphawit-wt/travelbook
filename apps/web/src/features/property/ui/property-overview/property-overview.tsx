@@ -6,6 +6,7 @@
 
 import { Heart, MapPin, Share2 } from 'lucide-react';
 
+import { PhotoGallery } from '@/entities/property/ui/photo-gallery';
 import { WePriceMatch } from '@/entities/property/ui/we-price-match/we-price-match';
 import { useTranslation } from '@/shared/i18n/hooks/use-translation';
 import {
@@ -23,6 +24,7 @@ import {
   ActionGroup,
   AddressGroup,
   DetailGroup,
+  GalleryReviewGroup,
   HotelPageTop,
 } from './property-overview.styled';
 
@@ -35,68 +37,80 @@ export const PropertyOverview: FC<PropertyOverviewProps> = ({
   const { t } = useTranslation(['property', 'country', 'common']);
 
   return (
-    <HotelPageTop>
-      <DetailGroup>
-        <StarRating count={3} />
-        <Heading $size="2xl" $weight="bold" as="h2">
-          {propertyDetails?.name ? (
-            propertyDetails.name
-          ) : (
-            <Skeleton height="24px" width="230px" />
-          )}
-        </Heading>
-        <AddressGroup>
-          <Icon $color="blue" $size="lg" icon={MapPin} />
-          <Text $size="sm">
-            {propertyDetails?.zipCode &&
-            propertyDetails.area &&
-            propertyDetails.countryCode &&
-            propertyDetails.city ? (
-              <>
-                {propertyDetails.zipCode}&nbsp;{propertyDetails.area},&nbsp;
-                {propertyDetails.city},&nbsp;
-                {t(propertyDetails.countryCode, {
-                  ns: 'country',
-                })}
-              </>
+    <>
+      <HotelPageTop>
+        <DetailGroup>
+          <StarRating count={3} />
+          <Heading $size="2xl" $weight="bold" as="h2">
+            {propertyDetails?.name ? (
+              propertyDetails.name
             ) : (
-              <Skeleton height="16px" width="260px" />
+              <Skeleton height="24px" width="230px" />
             )}
-          </Text>
-          &nbsp;&ndash;&nbsp;
-          <Link
-            $color="blue"
-            $size="sm"
-            $underline="hover"
-            $weight="bold"
-            href="/"
-          >
-            {t('overview.location.greatWithMap')}
-          </Link>
-        </AddressGroup>
-      </DetailGroup>
+          </Heading>
+          <AddressGroup>
+            <Icon $color="blue" $size="lg" icon={MapPin} />
+            <Text $size="sm">
+              {propertyDetails?.zipCode &&
+              propertyDetails.area &&
+              propertyDetails.countryCode &&
+              propertyDetails.city ? (
+                <>
+                  {propertyDetails.zipCode}&nbsp;{propertyDetails.area},&nbsp;
+                  {propertyDetails.city},&nbsp;
+                  {t(propertyDetails.countryCode, {
+                    ns: 'country',
+                  })}
+                </>
+              ) : (
+                <Skeleton height="16px" width="260px" />
+              )}
+            </Text>
+            &nbsp;&ndash;&nbsp;
+            <Link
+              $color="blue"
+              $size="sm"
+              $underline="hover"
+              $weight="bold"
+              href="/"
+            >
+              {t('overview.location.greatWithMap')}
+            </Link>
+          </AddressGroup>
+        </DetailGroup>
 
-      <ActionGroup>
-        <div>
-          <IconButton
-            $color="blue"
-            $variant="ghost"
-            icon={Heart}
-            tooltip={t('actions.save', { ns: 'common' })}
-          />
-          <IconButton
-            $color="blue"
-            $variant="ghost"
-            icon={Share2}
-            tooltip={t('overview.actions.share')}
-          />
-          <Button $color="blue" $size="sm">
-            {t('overview.actions.reserve')}
-          </Button>
-        </div>
+        <ActionGroup>
+          <div>
+            <IconButton
+              $color="blue"
+              $variant="ghost"
+              icon={Heart}
+              tooltip={t('actions.save', { ns: 'common' })}
+            />
+            <IconButton
+              $color="blue"
+              $variant="ghost"
+              icon={Share2}
+              tooltip={t('overview.actions.share')}
+            />
+            <Button $color="blue" $size="sm">
+              {t('overview.actions.reserve')}
+            </Button>
+          </div>
 
-        <WePriceMatch />
-      </ActionGroup>
-    </HotelPageTop>
+          <WePriceMatch />
+        </ActionGroup>
+      </HotelPageTop>
+
+      <GalleryReviewGroup>
+        <PhotoGallery
+          avgRating={propertyDetails?.avgRating ?? 0}
+          images={propertyDetails?.images ?? []}
+          propertyName={propertyDetails?.name ?? ''}
+          reviewCount={propertyDetails?.reviewCount ?? 0}
+          reviews={propertyDetails?.reviews ?? []}
+        />
+      </GalleryReviewGroup>
+    </>
   );
 };

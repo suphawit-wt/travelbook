@@ -38,3 +38,13 @@ export const ActionGroup = styled.div`
     gap: 10px;
   }
 `;
+
+export const GalleryReviewGroup = styled.div`
+  margin-top: 20px;
+
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 20px;
+
+  max-height: 600px;
+`;
