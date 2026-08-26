@@ -40,6 +40,13 @@
     }
   },
 
+  "gallery": {
+    "title": "Gallery",
+    "actions": {
+      "reserveNow": "Reserve now"
+    }
+  },
+
   "beds": {
     "king": "{{count, number}} king bed",
     "queen": "{{count, number}} queen bed",

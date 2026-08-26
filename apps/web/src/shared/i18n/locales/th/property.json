@@ -40,6 +40,13 @@
     }
   },
 
+  "gallery": {
+    "title": "คลังภาพ",
+    "actions": {
+      "reserveNow": "สำรองทันที"
+    }
+  },
+
   "beds": {
     "king": "เตียงคิงไซส์ {{count, number}} เตียง",
     "queen": "เตียงควีนไซส์ {{count, number}} เตียง",

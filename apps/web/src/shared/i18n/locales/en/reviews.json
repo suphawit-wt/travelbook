@@ -1,4 +1,20 @@
 {
+  "guestsWhoStayedHereLoved": "Guests who stayed here loved",
+
+  "categories": {
+    "title": "Categories",
+
+    "staff": "Staff",
+    "facilities": "Facilities",
+    "cleanliness": "Cleanliness",
+    "comfort": "Comfort",
+    "valueForMoney": "Value for money",
+    "location": "Location",
+    "freeWiFi": "Free Wi-Fi"
+  },
+
+  "highScoreFor": "High score for {{destination}}",
+
   "reviewInfo": {
     "exceptional": "Exceptional",
     "wonderful": "Wonderful",

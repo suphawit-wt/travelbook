@@ -1,4 +1,20 @@
 {
+  "guestsWhoStayedHereLoved": "สิ่งที่ผู้เคยเข้าพักที่นี่ชื่นชอบ",
+
+  "categories": {
+    "title": "หัวข้อ",
+
+    "staff": "พนักงาน",
+    "facilities": "สิ่งอำนวยความสะดวก",
+    "cleanliness": "ความสะอาด",
+    "comfort": "ความสบาย",
+    "valueForMoney": "คุ้มค่าเงิน",
+    "location": "ทำเลที่ตั้ง",
+    "freeWiFi": "WiFi ฟรี"
+  },
+
+  "highScoreFor": "ได้คะแนนสูงเมื่อเทียบกับที่พักอื่นใน {{destination}}",
+
   "reviewInfo": {
     "exceptional": "แสนวิเศษ",
     "wonderful": "ดีเลิศ",
