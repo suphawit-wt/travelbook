@@ -104,6 +104,11 @@
     "switchToDark": "Switch to Dark Theme"
   },
 
+  "genius": {
+    "eligibility": "You might be eligible for a Genius discount at {{hotelName}}. <0>Sign in</0> to check if a Genius discount is available for your selected dates.",
+    "note": "Genius discounts at this property are subject to booking dates, stay dates, and other available deals."
+  },
+
   "header": {
     "topBar": {
       "help": {

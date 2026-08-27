@@ -1,0 +1,137 @@
+{
+  "title": "Facilities of {{hotelName}}",
+  "reviewScore": "Great facilities! Review score: {{score}}",
+  "popular": "Most popular facilities",
+
+  "sections": {
+    "greatForStay": "Great for your stay",
+    "bathroom": "Bathroom",
+    "bedroom": "Bedroom",
+    "view": "View",
+    "outdoors": "Outdoors",
+    "kitchen": "Kitchen",
+    "roomAmenities": "Room Amenities",
+    "activities": "Activities",
+    "livingArea": "Living Area",
+    "media": "Media & Technology",
+    "food": "Food & Drink",
+    "internet": "Internet",
+    "parking": "Parking",
+    "general": "General",
+    "accessibility": "Accessibility",
+    "pool": "Outdoor swimming pool",
+    "spa": "Spa",
+    "languages": "Languages Spoken"
+  },
+
+  "bathroom": {
+    "toiletPaper": "Toilet paper",
+    "towels": "Towels",
+    "bathtubOrShower": "Bathtub or shower",
+    "slippers": "Slippers",
+    "private": "Private bathroom",
+    "toilet": "Toilet",
+    "toiletries": "Free toiletries",
+    "bathrobe": "Bathrobe",
+    "hairdryer": "Hairdryer",
+    "bathtub": "Bathtub",
+    "shower": "Shower"
+  },
+
+  "bedroom": {
+    "linens": "Linens",
+    "walkInCloset": "Walk-in closet"
+  },
+
+  "view": {
+    "innerCourtyard": "Inner courtyard view",
+    "pool": "Pool view",
+    "garden": "Garden view"
+  },
+
+  "outdoors": {
+    "diningArea": "Outdoor dining area",
+    "privatePool": "Private pool",
+    "patio": "Patio",
+    "balcony": "Balcony",
+    "terrace": "Terrace",
+    "garden": "Garden"
+  },
+
+  "kitchen": {
+    "coffee": "Coffee machine",
+    "kettle": "Electric kettle",
+    "refrigerator": "Refrigerator"
+  },
+
+  "roomAmenities": {
+    "socketNearBed": "Socket near the bed",
+    "sofaBed": "Sofa bed",
+    "dryingRackForClothing": "Drying rack for clothing",
+    "clothesRack": "Clothes rack"
+  },
+
+  "activities": {
+    "hotTub": "Hot tub"
+  },
+
+  "livingArea": {
+    "dining": "Dining area",
+    "sofa": "Sofa",
+    "sitting": "Sitting area",
+    "desk": "Desk"
+  },
+
+  "media": {
+    "flatTV": "Flat-screen TV",
+    "tv": "TV"
+  },
+
+  "food": {
+    "minibar": "Minibar",
+    "teaCoffeeMaker": "Tea/Coffee maker",
+    "breakfast": "Breakfast"
+  },
+
+  "internet": {
+    "description": "Wifi is available in all areas and is free of charge.",
+    "free": "Free Wifi"
+  },
+
+  "parking": {
+    "description": "Free private parking is available on site (reservation is not needed).",
+    "free": "Free parking"
+  },
+
+  "general": {
+    "airConditioning": "Air conditioning",
+    "smokeFree": "Smoke-free property",
+    "privateEntrance": "Private entrance",
+    "carpeted": "Carpeted",
+    "fan": "Fan",
+    "iron": "Iron"
+  },
+
+  "accessibility": {
+    "groundFloor": "Entire unit located on ground floor"
+  },
+
+  "pool": {
+    "openAllYear": "Open all year",
+    "adultsOnly": "Adults only",
+    "saltwater": "Saltwater pool",
+    "plunge": "Plunge pool",
+    "shallow": "Shallow end",
+    "poolBeachTowels": "Pool/Beach towels",
+    "beachChairsLoungers": "Beach chairs/Loungers"
+  },
+
+  "spa": {
+    "hotTub": "Hot tub/Jacuzzi"
+  },
+
+  "languages": {
+    "en": "English",
+    "th": "Thai"
+  }
+}
