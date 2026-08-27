@@ -6,7 +6,7 @@
 
 import { styled } from 'styled-components';
 
-import { spacing } from '@/shared/styles/variables';
+import { colors, spacing } from '@/shared/styles/variables';
 
 export const HotelPageTop = styled.div`
   display: flex;
@@ -47,4 +47,16 @@ export const GalleryReviewGroup = styled.div`
   gap: 20px;
 
   max-height: 600px;
+`;
+
+export const GallerySideBar = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${spacing.gap.large};
+`;
+
+export const MapBox = styled.div`
+  border: 1px solid ${colors.separator};
+  border-radius: 4px;
+  height: 100%;
 `;

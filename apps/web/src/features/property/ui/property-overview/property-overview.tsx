@@ -8,6 +8,7 @@ import { Heart, MapPin, Share2 } from 'lucide-react';
 
 import { PhotoGallery } from '@/entities/property/ui/photo-gallery';
 import { WePriceMatch } from '@/entities/property/ui/we-price-match/we-price-match';
+import { ReviewSidebar } from '@/entities/reviews/ui/review-sidebar';
 import { useTranslation } from '@/shared/i18n/hooks/use-translation';
 import {
   Button,
@@ -25,7 +26,9 @@ import {
   AddressGroup,
   DetailGroup,
   GalleryReviewGroup,
+  GallerySideBar,
   HotelPageTop,
+  MapBox,
 } from './property-overview.styled';
 
 import type { PropertyOverviewProps } from './property-overview.types';
@@ -110,6 +113,15 @@ export const PropertyOverview: FC<PropertyOverviewProps> = ({
           reviewCount={propertyDetails?.reviewCount ?? 0}
           reviews={propertyDetails?.reviews ?? []}
         />
+
+        <GallerySideBar>
+          <ReviewSidebar
+            avgRating={propertyDetails?.avgRating ?? 0}
+            reviewCount={propertyDetails?.reviewCount ?? 0}
+            reviews={propertyDetails?.reviews ?? []}
+          />
+          <MapBox />
+        </GallerySideBar>
       </GalleryReviewGroup>
     </>
   );
