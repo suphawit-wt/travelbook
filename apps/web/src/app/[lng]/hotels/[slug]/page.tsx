@@ -16,6 +16,7 @@ import {
   MobilePropertyOverview,
 } from '@/features/property/ui/mobile';
 import { PropertyOverview } from '@/features/property/ui/property-overview';
+import { GuestReview } from '@/features/reviews/ui/guest-review';
 import { HeaderSearch } from '@/features/search/ui/header-search';
 import { selectCurrency } from '@/features/user/store/user-preferences.selectors';
 import { useAppSelector } from '@/shared/hooks/store';
@@ -96,11 +97,7 @@ const Hotels = () => {
     <>
       <HeaderSearch searchQuery={searchQuery} />
       <MobilePropertyOverview propertyDetails={propertyDetails} />
-      <MobilePropertyContent
-        nights={nights}
-        propertyDetails={propertyDetails}
-        searchQuery={searchQuery}
-      />
+      <MobilePropertyContent nights={nights} searchQuery={searchQuery} />
       <Container $showOnly="desktop">
         <Breadcrumbs.Root $size="sm" style={{ marginBottom: '20px' }}>
           <Breadcrumbs.List>
@@ -199,6 +196,11 @@ const Hotels = () => {
         <PropertyOverview nights={nights} propertyDetails={propertyDetails} />
         <Separator style={{ marginTop: '20px', marginBottom: '20px' }} />
         <GeniusBanner />
+        <GuestReview
+          avgRating={propertyDetails?.avgRating ?? 0}
+          reviewCount={propertyDetails?.reviewCount ?? 0}
+          reviews={propertyDetails?.reviews ?? []}
+        />
       </Container>
     </>
   );
