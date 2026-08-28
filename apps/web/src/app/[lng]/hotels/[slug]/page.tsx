@@ -8,9 +8,13 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { notFound, useParams, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { GeniusBanner } from '@/entities/banner/ui/genius-banner';
 import { PropertyService } from '@/features/property/lib/property.service';
 import type { PropertyWithDetail } from '@/features/property/lib/property.service.types';
-import { MobilePropertyOverview } from '@/features/property/ui/mobile';
+import {
+  MobilePropertyContent,
+  MobilePropertyOverview,
+} from '@/features/property/ui/mobile';
 import { PropertyOverview } from '@/features/property/ui/property-overview';
 import { HeaderSearch } from '@/features/search/ui/header-search';
 import { selectCurrency } from '@/features/user/store/user-preferences.selectors';
@@ -22,6 +26,7 @@ import {
   Button,
   ButtonLink,
   Container,
+  Separator,
   Skeleton,
   Tabs,
 } from '@/shared/ui';
@@ -91,6 +96,11 @@ const Hotels = () => {
     <>
       <HeaderSearch searchQuery={searchQuery} />
       <MobilePropertyOverview propertyDetails={propertyDetails} />
+      <MobilePropertyContent
+        nights={nights}
+        propertyDetails={propertyDetails}
+        searchQuery={searchQuery}
+      />
       <Container $showOnly="desktop">
         <Breadcrumbs.Root $size="sm" style={{ marginBottom: '20px' }}>
           <Breadcrumbs.List>
@@ -187,6 +197,8 @@ const Hotels = () => {
           </Tabs.List>
         </Tabs.Root>
         <PropertyOverview nights={nights} propertyDetails={propertyDetails} />
+        <Separator style={{ marginTop: '20px', marginBottom: '20px' }} />
+        <GeniusBanner />
       </Container>
     </>
   );
