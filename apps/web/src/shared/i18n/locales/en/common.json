@@ -105,6 +105,15 @@
   },
 
   "genius": {
+    "banner": {
+      "title": "Sign in, save money",
+      "description": "Sign in to see if you can save {{count, number}}% or more at this property.",
+      "actions": {
+        "signIn": "Sign in",
+        "createAccount": "Create an account"
+      }
+    },
+
     "eligibility": "You might be eligible for a Genius discount at {{hotelName}}. <0>Sign in</0> to check if a Genius discount is available for your selected dates.",
     "note": "Genius discounts at this property are subject to booking dates, stay dates, and other available deals."
   },
