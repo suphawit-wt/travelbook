@@ -1,4 +1,7 @@
 {
+  "title": "ความคิดเห็นจากผู้เข้าพัก",
+  "guestReviews": "รีวิวจากผู้เข้าพัก",
+  "readAllReviews": "อ่านรีวิวทั้งหมด",
   "guestsWhoStayedHereLoved": "สิ่งที่ผู้เคยเข้าพักที่นี่ชื่นชอบ",
   "topRatedBeachNearby": "มีชายหาดที่ได้คะแนนสูงอยู่ใกล้ๆ",
 
@@ -15,6 +18,16 @@
   },
 
   "highScoreFor": "ได้คะแนนสูงเมื่อเทียบกับที่พักอื่นใน {{destination}}",
+
+  "topics": {
+    "title": "เลือกหัวข้อที่ต้องการอ่านรีวิว:",
+
+    "clean": "สะอาด",
+    "room": "ห้องพัก",
+    "breakfast": "อาหารเช้า",
+    "location": "ทำเลที่ตั้ง",
+    "swimmingPool": "สระว่ายน้ำ"
+  },
 
   "reviewInfo": {
     "exceptional": "แสนวิเศษ",

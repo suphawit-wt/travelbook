@@ -1,4 +1,7 @@
 {
+  "title": "reviews",
+  "guestReviews": "Guest reviews",
+  "readAllReviews": "Read all reviews",
   "guestsWhoStayedHereLoved": "Guests who stayed here loved",
   "topRatedBeachNearby": "Top-rated beach nearby",
 
@@ -15,6 +18,16 @@
   },
 
   "highScoreFor": "High score for {{destination}}",
+
+  "topics": {
+    "title": "Select topics to read reviews:",
+
+    "clean": "Clean",
+    "room": "Room",
+    "breakfast": "Breakfast",
+    "location": "Location",
+    "swimmingPool": "Swimming pool"
+  },
 
   "reviewInfo": {
     "exceptional": "Exceptional",
