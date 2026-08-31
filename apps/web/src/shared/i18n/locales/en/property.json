@@ -73,5 +73,35 @@
       "children_one": ", {{count, number}} child",
       "children_other": ", {{count, number}} children"
     }
+  },
+
+  "availability": {
+    "actions": {
+      "seeAvailability": "See Availability"
+    }
+  },
+
+  "asking": {
+    "title": "Travelers are asking",
+    "actions": {
+      "ask": "Ask a question"
+    },
+    "helper": {
+      "instantAnswer": "We have an instant answer to most questions",
+      "stillLooking": "Still looking?"
+    },
+
+    "questions": {
+      "breakfast": "Do they serve breakfast?",
+      "airportShuttle": "Is there an airport shuttle service?",
+      "parking": "Can I park there?",
+      "restaurant": "Is there a restaurant?",
+      "pool": "Is the swimming pool open?",
+      "spa": "Is there a spa?",
+      "pets": "Is pet friendly?",
+      "checkInOut": "What are the check-in and check-out times?",
+      "privateBathroom": "Are there rooms with a private bathroom?",
+      "wifi": "What's the Wi-Fi policy?"
+    }
   }
 }
