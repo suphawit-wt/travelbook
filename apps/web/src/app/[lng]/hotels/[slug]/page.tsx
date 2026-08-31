@@ -16,6 +16,7 @@ import {
   MobilePropertyOverview,
 } from '@/features/property/ui/mobile';
 import { PropertyOverview } from '@/features/property/ui/property-overview';
+import { TravelersAsking } from '@/features/property/ui/travelers-asking';
 import { GuestReview } from '@/features/reviews/ui/guest-review';
 import { HeaderSearch } from '@/features/search/ui/header-search';
 import { selectCurrency } from '@/features/user/store/user-preferences.selectors';
@@ -97,7 +98,11 @@ const Hotels = () => {
     <>
       <HeaderSearch searchQuery={searchQuery} />
       <MobilePropertyOverview propertyDetails={propertyDetails} />
-      <MobilePropertyContent nights={nights} searchQuery={searchQuery} />
+      <MobilePropertyContent
+        nights={nights}
+        propertyDetails={propertyDetails}
+        searchQuery={searchQuery}
+      />
       <Container $showOnly="desktop">
         <Breadcrumbs.Root $size="sm" style={{ marginBottom: '20px' }}>
           <Breadcrumbs.List>
@@ -201,6 +206,7 @@ const Hotels = () => {
           reviewCount={propertyDetails?.reviewCount ?? 0}
           reviews={propertyDetails?.reviews ?? []}
         />
+        <TravelersAsking />
       </Container>
     </>
   );
