@@ -103,5 +103,35 @@
       "privateBathroom": "Are there rooms with a private bathroom?",
       "wifi": "What's the Wi-Fi policy?"
     }
+  },
+
+  "area": {
+    "title": "Hotel area info",
+
+    "categories": {
+      "nearby": "What's nearby",
+      "restaurants": "Restaurants & cafes",
+      "attractions": "Top attractions",
+      "nature": "Natural Beauty",
+      "beaches": "Beaches in the Neighborhood",
+      "transport": "Public transit",
+      "airports": "Closest Airports"
+    },
+
+    "labels": {
+      "cafeBar": "Cafe/Bar",
+      "peak": "Peak",
+      "train": "Train",
+      "bus": "Bus"
+    },
+
+    "location": {
+      "excellentWithMap": "Excellent location - show map"
+    },
+
+    "disclaimer": {
+      "distance": "Shortest estimated walking or driving distances displayed. Actual distances may vary.",
+      "noRoute": "*No walking or driving route available. The distance displayed is measured in a straight line."
+    }
   }
 }
