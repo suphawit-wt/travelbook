@@ -3,7 +3,6 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 import { GeniusBanner } from '@/entities/banner/ui/genius-banner';
-import { MobileReviews } from '@/features/reviews/ui/mobile/mobile-reviews';
 
 import { MobileFacilities } from '../mobile-facilities';
 import { MobilePropertyHighlight } from '../mobile-property-highlight';
@@ -16,7 +15,6 @@ import type { MobilePropertyContentProps } from './mobile-property-content.types
 import type { FC } from 'react';
 
 export const MobilePropertyContent: FC<MobilePropertyContentProps> = ({
-  propertyDetails,
   searchQuery,
   nights,
 }) => {
@@ -27,7 +25,6 @@ export const MobilePropertyContent: FC<MobilePropertyContentProps> = ({
       <ReserveCTA nights={nights} />
       <GeniusBanner />
       <MobileFacilities />
-      <MobileReviews reviews={propertyDetails?.reviews ?? []} />
     </Wrapper>
   );
 };
