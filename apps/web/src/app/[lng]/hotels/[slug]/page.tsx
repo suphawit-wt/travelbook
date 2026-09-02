@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import { GeniusBanner } from '@/entities/banner/ui/genius-banner';
 import { PropertyService } from '@/features/property/lib/property.service';
 import type { PropertyWithDetail } from '@/features/property/lib/property.service.types';
+import { Facilities } from '@/features/property/ui/facilities';
 import { HotelArea } from '@/features/property/ui/hotel-area';
 import {
   MobilePropertyContent,
@@ -209,6 +210,7 @@ const Hotels = () => {
         />
         <TravelersAsking />
         <HotelArea />
+        <Facilities propertyName={propertyDetails?.name} />
       </Container>
     </>
   );
