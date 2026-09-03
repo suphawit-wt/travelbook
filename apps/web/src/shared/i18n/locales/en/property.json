@@ -133,5 +133,79 @@
       "distance": "Shortest estimated walking or driving distances displayed. Actual distances may vary.",
       "noRoute": "*No walking or driving route available. The distance displayed is measured in a straight line."
     }
+  },
+
+  "houseRules": {
+    "title": "House rules",
+    "description": "{{hotelName}} takes special requests - add in the next step!",
+
+    "checkIn": {
+      "title": "Check-in",
+      "time": "From {{from}} to {{to}}"
+    },
+
+    "checkOut": {
+      "title": "Check-out",
+      "time": "From {{from}} to {{to}}"
+    },
+
+    "cancellation": {
+      "title": "Cancellation / prepayment",
+      "description": "Cancellation and prepayment policies vary according to accommodation type. Check what <0>conditions</0> apply to each option when making your selection."
+    },
+
+    "deposit": {
+      "title": "Refundable damage deposit",
+      "description": "A damage deposit of {{currency}} {{price, number}} is required on arrival. This will be collected by credit card. You should be reimbursed within {{days}} days of check-out. Your deposit will be refunded in full by credit card, subject to an inspection of the property."
+    },
+
+    "children": {
+      "title": "Children & Beds",
+      "allowed": "Children of all ages are welcome.",
+      "chargedAsAdults": "Children {{age}} and above will be charged as adults at this property.",
+      "notAllowed": "Children are not allowed",
+      "correctPrice": "To see correct prices and occupancy info, add the number and ages of children in your group to your search.",
+
+      "child": {
+        "title": "Child policies"
+      }
+    },
+
+    "beds": {
+      "title": "Crib and extra bed policies",
+      "price": "{{currency}} {{price, number}} per person, per night",
+      "free": "Free",
+      "crib": "Crib upon request",
+      "extraBed": "Extra bed upon request",
+      "disclaimer": {
+        "price": "Prices for cribs and extra beds aren't included in the total price. They'll have to be paid for separately during your stay.",
+        "extraBed": "The number of extra beds and cribs allowed depends on the option you choose. Check your selected option for more info.",
+        "availability": "All cribs and extra beds are subject to availability."
+      },
+      "under3Years": "0 - 3 years",
+      "5YearsAbove": "5+ years"
+    },
+
+    "age": {
+      "title": "Age restriction",
+      "minimum": "The minimum age for check-in is {{age}}"
+    },
+
+    "pets": {
+      "title": "Pets",
+      "allowed": "Pets are allowed. Charges may apply.",
+      "notAllowed": "Pets are not allowed"
+    },
+
+    "parties": {
+      "title": "Parties",
+      "allowed": "Parties/events are allowed. Charges may apply.",
+      "notAllowed": "Parties/events are not allowed"
+    },
+
+    "payment": {
+      "title": "Accepted payment methods",
+      "cash": "Cash"
+    }
   }
 }
