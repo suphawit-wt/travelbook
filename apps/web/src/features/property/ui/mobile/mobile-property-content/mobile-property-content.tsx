@@ -3,9 +3,14 @@
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
 import { GeniusBanner } from '@/entities/banner/ui/genius-banner';
+import { MobileReviews } from '@/features/reviews/ui/mobile/mobile-reviews';
 
+import { FoodAndDrink } from '../food-and-drink/food-and-drink';
 import { MobileFacilities } from '../mobile-facilities';
+import { MobileHouseRules } from '../mobile-house-rules/mobile-house-rules';
 import { MobilePropertyHighlight } from '../mobile-property-highlight';
+import { PropertyDescription } from '../property-description/property-description';
+import { PropertyQAndA } from '../property-q-and-a/property-q-and-a';
 import { ReserveCTA } from '../reserve-cta';
 import { SearchCheckInOverview } from '../search-check-in-overview';
 
@@ -15,6 +20,7 @@ import type { MobilePropertyContentProps } from './mobile-property-content.types
 import type { FC } from 'react';
 
 export const MobilePropertyContent: FC<MobilePropertyContentProps> = ({
+  propertyDetails,
   searchQuery,
   nights,
 }) => {
@@ -25,6 +31,11 @@ export const MobilePropertyContent: FC<MobilePropertyContentProps> = ({
       <ReserveCTA nights={nights} />
       <GeniusBanner />
       <MobileFacilities />
+      <MobileReviews reviews={propertyDetails?.reviews ?? []} />
+      <FoodAndDrink />
+      <PropertyQAndA />
+      <PropertyDescription />
+      <MobileHouseRules />
     </Wrapper>
   );
 };
