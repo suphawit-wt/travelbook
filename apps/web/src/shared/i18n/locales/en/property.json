@@ -207,5 +207,11 @@
       "title": "Accepted payment methods",
       "cash": "Cash"
     }
+  },
+
+  "finePrint": {
+    "title": "The fine print",
+    "description": "Must-know information for guests at this property",
+    "noParties": "This property does not accommodate bachelor(ette) or similar parties."
   }
 }
