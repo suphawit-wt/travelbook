@@ -13,6 +13,7 @@ import { PropertyService } from '@/features/property/lib/property.service';
 import type { PropertyWithDetail } from '@/features/property/lib/property.service.types';
 import { Facilities } from '@/features/property/ui/facilities';
 import { HotelArea } from '@/features/property/ui/hotel-area';
+import { HouseRules } from '@/features/property/ui/house-rules';
 import {
   MobilePropertyContent,
   MobilePropertyOverview,
@@ -89,6 +90,13 @@ const Hotels = () => {
     placeholderData: keepPreviousData,
     retry: 1,
   });
+
+  const checkInOutRange = {
+    checkInFrom: propertyDetails?.checkInFrom,
+    checkInUntil: propertyDetails?.checkInUntil,
+    checkOutFrom: propertyDetails?.checkOutFrom,
+    checkOutUntil: propertyDetails?.checkOutUntil,
+  };
 
   useEffect(() => {
     if (isError) {
@@ -211,6 +219,11 @@ const Hotels = () => {
         <TravelersAsking />
         <HotelArea />
         <Facilities propertyName={propertyDetails?.name} />
+        <HouseRules
+          checkInOutRange={checkInOutRange}
+          propertyName={propertyDetails?.name}
+          rules={propertyDetails?.rules}
+        />
       </Container>
     </>
   );
