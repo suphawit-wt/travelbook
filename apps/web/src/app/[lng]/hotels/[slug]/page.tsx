@@ -14,6 +14,7 @@ import type { PropertyWithDetail } from '@/features/property/lib/property.servic
 import { Facilities } from '@/features/property/ui/facilities';
 import { FinePrint } from '@/features/property/ui/fine-print';
 import { HotelArea } from '@/features/property/ui/hotel-area';
+import { HotelFaq } from '@/features/property/ui/hotel-faq';
 import { HouseRules } from '@/features/property/ui/house-rules';
 import {
   MobilePropertyContent,
@@ -226,6 +227,7 @@ const Hotels = () => {
           rules={propertyDetails?.rules}
         />
         <FinePrint />
+        <HotelFaq propertyName={propertyDetails?.name} />
       </Container>
     </>
   );
