@@ -137,7 +137,7 @@
 
   "houseRules": {
     "title": "House rules",
-    "description": "{{hotelName}} takes special requests - add in the next step!",
+    "description": "{{propertyName}} takes special requests - add in the next step!",
 
     "checkIn": {
       "title": "Check-in",
@@ -213,5 +213,56 @@
     "title": "The fine print",
     "description": "Must-know information for guests at this property",
     "noParties": "This property does not accommodate bachelor(ette) or similar parties."
+  },
+
+  "faq": {
+    "title": "FAQs about {{propertyName}}",
+
+    "breakfast": {
+      "title": "What kind of breakfast is served at {{propertyName}}?",
+      "answer": "Guests staying at {{propertyName}} can enjoy a highly-rated breakfast during their stay (guest review score: {{score}}). Breakfast option(s) include:"
+    },
+
+    "pool": {
+      "title": "Does {{propertyName}} have a pool?",
+      "yes": "Yes, this hotel has a pool. See details about the pool and other facilities on this page.",
+      "no": "No, this hotel does not have a pool"
+    },
+
+    "rooms": {
+      "title": "What type of room can I book at {{propertyName}}?",
+      "answer": "Room options at {{propertyName}}:"
+    },
+
+    "checkInOut": {
+      "title": "What are the check-in and check-out times at {{propertyName}}?",
+      "answer": "Check-in at {{propertyName}} is from {{checkIn}}, and check-out is until {{checkOut}}."
+    },
+
+    "price": {
+      "title": "How much does it cost to stay at {{propertyName}}?",
+      "answer": "The prices at {{propertyName}} may vary depending on your stay (e.g. dates, hotel's policy etc.). To see prices, enter your dates."
+    },
+
+    "activities": {
+      "title": "What is there to do at {{propertyName}}?",
+      "answer": "{{propertyName}} offers the following activities/services (charges may apply):"
+    },
+
+    "location": {
+      "title": "How far is {{propertyName}} from the center of {{destination}}?",
+      "answer": "{{propertyName}} is {{distance}} from the center of {{destination}}."
+    },
+
+    "beach": {
+      "title": "How close to the beach is {{propertyName}}?",
+      "answer": "The nearest beach is {{distance}} from {{propertyName}}."
+    },
+
+    "hotTub": {
+      "title": "Does {{propertyName}} have a hot tub for its guests?",
+      "yes": "Yes, there's a hot tub. You can find out more about this and the other facilities at {{propertyName}} on this page.",
+      "no": "No hot tub is available"
+    }
   }
 }
