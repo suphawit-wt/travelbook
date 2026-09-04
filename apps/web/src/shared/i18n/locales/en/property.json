@@ -264,5 +264,15 @@
       "yes": "Yes, there's a hot tub. You can find out more about this and the other facilities at {{propertyName}} on this page.",
       "no": "No hot tub is available"
     }
+  },
+
+  "bestOf": {
+    "title": "The Best of {{destination}}",
+    "description": "Click here to see more hotels and accommodations near popular landmarks in {{destination}}",
+    "categories": {
+      "cities": "Cities",
+      "airports": "Airports",
+      "landmarks": "Landmarks"
+    }
   }
 }
