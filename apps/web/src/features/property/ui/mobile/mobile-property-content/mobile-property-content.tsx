@@ -6,6 +6,7 @@ import { GeniusBanner } from '@/entities/banner/ui/genius-banner';
 import { MobileReviews } from '@/features/reviews/ui/mobile/mobile-reviews';
 
 import { FoodAndDrink } from '../food-and-drink/food-and-drink';
+import { MobileBreadcrumbs } from '../mobile-breadcrumbs/mobile-breadcrumbs';
 import { MobileFacilities } from '../mobile-facilities';
 import { MobileHouseRules } from '../mobile-house-rules/mobile-house-rules';
 import { MobilePropertyHighlight } from '../mobile-property-highlight';
@@ -36,6 +37,7 @@ export const MobilePropertyContent: FC<MobilePropertyContentProps> = ({
       <PropertyQAndA />
       <PropertyDescription />
       <MobileHouseRules />
+      <MobileBreadcrumbs propertyName={propertyDetails?.name} />
     </Wrapper>
   );
 };
