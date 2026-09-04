@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import { GeniusBanner } from '@/entities/banner/ui/genius-banner';
 import { PropertyService } from '@/features/property/lib/property.service';
 import type { PropertyWithDetail } from '@/features/property/lib/property.service.types';
+import { BestOfPlaces } from '@/features/property/ui/best-of-places';
 import { Facilities } from '@/features/property/ui/facilities';
 import { FinePrint } from '@/features/property/ui/fine-print';
 import { HotelArea } from '@/features/property/ui/hotel-area';
@@ -228,6 +229,7 @@ const Hotels = () => {
         />
         <FinePrint />
         <HotelFaq propertyName={propertyDetails?.name} />
+        <BestOfPlaces />
       </Container>
     </>
   );
