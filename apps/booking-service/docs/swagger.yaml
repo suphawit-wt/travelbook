@@ -1,0 +1,26 @@
+basePath: /
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: api.travelbook.localhost
+info:
+  contact:
+    email: support@suphwit.dev
+    name: Suphawit Watthanataetakun
+    url: https://suphawit.dev/support
+  description: Booking Service. This service allows users to search for properties,
+    manage bookings.
+  license:
+    name: Creative Commons Attribution-NonCommercial-NoDerivatives 4.0
+    url: https://creativecommons.org/licenses/by-nc-nd/4.0
+  termsOfService: https://suphawit.dev/terms/
+  title: Booking Service - Travelbook API
+  version: 1.0.0
+paths: {}
+securityDefinitions:
+  Bearer:
+    description: Put **_ONLY_** your JWT Bearer token in textbox below
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

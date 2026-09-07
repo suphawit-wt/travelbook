@@ -1,0 +1,8 @@
+namespace: travelbook
+replicaCount: 2
+image:
+  repository: tb-registry/booking-service
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  port: 8080

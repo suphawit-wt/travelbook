@@ -48,6 +48,9 @@ dev-review-service:
 dev-review-consumer:
 	skaffold dev -m review-consumer
 
+dev-booking-service:
+	skaffold dev -m booking-service
+
 lint-auth-service:
 	golangci-lint run --fix ./apps/auth-service/...
 
@@ -74,6 +77,9 @@ lint-review-service:
 
 lint-review-consumer:
 	golangci-lint run --fix ./apps/review-consumer/...
+
+lint-booking-service:
+	golangci-lint run --fix ./apps/booking-service/...
 
 test-auth-service:
 	go test -v ./apps/auth-service/...
@@ -102,6 +108,9 @@ test-review-service:
 test-review-consumer:
 	go test -v ./apps/review-consumer/...
 
+test-booking-service:
+	go test -v ./apps/booking-service/...
+
 swag-auth:
 	swag init -d apps/auth-service -g cmd/http/main.go -o apps/auth-service/docs
 
@@ -113,3 +122,6 @@ swag-property:
 
 swag-review:
 	swag init -d apps/review-service -g cmd/http/main.go -o apps/review-service/docs
+
+swag-booking:
+	swag init -d apps/booking-service -g cmd/http/main.go -o apps/booking-service/docs

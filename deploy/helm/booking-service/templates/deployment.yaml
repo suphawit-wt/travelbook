@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-service
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: booking-service
+  template:
+    metadata:
+      labels:
+        app: booking-service
+    spec:
+      containers:
+        - name: booking-service
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          envFrom:
+            - configMapRef:
+                name: booking-service-config
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}

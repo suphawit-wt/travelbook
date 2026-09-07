@@ -24,3 +24,5 @@ requires:
     path: apps/review-service/skaffold.yaml
   - configs: ["review-consumer"]
     path: apps/review-consumer/skaffold.yaml
+  - configs: ["booking-service"]
+    path: apps/booking-service/skaffold.yaml
