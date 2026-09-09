@@ -199,6 +199,66 @@ type CreateRatePlanRequest struct {
 	BreakfastIncluded bool    `json:"breakfastIncluded"`
 }
 
+// ReservePropertyRequest defines the expected payload for reserve a property.
+type ReservePropertyRequest struct {
+	CheckIn  time.Time     `json:"checkIn"  binding:"required"`
+	CheckOut time.Time     `json:"checkOut" binding:"required"`
+	Nights   uint8         `json:"nights"   binding:"required,gte=1"`
+	Rooms    []roomRequest `json:"rooms"    binding:"required,dive"`
+	Guests   guestRequest  `json:"guests"   binding:"required"`
+}
+
+type roomRequest struct {
+	RoomTypeID string `json:"roomTypeId" binding:"required,uuid"`
+	RatePlanID string `json:"ratePlanId" binding:"required,uuid"`
+	Quantity   uint8  `json:"quantity"   binding:"required,gte=1"`
+}
+
+type guestRequest struct {
+	Adults   uint8 `json:"adults"   binding:"required,gte=1"`
+	Children uint8 `json:"children" binding:"gte=0"`
+}
+
+// ToDomain converts a ReservePropertyRequest into a domain ReserveRequest.
+func (r *ReservePropertyRequest) ToDomain(
+	propertyIdStr string,
+	currencyCode string,
+) (*ReserveRequest, error) {
+	propertyID, err := uuid.Parse(propertyIdStr)
+	if err != nil {
+		return nil, errs.NewBadRequestError("Invalid property ID format.")
+	}
+
+	rooms := make([]RoomRequestItem, len(r.Rooms))
+	for i, room := range r.Rooms {
+		roomTypeID, err := uuid.Parse(room.RoomTypeID)
+		if err != nil {
+			return nil, errs.NewBadRequestError("RatePlanID type")
+		}
+
+		ratePlanID, err := uuid.Parse(room.RatePlanID)
+		if err != nil {
+			return nil, errs.NewBadRequestError("RatePlanID type")
+		}
+
+		rooms[i] = RoomRequestItem{
+			RoomTypeID: roomTypeID,
+			RatePlanID: ratePlanID,
+			Quantity:   room.Quantity,
+		}
+	}
+
+	return &ReserveRequest{
+		PropertyID:   propertyID,
+		CurrencyCode: currencyCode,
+		CheckIn:      r.CheckIn,
+		CheckOut:     r.CheckOut,
+		Nights:       r.Nights,
+		Rooms:        rooms,
+		Guests:       GuestRequest(r.Guests),
+	}, nil
+}
+
 // GenerateImageUploadURLsRequest defines the expected payload for generating presigned URLs for image uploads.
 type GenerateImageUploadURLsRequest struct {
 	Files []FileMetadataRequest `json:"files" binding:"required"`

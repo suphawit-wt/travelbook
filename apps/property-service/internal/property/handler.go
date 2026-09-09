@@ -26,6 +26,7 @@ type Handler interface {
 	CreatePropertyImages(c *gin.Context)
 	CreatePropertyRoom(c *gin.Context)
 	CreateRatePlan(c *gin.Context)
+	ReserveProperty(c *gin.Context)
 	GenerateImageUploadURLs(c *gin.Context)
 	UpdateLocation(c *gin.Context)
 	UpdateDescription(c *gin.Context)
@@ -429,6 +430,51 @@ func (h *handler) CreateRatePlan(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, res)
+}
+
+func (h *handler) ReserveProperty(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri URI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	var req ReservePropertyRequest
+
+	if err := errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	currencyCode := c.GetHeader("X-Currency")
+	if currencyCode == "" {
+		currencyCode = constants.DefaultCurrency
+	}
+
+	createReq, err := req.ToDomain(uri.ID, currencyCode)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	reserveRes, err := h.propertySvc.ReserveProperty(ctx, createReq)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	var result ReserveResponse
+	res := ApiResponseWithData[*ReserveResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       result.FromDomain(reserveRes),
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // GenerateImageUploadURLs godoc

@@ -214,4 +214,10 @@ func registerRoutes(
 	authorizedPropertiesV1.POST("/rooms/:id/rate-plans", propertyHandler.CreateRatePlan)
 
 	router.GET("health", propertyHandler.HealthCheck)
+
+	// Internal API
+	internal := router.Group("internal")
+
+	internalV1 := internal.Group("v1")
+	internalV1.POST(":id/reserve", propertyHandler.ReserveProperty)
 }
