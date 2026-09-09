@@ -77,6 +77,7 @@ type Service interface {
 	CreatePropertyImages(ctx context.Context, propertyID uuid.UUID, images []Image) error
 	CreatePropertyRoom(ctx context.Context, propertyID uuid.UUID, req *CreatePropertyRoom) error
 	CreateRatePlan(ctx context.Context, id uuid.UUID, ratePlan *CreateRatePlan) error
+	ReserveProperty(ctx context.Context, req *ReserveRequest) (*ReserveResponse, error)
 	GenerateImageUploadURLs(
 		ctx context.Context,
 		propertyID uuid.UUID,
@@ -528,6 +529,33 @@ func (s *service) CreateRatePlan(
 	}
 
 	return nil
+}
+
+func (s *service) ReserveProperty(
+	ctx context.Context,
+	req *ReserveRequest,
+) (*ReserveResponse, error) {
+	logger := s.logger.Named("reserve_property")
+
+	var result *ReserveResponse
+	err := s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		res, err := s.propertyRepo.ReserveProperty(txCtx, tx, req)
+		if err != nil {
+			logger.Error("failed to reserve property in database", zap.Error(err))
+			return err
+		}
+
+		result = res
+		return nil
+	})
+	if err != nil {
+		logger.Error("failed to execute transaction for reserve property",
+			zap.Error(err),
+		)
+		return nil, dberr.ValidatePostgresError(err)
+	}
+
+	return result, nil
 }
 
 func (s *service) GenerateImageUploadURLs(
