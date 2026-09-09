@@ -4,7 +4,12 @@
 
 package property
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
+)
 
 // DetailResponse defines the structure of the response for the GetPropertyBySlug endpoint.
 type DetailResponse struct {
@@ -186,6 +191,50 @@ type CreatePropertyResponse struct {
 	Slug     string `json:"slug"`
 	Type     Type   `json:"type"`
 	Timezone string `json:"timezone"`
+}
+
+// ReserveResponse defines the structure of the response returned when a property reservation is created.
+type ReserveResponse struct {
+	ReservationID uuid.UUID          `json:"reservationId"`
+	PropertyID    uuid.UUID          `json:"propertyId"`
+	ExpiresAt     time.Time          `json:"expiresAt"`
+	TotalUSD      decimal.Decimal    `json:"totalUsd"`
+	TotalLocal    decimal.Decimal    `json:"totalLocal"`
+	ExchangeRate  decimal.Decimal    `json:"exchangeRate"`
+	ReservedRooms []ReservedRoomItem `json:"reservedRooms"`
+}
+
+// ReservedRoomItem defines the pricing and identifier breakdown for each reserved room in a reservation response.
+type ReservedRoomItem struct {
+	RoomTypeID       uuid.UUID       `json:"roomTypeId"`
+	RoomName         string          `json:"roomName"`
+	RatePlanID       uuid.UUID       `json:"ratePlanId"`
+	Quantity         uint8           `json:"quantity"`
+	PricePerNightUSD decimal.Decimal `json:"pricePerNightUsd"`
+}
+
+// FromDomain converts a domain ReserveResponse model into an API ReserveResponse suitable for responses.
+func (dt *ReserveResponse) FromDomain(d *ReserveResponse) *ReserveResponse {
+	reservedRooms := make([]ReservedRoomItem, len(d.ReservedRooms))
+	for i, room := range d.ReservedRooms {
+		reservedRooms[i] = ReservedRoomItem{
+			RoomTypeID:       room.RoomTypeID,
+			RoomName:         room.RoomName,
+			RatePlanID:       room.RatePlanID,
+			Quantity:         room.Quantity,
+			PricePerNightUSD: room.PricePerNightUSD,
+		}
+	}
+
+	return &ReserveResponse{
+		ReservationID: d.ReservationID,
+		PropertyID:    d.PropertyID,
+		ExpiresAt:     d.ExpiresAt,
+		TotalUSD:      d.TotalUSD,
+		TotalLocal:    d.TotalLocal,
+		ExchangeRate:  d.ExchangeRate,
+		ReservedRooms: reservedRooms,
+	}
 }
 
 // GenerateImageUploadURLsResponse defines the structure of the response returned after generating presigned URLs for image uploads.

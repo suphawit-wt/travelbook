@@ -28,6 +28,7 @@ require (
 	github.com/redis/go-redis/v9 v9.20.1
 	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
 	github.com/sendgrid/sendgrid-go/v4 v4.0.0-rc.10
+	github.com/shopspring/decimal v1.4.0
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.12.0
 	github.com/swaggo/files v1.0.1

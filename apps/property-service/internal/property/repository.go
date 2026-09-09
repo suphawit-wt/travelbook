@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
+	"github.com/shopspring/decimal"
 
 	"github.com/suphawit-wt/travelbook/apps/property-service/internal/search"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
@@ -214,6 +215,30 @@ type RatePlanItem struct {
 	BreakfastIncluded bool
 }
 
+// ReserveRequest represents the parameters for placing a room reservation request.
+type ReserveRequest struct {
+	PropertyID   uuid.UUID
+	CurrencyCode string
+	CheckIn      time.Time
+	CheckOut     time.Time
+	Nights       uint8
+	Rooms        []RoomRequestItem
+	Guests       GuestRequest
+}
+
+// RoomRequestItem represents an individual room type, rate plan, and quantity within a reservation request.
+type RoomRequestItem struct {
+	RoomTypeID uuid.UUID
+	RatePlanID uuid.UUID
+	Quantity   uint8
+}
+
+// GuestRequest represents the breakdown of guests including adults and children.
+type GuestRequest struct {
+	Adults   uint8
+	Children uint8
+}
+
 // Repository defines the data access contract for property entities.
 type Repository interface {
 	GetBySlug(
@@ -245,6 +270,7 @@ type Repository interface {
 		req *CreatePropertyRoom,
 	) error
 	CreateRatePlan(ctx context.Context, id uuid.UUID, ratePlan *CreateRatePlan) error
+	ReserveProperty(ctx context.Context, tx pgx.Tx, req *ReserveRequest) (*ReserveResponse, error)
 	UpdateLocation(
 		ctx context.Context,
 		tx pgx.Tx,
@@ -542,6 +568,69 @@ func (r *repositoryDB) CreateRatePlan(
 	}
 
 	return nil
+}
+
+func (r *repositoryDB) ReserveProperty(
+	ctx context.Context,
+	tx pgx.Tx,
+	req *ReserveRequest,
+) (*ReserveResponse, error) {
+	var totalPriceUSD float64
+	reserveRooms := make([]ReservedRoomItem, len(req.Rooms))
+
+	for i, room := range req.Rooms {
+		reservedRoom, roomTotalUSD, err := r.reserveRoomItem(
+			ctx,
+			tx,
+			room,
+			req.CheckIn,
+			req.CheckOut,
+			req.PropertyID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		totalPriceUSD += roomTotalUSD
+		reserveRooms[i] = *reservedRoom
+	}
+
+	var exRate float64
+	var precision int
+	err := tx.QueryRow(ctx, `SELECT rate_to_usd, precision FROM currencies WHERE code = $1`, req.CurrencyCode).
+		Scan(&exRate, &precision)
+	if err != nil {
+		return nil, err
+	}
+
+	holdID, err := uuid.NewV7()
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate id uuid v7: %w", err)
+	}
+
+	expiresAt := time.Now().Add(15 * time.Minute)
+
+	_ = r.rdb.ZAdd(ctx, "booking:expiry_set", redis.Z{
+		Score:  float64(expiresAt.Unix()),
+		Member: holdID.String(),
+	})
+
+	if precision < 0 || precision > 18 {
+		return nil, fmt.Errorf("invalid precision: %d", precision)
+	}
+
+	exchageRate := decimal.NewFromFloat(exRate)
+	totalUSD := decimal.NewFromFloat(totalPriceUSD)
+	totalLocal := totalUSD.Mul(exchageRate).Round(int32(precision))
+
+	return &ReserveResponse{
+		ReservationID: holdID,
+		PropertyID:    req.PropertyID,
+		ExpiresAt:     expiresAt,
+		TotalUSD:      totalUSD,
+		TotalLocal:    totalLocal,
+		ExchangeRate:  exchageRate,
+		ReservedRooms: reserveRooms,
+	}, nil
 }
 
 func (r *repositoryDB) UpdateLocation(

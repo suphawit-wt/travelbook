@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/shopspring/decimal"
 )
 
 type locationNames struct {
@@ -496,4 +497,80 @@ func (r *repositoryDB) syncInventory(
             min_price_usd = EXCLUDED.min_price_usd
     `, propertyID, startDate, endDate)
 	return err
+}
+
+// reserveRoomItem handles room verification, inventory locking, updates, and price calculations for a single room item.
+func (r *repositoryDB) reserveRoomItem(
+	ctx context.Context,
+	tx pgx.Tx,
+	room RoomRequestItem,
+	checkIn, checkOut time.Time,
+	propertyID uuid.UUID,
+) (*ReservedRoomItem, float64, error) {
+	var pricePerNightUSD float64
+	var priceModifierUSD float64
+	var roomName string
+
+	roomNameQuery := `SELECT name FROM room_types WHERE id = $1`
+	if err := tx.QueryRow(ctx, roomNameQuery, room.RoomTypeID).Scan(&roomName); err != nil {
+		return nil, 0, err
+	}
+
+	priceModifierQuery := `SELECT price_modifier_usd FROM rate_plans WHERE id = $1`
+	if err := tx.QueryRow(ctx, priceModifierQuery, room.RatePlanID).
+		Scan(&priceModifierUSD); err != nil {
+		return nil, 0, err
+	}
+
+	rows, err := tx.Query(ctx, `
+		SELECT price_usd FROM room_inventory 
+		WHERE room_type_id = $1 AND date >= $2 AND date < $3 
+		AND available_rooms >= $4 
+		ORDER BY date ASC FOR UPDATE`, room.RoomTypeID, checkIn, checkOut, room.Quantity)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to lock room inventory: %w", err)
+	}
+
+	var roomTotalUSD float64
+	for rows.Next() {
+		var priceUSD float64
+		if scanErr := rows.Scan(&priceUSD); scanErr != nil {
+			rows.Close()
+			return nil, 0, fmt.Errorf("failed to scan price: %w", scanErr)
+		}
+		pricePerNightUSD = priceUSD + priceModifierUSD
+		roomTotalUSD += pricePerNightUSD * float64(room.Quantity)
+	}
+
+	if err = rows.Err(); err != nil {
+		rows.Close()
+		return nil, 0, fmt.Errorf("error during row iteration: %w", err)
+	}
+	rows.Close()
+
+	_, err = tx.Exec(ctx, `
+		UPDATE room_inventory
+		SET available_rooms = available_rooms - $1, updated_at = NOW()
+		WHERE room_type_id = $2 AND date >= $3 AND date < $4`, room.Quantity, room.RoomTypeID, checkIn, checkOut)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	_, err = tx.Exec(ctx, `
+		UPDATE property_availability
+		SET available_rooms = available_rooms - $1
+		WHERE property_id = $2 AND date >= $3 AND date < $4`, room.Quantity, propertyID, checkIn, checkOut)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	reservedRoom := &ReservedRoomItem{
+		RoomTypeID:       room.RoomTypeID,
+		RoomName:         roomName,
+		RatePlanID:       room.RatePlanID,
+		Quantity:         room.Quantity,
+		PricePerNightUSD: decimal.NewFromFloat(pricePerNightUSD),
+	}
+
+	return reservedRoom, roomTotalUSD, nil
 }
