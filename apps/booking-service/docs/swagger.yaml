@@ -1,4 +1,81 @@
 basePath: /
+definitions:
+  booking.ApiResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  booking.ApiResponseWithData:
+    properties:
+      status:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  booking.CreateBookingRequest:
+    properties:
+      checkIn:
+        type: string
+      checkOut:
+        type: string
+      guests:
+        $ref: '#/definitions/booking.guestRequest'
+      propertyId:
+        type: string
+      rooms:
+        items:
+          $ref: '#/definitions/booking.roomRequest'
+        type: array
+    required:
+    - checkIn
+    - checkOut
+    - guests
+    - propertyId
+    - rooms
+    type: object
+  booking.CreateBookingResponse:
+    properties:
+      bookingId:
+        type: string
+      expiresAt:
+        type: string
+    type: object
+  booking.ErrResponse:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+  booking.guestRequest:
+    properties:
+      adults:
+        minimum: 1
+        type: integer
+      children:
+        minimum: 0
+        type: integer
+    required:
+    - adults
+    type: object
+  booking.roomRequest:
+    properties:
+      quantity:
+        minimum: 1
+        type: integer
+      ratePlanId:
+        type: string
+      roomTypeId:
+        type: string
+    required:
+    - quantity
+    - ratePlanId
+    - roomTypeId
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -16,7 +93,51 @@ info:
   termsOfService: https://suphawit.dev/terms/
   title: Booking Service - Travelbook API
   version: 1.0.0
-paths: {}
+paths:
+  /v1/bookings:
+    post:
+      consumes:
+      - application/json
+      description: Create a new booking for a user
+      parameters:
+      - description: Booking creation payload
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/booking.CreateBookingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/booking.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/booking.CreateBookingResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/booking.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/booking.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/booking.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/booking.ApiResponse'
+      summary: Create booking
+      tags:
+      - Bookings
 securityDefinitions:
   Bearer:
     description: Put **_ONLY_** your JWT Bearer token in textbox below

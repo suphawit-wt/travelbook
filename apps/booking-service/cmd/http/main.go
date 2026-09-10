@@ -24,6 +24,7 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/messaging"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/server"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
+	"github.com/suphawit-wt/travelbook/pkg/propertyclient"
 )
 
 //	@title			Booking Service - Travelbook API
@@ -116,12 +117,23 @@ func run() error {
 		kafkaProducer.Close(5000) // 5s flush timeout
 	}()
 
+	txManager := database.NewTxManager(pgPool)
+	propertyClient := propertyclient.New()
+
 	srv, err := server.NewHTTPGin(cfg, serverLogger)
 	if err != nil {
 		return fmt.Errorf("init http server: %w", err)
 	}
 
-	bookingHandler := booking.NewHandler(srv.Validator)
+	bookingRepo := booking.NewRepositoryDB(appLogger.Named("repository"), pgPool, rdb)
+	bookingService := booking.NewService(
+		appLogger.Named("service"),
+		bookingRepo,
+		txManager,
+		kafkaProducer,
+		propertyClient,
+	)
+	bookingHandler := booking.NewHandler(srv.Validator, bookingService)
 
 	registerRoutes(srv.Router, &cfg.App, bookingHandler)
 
@@ -148,6 +160,8 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, bookingHandler bo
 
 		bookingsV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
+
+	bookingsV1.POST("", bookingHandler.CreateBooking)
 
 	router.GET("/health", bookingHandler.HealthCheck)
 }
