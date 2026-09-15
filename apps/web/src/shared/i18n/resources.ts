@@ -4,6 +4,7 @@
 
 import account from './locales/en/account.json';
 import auth from './locales/en/auth.json';
+import booking from './locales/en/booking.json';
 import common from './locales/en/common.json';
 import country from './locales/en/country.json';
 import facilities from './locales/en/facilities.json';
@@ -16,6 +17,7 @@ export const resources = {
   en: {
     account,
     auth,
+    booking,
     common,
     country,
     facilities,

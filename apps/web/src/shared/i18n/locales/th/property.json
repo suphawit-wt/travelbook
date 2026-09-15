@@ -76,9 +76,31 @@
   },
 
   "availability": {
+    "title": "ห้องว่าง",
     "actions": {
       "seeAvailability": "ดูตัวเลือกที่ว่างอยู่"
-    }
+    },
+
+    "table": {
+      "header": {
+        "roomType": "ประเภทห้องพัก",
+        "guests": "จำนวนผู้เข้าพัก",
+        "price": "ราคาสำหรับ {{nights}} คืน",
+        "choices": "ตัวเลือกของท่าน",
+        "selectRooms": "เลือกห้องพัก"
+      },
+      "summary": {
+        "roomFor_one": "{{count}} ห้อง",
+        "roomFor_other": "{{count}} ห้อง",
+        "reserve": "ฉันจะสำรอง",
+        "noChargeYet": "ท่านจะยังไม่ถูกเรียกชำระในขั้นนี้",
+        "pending": "กำลังดำเนินการ..."
+      }
+    },
+    "noRoomsAvailable": "ไม่พบห้องที่ว่างอยู่สำหรับตัวเลือกของคุณ",
+    "changeDatesAndGuests": "ลองเปลี่ยนวันที่และจำนวนผู้เข้าพัก",
+
+    "limitedSupply": "<0>วันที่ท่านเลือกมีตัวเลือกจำนวนจำกัดใน{{destination}}:</0> โรงแรม {{count, number}} แห่งซึ่งคล้ายคลึงกับที่นี่จองไม่ได้แล้วบนเว็บของเรา"
   },
 
   "asking": {

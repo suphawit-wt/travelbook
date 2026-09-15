@@ -1,0 +1,13 @@
+{
+  "booking": {
+    "cancellation": {
+      "freeBefore": "ยกเลิกฟรีก่อน {{date}}"
+    }
+  },
+
+  "payment": {
+    "methods": {
+      "online": "ชำระออนไลน์"
+    }
+  }
+}

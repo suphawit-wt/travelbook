@@ -76,9 +76,31 @@
   },
 
   "availability": {
+    "title": "Availability",
     "actions": {
       "seeAvailability": "See Availability"
-    }
+    },
+
+    "table": {
+      "header": {
+        "roomType": "Room type",
+        "guests": "Number of guests",
+        "price": "Price for {{nights}} nights",
+        "choices": "Your choices",
+        "selectRooms": "Select Rooms"
+      },
+      "summary": {
+        "roomFor_one": "{{count}} room for",
+        "roomFor_other": "{{count}} rooms for",
+        "reserve": "I'll reserve",
+        "noChargeYet": "You won't be charged yet",
+        "pending": "Pending..."
+      }
+    },
+    "noRoomsAvailable": "No rooms available for your selection",
+    "changeDatesAndGuests": "Try changing your dates or number of guests.",
+
+    "limitedSupply": "<0>Limited supply in {{destination}} for your dates:</0> {{count, number}} hotels like this are already unavailable on our site"
   },
 
   "asking": {
