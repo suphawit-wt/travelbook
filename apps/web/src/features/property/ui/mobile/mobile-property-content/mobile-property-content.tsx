@@ -6,6 +6,7 @@ import { GeniusBanner } from '@/entities/banner/ui/genius-banner';
 import { MobileReviews } from '@/features/reviews/ui/mobile/mobile-reviews';
 
 import { FoodAndDrink } from '../food-and-drink/food-and-drink';
+import { MobileAvailability } from '../mobile-availability/mobile-availability';
 import { MobileBreadcrumbs } from '../mobile-breadcrumbs/mobile-breadcrumbs';
 import { MobileFacilities } from '../mobile-facilities';
 import { MobileHouseRules } from '../mobile-house-rules/mobile-house-rules';
@@ -33,6 +34,10 @@ export const MobilePropertyContent: FC<MobilePropertyContentProps> = ({
       <GeniusBanner />
       <MobileFacilities />
       <MobileReviews reviews={propertyDetails?.reviews ?? []} />
+      <MobileAvailability
+        nights={nights}
+        rooms={propertyDetails?.rooms ?? []}
+      />
       <FoodAndDrink />
       <PropertyQAndA />
       <PropertyDescription />
