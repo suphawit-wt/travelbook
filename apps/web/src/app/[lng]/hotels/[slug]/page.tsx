@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import { GeniusBanner } from '@/entities/banner/ui/genius-banner';
 import { PropertyService } from '@/features/property/lib/property.service';
 import type { PropertyWithDetail } from '@/features/property/lib/property.service.types';
+import { AvailabilitySection } from '@/features/property/ui/availability-section';
 import { BestOfPlaces } from '@/features/property/ui/best-of-places';
 import { Facilities } from '@/features/property/ui/facilities';
 import { FinePrint } from '@/features/property/ui/fine-print';
@@ -214,6 +215,12 @@ const Hotels = () => {
         <PropertyOverview nights={nights} propertyDetails={propertyDetails} />
         <Separator style={{ marginTop: '20px', marginBottom: '20px' }} />
         <GeniusBanner />
+        <AvailabilitySection
+          nights={nights}
+          propertyId={propertyDetails?.id}
+          rooms={propertyDetails?.rooms ?? []}
+          searchQuery={searchQuery}
+        />
         <GuestReview
           avgRating={propertyDetails?.avgRating ?? 0}
           reviewCount={propertyDetails?.reviewCount ?? 0}
