@@ -1,4 +1,10 @@
 {
+  "steps": {
+    "selection": "Your Selection",
+    "details": "Your Details",
+    "finish": "Finish booking"
+  },
+
   "booking": {
     "cancellation": {
       "freeBefore": "Free cancellation before {{date}}"

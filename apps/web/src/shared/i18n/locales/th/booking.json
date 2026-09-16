@@ -1,4 +1,10 @@
 {
+  "steps": {
+    "selection": "เลือกตัวเลือก",
+    "details": "กรอกข้อมูล",
+    "finish": "เสร็จสิ้นการจอง"
+  },
+
   "booking": {
     "cancellation": {
       "freeBefore": "ยกเลิกฟรีก่อน {{date}}"
