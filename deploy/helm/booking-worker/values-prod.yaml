@@ -1,0 +1,12 @@
+replicaCount: 1
+image:
+  repository: asia-southeast1-docker.pkg.dev/travelbook-prod-1a2b/travelbook/tb-booking-worker
+  tag: 1.0.0
+  pullPolicy: IfNotPresent
+resources:
+  requests:
+    cpu: 10m
+    memory: 96Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi

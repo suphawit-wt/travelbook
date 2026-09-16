@@ -1,0 +1,6 @@
+namespace: travelbook
+replicaCount: 2
+image:
+  repository: tb-registry/booking-worker
+  tag: latest
+  pullPolicy: IfNotPresent

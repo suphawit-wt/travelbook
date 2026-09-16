@@ -1,0 +1,31 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: booking-worker
+build:
+  local:
+    push: false
+    useBuildkit: true
+    concurrency: 0
+  artifacts:
+    - image: tb-registry/booking-worker
+      context: ../..
+      docker:
+        dockerfile: apps/booking-worker/Dockerfile.dev
+      sync:
+        manual:
+          - src: 'apps/booking-worker/**/*.go'
+            dest: /app
+          - src: 'pkg/**/*.go'
+            dest: /app
+deploy:
+  helm:
+    releases:
+      - name: booking-worker
+        chartPath: ../../deploy/helm/booking-worker
+        valuesFiles:
+          - ../../deploy/helm/booking-worker/values.yaml
+          - ../../deploy/helm/booking-worker/values-dev.yaml
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_tb_registry_booking_worker}}"
+          image.tag: "{{.IMAGE_TAG_tb_registry_booking_worker}}"
