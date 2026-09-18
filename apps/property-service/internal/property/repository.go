@@ -239,6 +239,14 @@ type GuestRequest struct {
 	Children uint8
 }
 
+// ReleaseProperty represents the property payload required to release reserved rooms.
+type ReleaseProperty struct {
+	PropertyID uuid.UUID
+	CheckIn    time.Time
+	CheckOut   time.Time
+	Rooms      []ReleaseRoom
+}
+
 // Repository defines the data access contract for property entities.
 type Repository interface {
 	GetBySlug(
@@ -271,6 +279,7 @@ type Repository interface {
 	) error
 	CreateRatePlan(ctx context.Context, id uuid.UUID, ratePlan *CreateRatePlan) error
 	ReserveProperty(ctx context.Context, tx pgx.Tx, req *ReserveRequest) (*ReserveResponse, error)
+	ReleaseProperty(ctx context.Context, tx pgx.Tx, req *ReleaseProperty) error
 	UpdateLocation(
 		ctx context.Context,
 		tx pgx.Tx,
@@ -631,6 +640,32 @@ func (r *repositoryDB) ReserveProperty(
 		ExchangeRate:  exchageRate,
 		ReservedRooms: reserveRooms,
 	}, nil
+}
+
+func (r *repositoryDB) ReleaseProperty(
+	ctx context.Context,
+	tx pgx.Tx,
+	req *ReleaseProperty,
+) error {
+	for _, room := range req.Rooms {
+		_, err := tx.Exec(ctx, `
+            UPDATE room_inventory 
+            SET available_rooms = available_rooms + $1, updated_at = NOW()
+            WHERE room_type_id = $2 AND date >= $3 AND date < $4`, room.Quantity, room.RoomTypeID, req.CheckIn, req.CheckOut)
+		if err != nil {
+			return fmt.Errorf("failed to restore room inventory: %w", err)
+		}
+
+		_, err = tx.Exec(ctx, `
+            UPDATE property_availability 
+            SET available_rooms = available_rooms + $1
+            WHERE property_id = $2 AND date >= $3 AND date < $4`, room.Quantity, req.PropertyID, req.CheckIn, req.CheckOut)
+		if err != nil {
+			return fmt.Errorf("failed to restore property availability: %w", err)
+		}
+	}
+
+	return nil
 }
 
 func (r *repositoryDB) UpdateLocation(

@@ -259,6 +259,12 @@ func (r *ReservePropertyRequest) ToDomain(
 	}, nil
 }
 
+// ReleaseRoom represents the individual room and quantity to be released in a release request.
+type ReleaseRoom struct {
+	RoomTypeID string `json:"roomTypeId"`
+	Quantity   int    `json:"quantity"`
+}
+
 // GenerateImageUploadURLsRequest defines the expected payload for generating presigned URLs for image uploads.
 type GenerateImageUploadURLsRequest struct {
 	Files []FileMetadataRequest `json:"files" binding:"required"`
