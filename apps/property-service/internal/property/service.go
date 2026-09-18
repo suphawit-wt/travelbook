@@ -78,6 +78,7 @@ type Service interface {
 	CreatePropertyRoom(ctx context.Context, propertyID uuid.UUID, req *CreatePropertyRoom) error
 	CreateRatePlan(ctx context.Context, id uuid.UUID, ratePlan *CreateRatePlan) error
 	ReserveProperty(ctx context.Context, req *ReserveRequest) (*ReserveResponse, error)
+	ReleaseProperty(ctx context.Context, req *ReleaseProperty) error
 	GenerateImageUploadURLs(
 		ctx context.Context,
 		propertyID uuid.UUID,
@@ -556,6 +557,30 @@ func (s *service) ReserveProperty(
 	}
 
 	return result, nil
+}
+
+func (s *service) ReleaseProperty(
+	ctx context.Context,
+	req *ReleaseProperty,
+) error {
+	logger := s.logger.Named("release_property")
+
+	err := s.txMgr.ExecInTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if err := s.propertyRepo.ReleaseProperty(txCtx, tx, req); err != nil {
+			logger.Error("failed to release property in database", zap.Error(err))
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		logger.Error("failed to execute transaction for release property",
+			zap.Error(err),
+		)
+		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
 }
 
 func (s *service) GenerateImageUploadURLs(
