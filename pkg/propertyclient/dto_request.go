@@ -33,3 +33,17 @@ type Guest struct {
 	Adults   uint8 `json:"adults"`
 	Children uint8 `json:"children"`
 }
+
+// ReleaseBookingRequest represents the request payload for releasing a property booking.
+type ReleaseBookingRequest struct {
+	PropertyID string        `json:"propertyId"`
+	CheckIn    time.Time     `json:"checkIn"`
+	CheckOut   time.Time     `json:"checkOut"`
+	Rooms      []ReleaseRoom `json:"rooms"`
+}
+
+// ReleaseRoom represents a room item to be released in a release booking request.
+type ReleaseRoom struct {
+	RoomTypeID string `json:"roomTypeId"`
+	Quantity   int    `json:"quantity"`
+}

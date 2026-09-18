@@ -22,6 +22,7 @@ const baseURL = "http://property-service:8080"
 // Client defines the contract for interacting with property service HTTP endpoints.
 type Client interface {
 	Reserve(ctx context.Context, req *ReserveRequest) (*ReserveResponse, error)
+	Release(ctx context.Context, req *ReleaseBookingRequest) error
 }
 
 type client struct {
@@ -86,4 +87,52 @@ func (c *client) Reserve(
 	}
 
 	return res.Data, nil
+}
+
+func (c *client) Release(
+	ctx context.Context,
+	req *ReleaseBookingRequest,
+) error {
+	var bodyReq bytes.Buffer
+	if err := json.NewEncoder(&bodyReq).Encode(req); err != nil {
+		return fmt.Errorf("client error marshalling request: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/internal/v1/release",
+		&bodyReq,
+	)
+	if err != nil {
+		return fmt.Errorf("client error: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", enums.ContentTypeJSON)
+
+	resp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			return errs.NewRequestTimeOutError("Request Time out.")
+		}
+		return fmt.Errorf("client error: %w", err)
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	var res ApiResponse
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return fmt.Errorf("client error: %w", err)
+	}
+
+	switch res.StatusCode {
+	case 400:
+		return errs.NewBadRequestError(res.Message)
+	case 404:
+		return errs.NewNotFoundError(res.Message)
+	case 500:
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
 }
