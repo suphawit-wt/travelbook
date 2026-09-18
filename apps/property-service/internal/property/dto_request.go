@@ -259,10 +259,46 @@ func (r *ReservePropertyRequest) ToDomain(
 	}, nil
 }
 
+// ReleasePropertyRequest defines the payload required for releasing reserved property rooms.
+type ReleasePropertyRequest struct {
+	PropertyID string        `json:"propertyId"`
+	CheckIn    time.Time     `json:"checkIn"`
+	CheckOut   time.Time     `json:"checkOut"`
+	Rooms      []ReleaseRoom `json:"rooms"`
+}
+
 // ReleaseRoom represents the individual room and quantity to be released in a release request.
 type ReleaseRoom struct {
 	RoomTypeID string `json:"roomTypeId"`
 	Quantity   int    `json:"quantity"`
+}
+
+// ToDomain converts a ReleasePropertyRequest into a domain ReleaseProperty model.
+func (r *ReleasePropertyRequest) ToDomain() (*ReleaseProperty, error) {
+	propertyID, err := uuid.Parse(r.PropertyID)
+	if err != nil {
+		return nil, err
+	}
+
+	rooms := make([]ReleaseRoom, len(r.Rooms))
+	for i, room := range r.Rooms {
+		roomTypeID, err := uuid.Parse(room.RoomTypeID)
+		if err != nil {
+			return nil, err
+		}
+
+		rooms[i] = ReleaseRoom{
+			RoomTypeID: roomTypeID.String(),
+			Quantity:   room.Quantity,
+		}
+	}
+
+	return &ReleaseProperty{
+		PropertyID: propertyID,
+		CheckIn:    r.CheckIn,
+		CheckOut:   r.CheckOut,
+		Rooms:      rooms,
+	}, nil
 }
 
 // GenerateImageUploadURLsRequest defines the expected payload for generating presigned URLs for image uploads.

@@ -27,6 +27,7 @@ type Handler interface {
 	CreatePropertyRoom(c *gin.Context)
 	CreateRatePlan(c *gin.Context)
 	ReserveProperty(c *gin.Context)
+	ReleaseProperty(c *gin.Context)
 	GenerateImageUploadURLs(c *gin.Context)
 	UpdateLocation(c *gin.Context)
 	UpdateDescription(c *gin.Context)
@@ -472,6 +473,37 @@ func (h *handler) ReserveProperty(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Data:       result.FromDomain(reserveRes),
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *handler) ReleaseProperty(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var req ReleasePropertyRequest
+
+	if err := errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	releaseReq, err := req.ToDomain()
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err := h.propertySvc.ReleaseProperty(ctx, releaseReq); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Release Property Successfully!",
 	}
 
 	c.JSON(http.StatusOK, res)
