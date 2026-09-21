@@ -28,3 +28,5 @@ requires:
     path: apps/booking-service/skaffold.yaml
   - configs: ["booking-worker"]
     path: apps/booking-worker/skaffold.yaml
+  - configs: ["booking-consumer"]
+    path: apps/booking-consumer/skaffold.yaml

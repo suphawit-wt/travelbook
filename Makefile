@@ -54,6 +54,9 @@ dev-booking-service:
 dev-booking-worker:
 	skaffold dev -m booking-worker
 
+dev-booking-consumer:
+	skaffold dev -m booking-consumer
+
 lint-auth-service:
 	golangci-lint run --fix ./apps/auth-service/...
 
@@ -87,6 +90,9 @@ lint-booking-service:
 lint-booking-worker:
 	golangci-lint run --fix ./apps/booking-worker/...
 
+lint-booking-consumer:
+	golangci-lint run --fix ./apps/booking-consumer/...
+
 test-auth-service:
 	go test -v ./apps/auth-service/...
 
@@ -119,6 +125,9 @@ test-booking-service:
 
 test-booking-worker:
 	go test -v ./apps/booking-worker/...
+
+test-booking-consumer:
+	go test -v ./apps/booking-consumer/...
 
 swag-auth:
 	swag init -d apps/auth-service -g cmd/http/main.go -o apps/auth-service/docs

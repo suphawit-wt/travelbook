@@ -1,0 +1,10 @@
+app:
+  name: Booking Consumer - Travelbook
+
+messaging:
+  kafka:
+    consumer:
+      group_id: tb-booking-consumer
+      topics:
+        - dev.booking.timeout.expired.v1
+      auto_offset_reset: earliest

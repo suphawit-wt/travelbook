@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: booking-consumer-config
+  namespace: {{ .Values.namespace }}
+data:
+  {{- range $line := .Files.Lines ".env" }}
+  {{- if and $line (not (hasPrefix "#" $line)) }}
+  {{- $pair := splitList "=" $line }}
+  {{ (index $pair 0) }}: {{ (index $pair 1) | quote }}
+  {{- end }}
+  {{- end }}
