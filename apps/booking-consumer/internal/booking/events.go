@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+// Timeout represents the structure of a booking timeout message.
+type Timeout struct {
+	BookingID string `json:"bookingId"`
+}
+
 // EventPayload represents the payload of an event, including its metadata and data.
 type EventPayload struct {
 	Metadata Metadata        `json:"metadata"`

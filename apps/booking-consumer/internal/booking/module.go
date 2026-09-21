@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 
@@ -22,6 +23,7 @@ import (
 type Module struct {
 	logger        *zaplog.Logger
 	kafkaConsumer messaging.KafkaConsumer
+	svc           Service
 }
 
 // NewModule initializes a new instance of the user module with the provided database connection pool.
@@ -32,9 +34,16 @@ func NewModule(
 	kafkaConsumer messaging.KafkaConsumer,
 	propertyClient propertyclient.Client,
 ) *Module {
+	svcLogger := logger.Named("service")
+
+	repo := NewRepositoryDB(db)
+
+	svc := NewService(svcLogger, txMgr, repo, propertyClient)
+
 	return &Module{
 		logger:        logger,
 		kafkaConsumer: kafkaConsumer,
+		svc:           svc,
 	}
 }
 
@@ -58,7 +67,25 @@ func (m *Module) processMessage(ctx context.Context, msg *kafka.Message) error {
 	m.logger.Info("correalation_id:", zap.String("correlation_id", envelope.Metadata.CorrelationID))
 	m.logger.Info("event_id:", zap.String("event_id", envelope.Metadata.EventID))
 
+	var bookingTimeoutPayload Timeout
+	if err := json.Unmarshal(envelope.Data, &bookingTimeoutPayload); err != nil {
+		m.logger.Error("Failed to parse inner otp json payload", zap.Error(err))
+		return nil // Malformed business payload: skip & commit
+	}
+
 	switch envelope.Metadata.EventType {
+	case "BookingTimeoutExpired":
+		bookingID, err := uuid.Parse(bookingTimeoutPayload.BookingID)
+		if err != nil {
+			m.logger.Error("Failed to parse booking id uuid", zap.Error(err))
+			return nil // Malformed business payload: skip & commit
+		}
+
+		if err := m.svc.RestoreRoomInventory(ctx, bookingID); err != nil {
+			m.logger.Error("Failed to restore room inventory", zap.Error(err))
+			return err // Return error DO NOT commit offset (allows retry)
+		}
+
 	default:
 		m.logger.Warn(
 			"Unknown event type skipped without processing",
