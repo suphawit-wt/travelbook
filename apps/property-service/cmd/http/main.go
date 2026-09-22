@@ -219,6 +219,7 @@ func registerRoutes(
 	internal := router.Group("internal")
 
 	internalV1 := internal.Group("v1")
+	internalV1.GET(":id", propertyHandler.GetPropertyByID)
 	internalV1.POST("release", propertyHandler.ReleaseProperty)
 	internalV1.POST(":id/reserve", propertyHandler.ReserveProperty)
 }

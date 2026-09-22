@@ -11,6 +11,68 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+// InfoResponse defines the property information returned in administrative or detailed property list endpoints.
+type InfoResponse struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Slug          string `json:"slug"`
+	Type          Type   `json:"type"`
+	Status        Status `json:"status"`
+	Timezone      string `json:"timezone"`
+	CheckInFrom   string `json:"checkInFrom"`
+	CheckInUntil  string `json:"checkInUntil"`
+	CheckOutFrom  string `json:"checkOutFrom"`
+	CheckOutUntil string `json:"checkOutUntil"`
+
+	AvgRating   float64 `json:"avgRating"`
+	ReviewCount uint32  `json:"reviewCount"`
+
+	CountryCode  *string  `json:"countryCode"`
+	Province     *string  `json:"province"`
+	City         *string  `json:"city"`
+	Area         *string  `json:"area"`
+	ZipCode      *string  `json:"zipCode"`
+	AddressLine1 *string  `json:"addressLine1"`
+	AddressLine2 *string  `json:"addressLine2"`
+	Latitude     *float64 `json:"latitude"`
+	Longitude    *float64 `json:"longitude"`
+
+	PartnerID string `json:"partnerId"`
+
+	CoverImageURL *string `json:"coverImageUrl"`
+}
+
+// FromEntity converts a Property domain entity into a PropertyInfoResponse suitable for API responses.
+func (r *InfoResponse) FromEntity(
+	entity *Property,
+) *InfoResponse {
+	return &InfoResponse{
+		ID:            entity.ID.String(),
+		Name:          entity.Name,
+		Slug:          entity.Slug,
+		Type:          entity.Type,
+		Status:        entity.Status,
+		Timezone:      entity.Timezone,
+		CheckInFrom:   entity.CheckInFrom.Format("15:04"),
+		CheckInUntil:  entity.CheckInUntil.Format("15:04"),
+		CheckOutFrom:  entity.CheckOutFrom.Format("15:04"),
+		CheckOutUntil: entity.CheckOutUntil.Format("15:04"),
+		AvgRating:     entity.AvgRating,
+		ReviewCount:   entity.ReviewCount,
+		CountryCode:   entity.CountryCode,
+		Province:      entity.Province,
+		City:          entity.City,
+		Area:          entity.Area,
+		AddressLine1:  entity.AddressLine1,
+		AddressLine2:  entity.AddressLine2,
+		ZipCode:       entity.ZipCode,
+		Latitude:      entity.Latitude,
+		Longitude:     entity.Longitude,
+		PartnerID:     entity.PartnerID.String(),
+		CoverImageURL: entity.CoverImageURL,
+	}
+}
+
 // DetailResponse defines the structure of the response for the GetPropertyBySlug endpoint.
 type DetailResponse struct {
 	ID            string `json:"id"`

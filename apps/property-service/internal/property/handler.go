@@ -20,6 +20,7 @@ import (
 
 // Handler defines the HTTP interface for handling property-related HTTP requests.
 type Handler interface {
+	GetPropertyByID(c *gin.Context)
 	GetPropertyBySlug(c *gin.Context)
 	SearchProperties(c *gin.Context)
 	CreateProperty(c *gin.Context)
@@ -49,6 +50,43 @@ func NewHandler(
 	propertySvc Service,
 ) Handler {
 	return &handler{vdt: vdt, propertySvc: propertySvc}
+}
+
+func (h *handler) GetPropertyByID(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri URI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	propertyID, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid property ID format."))
+		return
+	}
+
+	property, err := h.propertySvc.GetPropertyByID(
+		ctx,
+		propertyID,
+	)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	var propertyInfoResponse *InfoResponse
+
+	res := ApiResponseWithData[*InfoResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       propertyInfoResponse.FromEntity(property),
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // GetPropertyBySlug godoc
