@@ -268,6 +268,10 @@ type Repository interface {
 		adults, children, room, nights uint8,
 		currencyCode string,
 	) ([]SearchProperty, error)
+	GetExchangeRate(
+		ctx context.Context,
+		currencyCode string,
+	) (exchangeRate float64, precision uint8, err error)
 	Create(ctx context.Context, tx pgx.Tx, p *Property) (*Property, error)
 	CreateImages(
 		ctx context.Context,
@@ -464,6 +468,23 @@ func (r *repositoryDB) FilterAvailableProperties(
 	}
 
 	return properties, nil
+}
+
+func (r *repositoryDB) GetExchangeRate(
+	ctx context.Context,
+	currencyCode string,
+) (_ float64, _ uint8, err error) {
+	query := `SELECT rate_to_usd, precision FROM currencies WHERE code = $1`
+
+	var exchangeRate float64
+	var precision uint8
+
+	if err := r.db.QueryRow(ctx, query, currencyCode).
+		Scan(&exchangeRate, &precision); err != nil {
+		return 0, 0, err
+	}
+
+	return exchangeRate, precision, nil
 }
 
 func (r *repositoryDB) Create(
