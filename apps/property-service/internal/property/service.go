@@ -60,6 +60,10 @@ type ImageUpload struct {
 
 // Service defines the business logic contract for property-related operations.
 type Service interface {
+	GetPropertyByID(
+		ctx context.Context,
+		id uuid.UUID,
+	) (property *Property, err error)
 	GetPropertyBySlug(
 		ctx context.Context,
 		propertySlug, checkIn, checkOut string,
@@ -138,6 +142,28 @@ func NewService(
 		txMgr:           txMgr,
 		reviewClient:    reviewClient,
 	}
+}
+
+func (s *service) GetPropertyByID(
+	ctx context.Context,
+	id uuid.UUID,
+) (*Property, error) {
+	logger := s.logger.Named("get_property_by_id")
+
+	property, found, err := s.propertyRepo.GetByID(
+		ctx,
+		id,
+	)
+	if err != nil {
+		logger.Error("failed to query property by id from database", zap.Error(err))
+		return nil, err
+	}
+
+	if !found {
+		return nil, errs.NewNotFoundError("Property not found.")
+	}
+
+	return property, nil
 }
 
 func (s *service) GetPropertyBySlug(
