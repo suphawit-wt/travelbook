@@ -246,6 +246,12 @@ type bedsResponse struct {
 	Quantity uint8  `json:"quantity"`
 }
 
+// ExchangeRateResponse defines the exchange rate details including multiplier and precision digits.
+type ExchangeRateResponse struct {
+	ExchangeRate float64 `json:"exchangeRate"`
+	Precision    uint8   `json:"precision"`
+}
+
 // CreatePropertyResponse defines the structure of the response returned after successfully creating a property.
 type CreatePropertyResponse struct {
 	Id       string `json:"id"`

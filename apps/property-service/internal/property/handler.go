@@ -23,6 +23,7 @@ type Handler interface {
 	GetPropertyByID(c *gin.Context)
 	GetPropertyBySlug(c *gin.Context)
 	SearchProperties(c *gin.Context)
+	GetExchangeRate(c *gin.Context)
 	CreateProperty(c *gin.Context)
 	CreatePropertyImages(c *gin.Context)
 	CreatePropertyRoom(c *gin.Context)
@@ -238,6 +239,38 @@ func (h *handler) SearchProperties(c *gin.Context) {
 			PerPage:    req.PerPage,
 			TotalCount: totalCount,
 			HasNext:    hasNext,
+		},
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *handler) GetExchangeRate(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri GetExchangeRateURI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	exchangeRate, precision, err := h.propertySvc.GetExchangeRate(
+		ctx,
+		uri.CurrencyCode,
+	)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponseWithData[*ExchangeRateResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data: &ExchangeRateResponse{
+			ExchangeRate: exchangeRate,
+			Precision:    precision,
 		},
 	}
 

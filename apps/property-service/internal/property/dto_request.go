@@ -80,6 +80,11 @@ type RoomURI struct {
 	ID string `uri:"id" binding:"required,uuid"`
 }
 
+// GetExchangeRateURI defines the URI parameters for retrieving exchange rates by currency code.
+type GetExchangeRateURI struct {
+	CurrencyCode string `uri:"currency" binding:"required,iso4217"`
+}
+
 // CreatePropertyRequest defines the expected payload for creating a new property.
 type CreatePropertyRequest struct {
 	Name          string `json:"name"          binding:"required,lte=90"`
