@@ -21,19 +21,6 @@ type ReserveRequest struct {
 	CurrencyCode string    `json:"-"`
 }
 
-// Room represents a room details item in a reservation request.
-type Room struct {
-	RoomTypeID uuid.UUID `json:"roomTypeId"`
-	RatePlanID uuid.UUID `json:"ratePlanId"`
-	Quantity   uint8     `json:"quantity"`
-}
-
-// Guest represents the guest occupancy count in a reservation request.
-type Guest struct {
-	Adults   uint8 `json:"adults"`
-	Children uint8 `json:"children"`
-}
-
 // ReleaseBookingRequest represents the request payload for releasing a property booking.
 type ReleaseBookingRequest struct {
 	PropertyID string        `json:"propertyId"`
@@ -46,4 +33,17 @@ type ReleaseBookingRequest struct {
 type ReleaseRoom struct {
 	RoomTypeID string `json:"roomTypeId"`
 	Quantity   int    `json:"quantity"`
+}
+
+// Room represents a room details item in a reservation request.
+type Room struct {
+	RoomTypeID uuid.UUID `json:"roomTypeId"`
+	RatePlanID uuid.UUID `json:"ratePlanId"`
+	Quantity   uint8     `json:"quantity"`
+}
+
+// Guest represents the guest occupancy count in a reservation request.
+type Guest struct {
+	Adults   uint8 `json:"adults"`
+	Children uint8 `json:"children"`
 }

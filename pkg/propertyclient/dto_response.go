@@ -11,6 +11,42 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+// PropertyInfoResponse contains detailed property information.
+type PropertyInfoResponse struct {
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	Slug          string         `json:"slug"`
+	Type          PropertyType   `json:"type"`
+	Status        PropertyStatus `json:"status"`
+	Timezone      string         `json:"timezone"`
+	CheckInFrom   string         `json:"checkInFrom"`
+	CheckInUntil  string         `json:"checkInUntil"`
+	CheckOutFrom  string         `json:"checkOutFrom"`
+	CheckOutUntil string         `json:"checkOutUntil"`
+
+	AvgRating   float64 `json:"avgRating"`
+	ReviewCount uint32  `json:"reviewCount"`
+
+	CountryCode  string  `json:"countryCode"`
+	Province     string  `json:"province"`
+	City         string  `json:"city"`
+	Area         string  `json:"area"`
+	ZipCode      string  `json:"zipCode"`
+	AddressLine1 string  `json:"addressLine1"`
+	AddressLine2 string  `json:"addressLine2"`
+	Latitude     float64 `json:"latitude"`
+	Longitude    float64 `json:"longitude"`
+
+	PartnerID     string  `json:"partnerId"`
+	CoverImageURL *string `json:"coverImageUrl"`
+}
+
+// ExchangeRateResponse contains details about currency exchange rates.
+type ExchangeRateResponse struct {
+	ExchangeRate float64 `json:"exchangeRate"`
+	Precision    uint8   `json:"precision"`
+}
+
 // ReserveResponse contains reservation confirmation details.
 type ReserveResponse struct {
 	ReservationID uuid.UUID          `json:"reservationId"`

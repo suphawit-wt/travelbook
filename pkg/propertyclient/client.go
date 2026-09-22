@@ -13,6 +13,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
+
 	enums "github.com/suphawit-wt/travelbook/pkg/go-libs/enums/http"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 )
@@ -21,6 +23,11 @@ const baseURL = "http://property-service:8080"
 
 // Client defines the contract for interacting with property service HTTP endpoints.
 type Client interface {
+	GetPropertyByID(ctx context.Context, id uuid.UUID) (*PropertyInfoResponse, error)
+	GetExchangeRate(
+		ctx context.Context,
+		currencyCode string,
+	) (*ExchangeRateResponse, error)
 	Reserve(ctx context.Context, req *ReserveRequest) (*ReserveResponse, error)
 	Release(ctx context.Context, req *ReleaseBookingRequest) error
 }
@@ -38,6 +45,90 @@ func New() Client {
 			Timeout: 5 * time.Second,
 		},
 	}
+}
+
+func (c *client) GetPropertyByID(
+	ctx context.Context,
+	id uuid.UUID,
+) (*PropertyInfoResponse, error) {
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		c.baseURL+"/internal/v1/"+id.String(),
+		http.NoBody,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("client error: %w", err)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, errs.NewRequestTimeOutError("Request Time out.")
+		}
+		return nil, fmt.Errorf("client error: %w", err)
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	var res ApiResponseWithData[PropertyInfoResponse]
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return nil, fmt.Errorf("client error: %w", err)
+	}
+
+	switch res.StatusCode {
+	case 400:
+		return nil, errs.NewBadRequestError(res.Message)
+	case 404:
+		return nil, errs.NewNotFoundError(res.Message)
+	case 500:
+		return nil, errs.NewUnexpectedError()
+	}
+
+	return &res.Data, nil
+}
+
+func (c *client) GetExchangeRate(
+	ctx context.Context,
+	currencyCode string,
+) (*ExchangeRateResponse, error) {
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		c.baseURL+"/internal/v1/exchange-rate/"+currencyCode,
+		http.NoBody,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("client error: %w", err)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, errs.NewRequestTimeOutError("Request Time out.")
+		}
+		return nil, fmt.Errorf("client error: %w", err)
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	var res ApiResponseWithData[ExchangeRateResponse]
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return nil, fmt.Errorf("client error: %w", err)
+	}
+
+	switch res.StatusCode {
+	case 400:
+		return nil, errs.NewBadRequestError(res.Message)
+	case 404:
+		return nil, errs.NewNotFoundError(res.Message)
+	case 500:
+		return nil, errs.NewUnexpectedError()
+	}
+
+	return &res.Data, nil
 }
 
 func (c *client) Reserve(
