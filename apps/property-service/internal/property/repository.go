@@ -249,6 +249,10 @@ type ReleaseProperty struct {
 
 // Repository defines the data access contract for property entities.
 type Repository interface {
+	GetByID(
+		ctx context.Context,
+		id uuid.UUID,
+	) (property *Property, found bool, err error)
 	GetBySlug(
 		ctx context.Context,
 		tx pgx.Tx,
@@ -314,6 +318,84 @@ func NewRepositoryDB(
 	rdb *redis.Client,
 ) Repository {
 	return &repositoryDB{db: db, rdb: rdb}
+}
+
+func (r *repositoryDB) GetByID(
+	ctx context.Context,
+	id uuid.UUID,
+) (_ *Property, found bool, err error) {
+	query := `
+	SELECT 
+		p.id,
+		p.name,
+		p.slug,
+		p.type,
+		p.timezone,
+		p.check_in_from,
+		p.check_in_until,
+		p.check_out_from,
+		p.check_out_until,
+		p.avg_rating,
+		p.review_count,
+		ct.code AS country_code,
+		pv.key AS province,
+		ci.key AS city,
+		ar.key AS area,
+		p.address_line1,
+		p.address_line2,
+		p.zip_code,
+		p.latitude,
+		p.longitude,
+		p.partner_id,
+		img.image_url AS cover_image_url
+	FROM properties p
+	LEFT JOIN areas ar ON p.area_id = ar.id
+	LEFT JOIN cities ci ON ar.city_id = ci.id
+	LEFT JOIN provinces pv ON ci.province_id = pv.id
+	LEFT JOIN countries ct ON pv.country_id = ct.id
+	LEFT JOIN LATERAL (
+		SELECT image_url
+		FROM property_images
+		WHERE property_id = p.id AND position = 1
+		LIMIT 1
+	) img ON true
+	WHERE p.id = $1
+	`
+
+	var property Property
+
+	if err := r.db.QueryRow(ctx, query, id).Scan(
+		&property.ID,
+		&property.Name,
+		&property.Slug,
+		&property.Type,
+		&property.Timezone,
+		&property.CheckInFrom,
+		&property.CheckInUntil,
+		&property.CheckOutFrom,
+		&property.CheckOutUntil,
+		&property.AvgRating,
+		&property.ReviewCount,
+		&property.CountryCode,
+		&property.Province,
+		&property.City,
+		&property.Area,
+		&property.AddressLine1,
+		&property.AddressLine2,
+		&property.ZipCode,
+		&property.Latitude,
+		&property.Longitude,
+		&property.PartnerID,
+		&property.CoverImageURL,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, false, nil
+		}
+
+		return nil, false, err
+	}
+
+	return &property, true, nil
 }
 
 func (r *repositoryDB) GetBySlug(
