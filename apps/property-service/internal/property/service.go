@@ -77,6 +77,10 @@ type Service interface {
 		page, perPage int,
 		currencyCode string,
 	) (properties []SearchProperty, totalCount int, hasNext bool, err error)
+	GetExchangeRate(
+		ctx context.Context,
+		currencyCode string,
+	) (exchangeRate float64, precision uint8, err error)
 	CreateProperty(ctx context.Context, req *CreateProperty) (*Property, error)
 	CreatePropertyImages(ctx context.Context, propertyID uuid.UUID, images []Image) error
 	CreatePropertyRoom(ctx context.Context, propertyID uuid.UUID, req *CreatePropertyRoom) error
@@ -387,6 +391,27 @@ func (s *service) SearchProperties(
 	)
 
 	return finalProperties, totalCount, hasNext, nil
+}
+
+func (s *service) GetExchangeRate(
+	ctx context.Context,
+	currencyCode string,
+) (exchangeRate float64, precision uint8, err error) {
+	logger := s.logger.Named("get_exchange_rate")
+
+	exchangeRate, precision, err = s.propertyRepo.GetExchangeRate(
+		ctx,
+		currencyCode,
+	)
+	if err != nil {
+		logger.Error("failed to query exchange rate from database",
+			zap.String("currency_code", currencyCode),
+			zap.Error(err),
+		)
+		return 0, 0, err
+	}
+
+	return exchangeRate, precision, nil
 }
 
 func (s *service) CreateProperty(
