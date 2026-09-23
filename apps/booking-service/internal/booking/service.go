@@ -58,6 +58,7 @@ type Service interface {
 		ctx context.Context,
 		req *CreateBooking,
 	) (*Response, error)
+	UpdateBookingDetails(ctx context.Context, req *UpdateBooking) error
 }
 
 type service struct {
@@ -226,4 +227,20 @@ func (s *service) CreateBooking(
 		BookingID: bookingID.String(),
 		ExpiresAt: hold.ExpiresAt,
 	}, nil
+}
+
+func (s *service) UpdateBookingDetails(
+	ctx context.Context,
+	req *UpdateBooking,
+) error {
+	logger := s.logger.Named("update_booking_details").With(
+		zap.String("bookingId", req.BookingID.String()),
+	)
+
+	if err := s.bookingRepo.UpdateDetails(ctx, req); err != nil {
+		logger.Error("failed to update booking details in repository", zap.Error(err))
+		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
 }
