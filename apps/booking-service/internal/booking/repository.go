@@ -130,6 +130,18 @@ func (d *InventoryHold) FromDTO(dto *propertyclient.ReserveResponse) *InventoryH
 	}
 }
 
+// UpdateBooking represents the details of a Booking details update.
+type UpdateBooking struct {
+	BookingID       uuid.UUID
+	FirstName       string
+	LastName        string
+	Email           string
+	CountryCode     string
+	Phone           string
+	GuestName       string
+	SpecialRequests string
+}
+
 // Repository defines the data access contract for booking entities.
 type Repository interface {
 	GetByID(
@@ -143,6 +155,10 @@ type Repository interface {
 		bookingID uuid.UUID,
 		req *CreateBooking,
 		hold *InventoryHold,
+	) error
+	UpdateDetails(
+		ctx context.Context,
+		req *UpdateBooking,
 	) error
 }
 
@@ -291,6 +307,42 @@ func (r *repositoryDB) Create(
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) UpdateDetails(ctx context.Context, req *UpdateBooking) error {
+	query := `
+	UPDATE bookings
+	SET
+		contact_first_name = $1,
+		contact_last_name = $2,
+		contact_email = $3,
+		contact_country_code = $4,
+		contact_phone = $5,
+		guest_name = $6,
+		special_requests = $7,
+		updated_at = $8
+	WHERE id = $9
+	AND status = 'pending'
+	`
+
+	_, err := r.db.Exec(
+		ctx,
+		query,
+		req.FirstName,
+		req.LastName,
+		req.Email,
+		req.CountryCode,
+		req.Phone,
+		req.GuestName,
+		req.SpecialRequests,
+		time.Now().UTC(),
+		req.BookingID,
+	)
+	if err != nil {
+		return err
 	}
 
 	return nil
