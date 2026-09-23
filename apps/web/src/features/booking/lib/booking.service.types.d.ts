@@ -23,3 +23,51 @@ export interface CreateBookingResponse {
   bookingId: string;
   expiresAt: string;
 }
+
+export interface GetBookingByIdResponse {
+  property: PropertyInfoResponse;
+  booking: BookingInfoResponse;
+}
+
+export interface PropertyInfoResponse {
+  name: string;
+  type: string;
+  avgRating: number;
+  reviewCount: number;
+  countryCode: string;
+  city: string;
+  area: string;
+  zipCode: string;
+}
+
+export interface BookingInfoResponse {
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  guests: GuestResponse;
+  rooms: RoomBookingInfoResponse[];
+  totalRooms: number;
+  totalPrice: number;
+  taxesAndFees: number;
+  freeCancelDate: string;
+}
+
+export interface GuestResponse {
+  adults: number;
+  children: number;
+}
+
+export interface RoomBookingInfoResponse {
+  name: string;
+  quantity: number;
+}
+
+export interface UpdateBookingDetailsRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  countryCode: string;
+  phone: string;
+  guestName: string;
+  specialRequests: string;
+}

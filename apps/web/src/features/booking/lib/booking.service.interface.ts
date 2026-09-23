@@ -5,6 +5,8 @@
 import type {
   CreateBookingRequest,
   CreateBookingResponse,
+  GetBookingByIdResponse,
+  UpdateBookingDetailsRequest,
 } from './booking.service.types';
 
 export interface BookingServiceInterface {
@@ -12,4 +14,12 @@ export interface BookingServiceInterface {
     req: CreateBookingRequest,
     currency: string,
   ) => Promise<CreateBookingResponse>;
+  getBookingById: (
+    bookingId: string,
+    currency: string,
+  ) => Promise<GetBookingByIdResponse>;
+  updateBookingDetails: (
+    bookingId: string,
+    req: UpdateBookingDetailsRequest,
+  ) => Promise<void>;
 }
