@@ -12,15 +12,29 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/database"
+	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/messaging"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
 	"github.com/suphawit-wt/travelbook/pkg/propertyclient"
 	"github.com/suphawit-wt/travelbook/pkg/shared/dberr"
 	"github.com/suphawit-wt/travelbook/pkg/shared/events"
 )
+
+// PropertyInfo represents the details of a property associated with a booking.
+type PropertyInfo struct {
+	Name        string
+	Type        string
+	AvgRating   float64
+	ReviewCount uint32
+	CountryCode string
+	City        string
+	Area        string
+	ZipCode     string
+}
 
 // Response represents a response of booking.
 type Response struct {
@@ -35,6 +49,11 @@ type TimeoutExpiredData struct {
 
 // Service defines the business logic for booking entities.
 type Service interface {
+	GetBookingByID(
+		ctx context.Context,
+		id uuid.UUID,
+		currencyCode string,
+	) (*PropertyInfo, *Info, error)
 	CreateBooking(
 		ctx context.Context,
 		req *CreateBooking,
@@ -64,6 +83,74 @@ func NewService(
 		kafkaProducer:  kafkaProducer,
 		propertyClient: propertyClient,
 	}
+}
+
+func (s *service) GetBookingByID(
+	ctx context.Context,
+	id uuid.UUID,
+	currencyCode string,
+) (*PropertyInfo, *Info, error) {
+	logger := s.logger.Named("get_booking_by_id").With(
+		zap.Stringer("booking_id", id),
+		zap.String("currency_code", currencyCode),
+	)
+
+	booking, found, err := s.bookingRepo.GetByID(ctx, id, currencyCode)
+	if err != nil {
+		logger.Error("failed to fetch booking from repository", zap.Error(err))
+		return nil, nil, err
+	}
+
+	if !found {
+		logger.Warn("booking not found in repository")
+		return nil, nil, errs.NewNotFoundError("Booking not found.")
+	}
+
+	logger = logger.With(zap.String("property_id", booking.PropertyID.String()))
+
+	property, err := s.propertyClient.GetPropertyByID(ctx, booking.PropertyID)
+	if err != nil {
+		logger.Error("failed to fetch property details", zap.Error(err))
+		return nil, nil, err
+	}
+
+	if !found {
+		return nil, nil, errs.NewNotFoundError("Booking not found.")
+	}
+
+	exchangeResponse, err := s.propertyClient.GetExchangeRate(ctx, currencyCode)
+	if err != nil {
+		logger.Error("failed to fetch exchange rate", zap.Error(err))
+		return nil, nil, err
+	}
+
+	rateDec := decimal.NewFromFloat(exchangeResponse.ExchangeRate)
+	totalUSD := decimal.NewFromFloat(booking.TotalPrice)
+
+	totalLocal := totalUSD.
+		Mul(rateDec).
+		Round(int32(exchangeResponse.Precision))
+
+	tax := totalLocal.
+		Mul(decimal.NewFromFloat(0.07)).
+		Round(int32(exchangeResponse.Precision))
+
+	booking.TotalPrice, _ = totalLocal.Float64()
+	booking.TaxesAndFees, _ = tax.Float64()
+
+	propertyInfo := PropertyInfo{
+		Name:        property.Name,
+		Type:        string(property.Type),
+		AvgRating:   property.AvgRating,
+		ReviewCount: property.ReviewCount,
+		CountryCode: property.CountryCode,
+		City:        property.City,
+		Area:        property.Area,
+		ZipCode:     property.ZipCode,
+	}
+
+	logger.Debug("successfully retrieved booking and property info")
+	return &propertyInfo, booking, nil
 }
 
 func (s *service) CreateBooking(
