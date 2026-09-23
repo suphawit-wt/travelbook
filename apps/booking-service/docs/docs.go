@@ -99,6 +99,62 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/bookings/{id}": {
+            "get": {
+                "description": "Retrieve booking details by booking ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Get Booking by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Booking ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/booking.ApiResponseWithData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/booking.GetBookingByIDResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/booking.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/booking.ApiResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -179,6 +235,52 @@ const docTemplate = `{
                 }
             }
         },
+        "booking.GetBookingByIDResponse": {
+            "type": "object",
+            "properties": {
+                "booking": {
+                    "$ref": "#/definitions/booking.bookingInfoResponse"
+                },
+                "property": {
+                    "$ref": "#/definitions/booking.propertyInfoResponse"
+                }
+            }
+        },
+        "booking.bookingInfoResponse": {
+            "type": "object",
+            "properties": {
+                "checkIn": {
+                    "type": "string"
+                },
+                "checkOut": {
+                    "type": "string"
+                },
+                "freeCancelDate": {
+                    "type": "string"
+                },
+                "guests": {
+                    "$ref": "#/definitions/booking.guestResponse"
+                },
+                "nights": {
+                    "type": "integer"
+                },
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/booking.roomBookingInfoResponse"
+                    }
+                },
+                "taxesAndFees": {
+                    "type": "number"
+                },
+                "totalPrice": {
+                    "type": "number"
+                },
+                "totalRooms": {
+                    "type": "integer"
+                }
+            }
+        },
         "booking.guestRequest": {
             "type": "object",
             "required": [
@@ -192,6 +294,57 @@ const docTemplate = `{
                 "children": {
                     "type": "integer",
                     "minimum": 0
+                }
+            }
+        },
+        "booking.guestResponse": {
+            "type": "object",
+            "properties": {
+                "adults": {
+                    "type": "integer"
+                },
+                "children": {
+                    "type": "integer"
+                }
+            }
+        },
+        "booking.propertyInfoResponse": {
+            "type": "object",
+            "properties": {
+                "area": {
+                    "type": "string"
+                },
+                "avgRating": {
+                    "type": "number"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "countryCode": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reviewCount": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "zipCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "booking.roomBookingInfoResponse": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
                 }
             }
         },

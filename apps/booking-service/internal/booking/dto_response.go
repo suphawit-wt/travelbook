@@ -6,6 +6,87 @@ package booking
 
 import "time"
 
+// GetBookingByIDResponse defines the structure of the response for the GetBookingByID endpoint.
+type GetBookingByIDResponse struct {
+	Property propertyInfoResponse `json:"property"`
+	Booking  bookingInfoResponse  `json:"booking"`
+}
+
+type propertyInfoResponse struct {
+	Name        string  `json:"name"`
+	Type        string  `json:"type"`
+	AvgRating   float64 `json:"avgRating"`
+	ReviewCount uint32  `json:"reviewCount"`
+	CountryCode string  `json:"countryCode"`
+	City        string  `json:"city"`
+	Area        string  `json:"area"`
+	ZipCode     string  `json:"zipCode"`
+}
+
+type bookingInfoResponse struct {
+	CheckIn        string                    `json:"checkIn"`
+	CheckOut       string                    `json:"checkOut"`
+	Nights         uint8                     `json:"nights"`
+	Guests         guestResponse             `json:"guests"`
+	Rooms          []roomBookingInfoResponse `json:"rooms"`
+	TotalRooms     uint8                     `json:"totalRooms"`
+	TotalPrice     float64                   `json:"totalPrice"`
+	TaxesAndFees   float64                   `json:"taxesAndFees"`
+	FreeCancelDate string                    `json:"freeCancelDate"`
+}
+
+type guestResponse struct {
+	Adults   uint8 `json:"adults"`
+	Children uint8 `json:"children"`
+}
+
+type roomBookingInfoResponse struct {
+	Name     string `json:"name"`
+	Quantity uint8  `json:"quantity"`
+}
+
+// FromDomain maps domain entities to the GetBookingByIDResponse structure.
+func (r *GetBookingByIDResponse) FromDomain(
+	p *PropertyInfo,
+	b *Info,
+) *GetBookingByIDResponse {
+	return &GetBookingByIDResponse{
+		Property: propertyInfoResponse{
+			Name:        p.Name,
+			Type:        p.Type,
+			AvgRating:   p.AvgRating,
+			ReviewCount: p.ReviewCount,
+			CountryCode: p.CountryCode,
+			City:        p.City,
+			Area:        p.Area,
+			ZipCode:     p.ZipCode,
+		},
+		Booking: bookingInfoResponse{
+			CheckIn:  b.CheckIn,
+			CheckOut: b.CheckOut,
+			Nights:   b.Nights,
+			Guests: guestResponse{
+				Adults:   b.Guests.Adults,
+				Children: b.Guests.Children,
+			},
+			Rooms: func() []roomBookingInfoResponse {
+				rooms := make([]roomBookingInfoResponse, len(b.Rooms))
+				for i, r := range b.Rooms {
+					rooms[i] = roomBookingInfoResponse{
+						Name:     r.Name,
+						Quantity: r.Quantity,
+					}
+				}
+				return rooms
+			}(),
+			TotalRooms:     b.TotalRooms,
+			TotalPrice:     b.TotalPrice,
+			TaxesAndFees:   b.TaxesAndFees,
+			FreeCancelDate: b.FreeCancelDate,
+		},
+	}
+}
+
 // CreateBookingResponse defines the structure of the response for the CreateBooking endpoint.
 type CreateBookingResponse struct {
 	BookingID string    `json:"bookingId"`

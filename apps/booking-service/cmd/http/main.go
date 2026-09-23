@@ -161,6 +161,7 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, bookingHandler bo
 		bookingsV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
+	bookingsV1.GET(":id", bookingHandler.GetBookingByID)
 	bookingsV1.POST("", bookingHandler.CreateBooking)
 
 	router.GET("/health", bookingHandler.HealthCheck)

@@ -51,6 +51,36 @@ definitions:
       message:
         type: string
     type: object
+  booking.GetBookingByIDResponse:
+    properties:
+      booking:
+        $ref: '#/definitions/booking.bookingInfoResponse'
+      property:
+        $ref: '#/definitions/booking.propertyInfoResponse'
+    type: object
+  booking.bookingInfoResponse:
+    properties:
+      checkIn:
+        type: string
+      checkOut:
+        type: string
+      freeCancelDate:
+        type: string
+      guests:
+        $ref: '#/definitions/booking.guestResponse'
+      nights:
+        type: integer
+      rooms:
+        items:
+          $ref: '#/definitions/booking.roomBookingInfoResponse'
+        type: array
+      taxesAndFees:
+        type: number
+      totalPrice:
+        type: number
+      totalRooms:
+        type: integer
+    type: object
   booking.guestRequest:
     properties:
       adults:
@@ -61,6 +91,39 @@ definitions:
         type: integer
     required:
     - adults
+    type: object
+  booking.guestResponse:
+    properties:
+      adults:
+        type: integer
+      children:
+        type: integer
+    type: object
+  booking.propertyInfoResponse:
+    properties:
+      area:
+        type: string
+      avgRating:
+        type: number
+      city:
+        type: string
+      countryCode:
+        type: string
+      name:
+        type: string
+      reviewCount:
+        type: integer
+      type:
+        type: string
+      zipCode:
+        type: string
+    type: object
+  booking.roomBookingInfoResponse:
+    properties:
+      name:
+        type: string
+      quantity:
+        type: integer
     type: object
   booking.roomRequest:
     properties:
@@ -136,6 +199,40 @@ paths:
           schema:
             $ref: '#/definitions/booking.ApiResponse'
       summary: Create booking
+      tags:
+      - Bookings
+  /v1/bookings/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve booking details by booking ID
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/booking.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/booking.GetBookingByIDResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/booking.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/booking.ApiResponse'
+      summary: Get Booking by ID
       tags:
       - Bookings
 securityDefinitions:

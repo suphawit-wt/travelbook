@@ -12,6 +12,11 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 )
 
+// URI defines the URI parameters for booking-related requests.
+type URI struct {
+	ID string `uri:"id" binding:"required,uuid"`
+}
+
 // CreateBookingRequest defines the expected payload for creating a new booking.
 type CreateBookingRequest struct {
 	PropertyID string        `json:"propertyId" binding:"required,uuid"`

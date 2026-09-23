@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/enums/api"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
@@ -19,6 +20,7 @@ import (
 
 // Handler defines HTTP request handler methods for bookings.
 type Handler interface {
+	GetBookingByID(c *gin.Context)
 	CreateBooking(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
@@ -35,6 +37,57 @@ func NewHandler(
 	bookingSvc Service,
 ) Handler {
 	return &handler{vdt: vdt, bookingSvc: bookingSvc}
+}
+
+// GetBookingByID godoc
+//
+//	@Summary		Get Booking by ID
+//	@Description	Retrieve booking details by booking ID
+//	@Tags			Bookings
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Booking ID"
+//	@Success		200	{object}	ApiResponseWithData{data=GetBookingByIDResponse}
+//	@Failure		400	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/bookings/{id} [get]
+func (h *handler) GetBookingByID(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri URI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	bookingID, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid booking ID format."))
+		return
+	}
+
+	currencyCode := c.GetHeader("X-Currency")
+	if currencyCode == "" {
+		currencyCode = constants.DefaultCurrency
+	}
+
+	property, booking, err := h.bookingSvc.GetBookingByID(ctx, bookingID, currencyCode)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	var bookingResponse GetBookingByIDResponse
+
+	res := ApiResponseWithData[*GetBookingByIDResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       bookingResponse.FromDomain(property, booking),
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // CreateBooking godoc
