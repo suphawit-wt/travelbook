@@ -163,6 +163,7 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, bookingHandler bo
 
 	bookingsV1.GET(":id", bookingHandler.GetBookingByID)
 	bookingsV1.POST("", bookingHandler.CreateBooking)
+	bookingsV1.PATCH(":id/details", bookingHandler.UpdateBookingDetails)
 
 	router.GET("/health", bookingHandler.HealthCheck)
 }

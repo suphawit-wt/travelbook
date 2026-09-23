@@ -84,3 +84,33 @@ func (r *CreateBookingRequest) ToDomain(currencyCode string) (*CreateBooking, er
 		CurrencyCode: currencyCode,
 	}, nil
 }
+
+// UpdateBookingRequest defines the expected payload for updating a booking details.
+type UpdateBookingRequest struct {
+	FirstName       string `json:"firstName"       binding:"required,lte=40"`
+	LastName        string `json:"lastName"        binding:"required,lte=40"`
+	Email           string `json:"email"           binding:"required,email,lte=254"`
+	CountryCode     string `json:"countryCode"     binding:"required,iso3166_1_alpha2"`
+	Phone           string `json:"phone"           binding:"required,e164"`
+	GuestName       string `json:"guestName"       binding:"lte=80"`
+	SpecialRequests string `json:"specialRequests" binding:"lte=1000"`
+}
+
+// ToDomain converts the UpdateBookingRequest into a UpdateBooking, preparing it for use in the domain layer.
+func (r *UpdateBookingRequest) ToDomain(id string) (*UpdateBooking, error) {
+	bookingID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, errs.NewBadRequestError("Invalid Booking ID type")
+	}
+
+	return &UpdateBooking{
+		BookingID:       bookingID,
+		FirstName:       r.FirstName,
+		LastName:        r.LastName,
+		Email:           r.Email,
+		CountryCode:     r.CountryCode,
+		Phone:           r.Phone,
+		GuestName:       r.GuestName,
+		SpecialRequests: r.SpecialRequests,
+	}, nil
+}

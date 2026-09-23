@@ -155,6 +155,71 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/bookings/{id}/details": {
+            "patch": {
+                "description": "Partially update booking details by booking ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Update booking details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Booking ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update booking details",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/booking.UpdateBookingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/booking.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/booking.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "errors": {
+                                            "$ref": "#/definitions/booking.ErrResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/booking.ApiResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -243,6 +308,44 @@ const docTemplate = `{
                 },
                 "property": {
                     "$ref": "#/definitions/booking.propertyInfoResponse"
+                }
+            }
+        },
+        "booking.UpdateBookingRequest": {
+            "type": "object",
+            "required": [
+                "countryCode",
+                "email",
+                "firstName",
+                "lastName",
+                "phone"
+            ],
+            "properties": {
+                "countryCode": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string",
+                    "maxLength": 254
+                },
+                "firstName": {
+                    "type": "string",
+                    "maxLength": 40
+                },
+                "guestName": {
+                    "type": "string",
+                    "maxLength": 80
+                },
+                "lastName": {
+                    "type": "string",
+                    "maxLength": 40
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "specialRequests": {
+                    "type": "string",
+                    "maxLength": 1000
                 }
             }
         },

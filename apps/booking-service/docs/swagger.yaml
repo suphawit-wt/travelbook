@@ -58,6 +58,34 @@ definitions:
       property:
         $ref: '#/definitions/booking.propertyInfoResponse'
     type: object
+  booking.UpdateBookingRequest:
+    properties:
+      countryCode:
+        type: string
+      email:
+        maxLength: 254
+        type: string
+      firstName:
+        maxLength: 40
+        type: string
+      guestName:
+        maxLength: 80
+        type: string
+      lastName:
+        maxLength: 40
+        type: string
+      phone:
+        type: string
+      specialRequests:
+        maxLength: 1000
+        type: string
+    required:
+    - countryCode
+    - email
+    - firstName
+    - lastName
+    - phone
+    type: object
   booking.bookingInfoResponse:
     properties:
       checkIn:
@@ -233,6 +261,46 @@ paths:
           schema:
             $ref: '#/definitions/booking.ApiResponse'
       summary: Get Booking by ID
+      tags:
+      - Bookings
+  /v1/bookings/{id}/details:
+    patch:
+      consumes:
+      - application/json
+      description: Partially update booking details by booking ID
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update booking details
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/booking.UpdateBookingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/booking.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/booking.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/booking.ErrResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/booking.ApiResponse'
+      summary: Update booking details
       tags:
       - Bookings
 securityDefinitions:

@@ -22,6 +22,7 @@ import (
 type Handler interface {
 	GetBookingByID(c *gin.Context)
 	CreateBooking(c *gin.Context)
+	UpdateBookingDetails(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -138,6 +139,57 @@ func (h *handler) CreateBooking(c *gin.Context) {
 			BookingID: booking.BookingID,
 			ExpiresAt: booking.ExpiresAt,
 		},
+	}
+
+	c.JSON(http.StatusCreated, res)
+}
+
+// UpdateBookingDetails godoc
+//
+//	@Summary		Update booking details
+//	@Description	Partially update booking details by booking ID
+//	@Tags			Bookings
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string					true	"Booking ID"
+//	@Param			req	body		UpdateBookingRequest	true	"Update booking details"
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/bookings/{id}/details [patch]
+func (h *handler) UpdateBookingDetails(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri URI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	var req UpdateBookingRequest
+
+	if err := errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	updateReq, err := req.ToDomain(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	if err := h.bookingSvc.UpdateBookingDetails(ctx, updateReq); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusCreated,
+		Message:    "Update Booking Details Successfully!",
 	}
 
 	c.JSON(http.StatusCreated, res)
