@@ -19,6 +19,27 @@ import (
 	"github.com/suphawit-wt/travelbook/pkg/propertyclient"
 )
 
+// Info represents the details of a booking, including check-in/check-out dates, guest information, room details, and pricing.
+type Info struct {
+	CheckIn        string
+	CheckOut       string
+	Nights         uint8
+	Guests         Guest
+	Rooms          []RoomBooking
+	TotalRooms     uint8
+	TotalPrice     float64
+	TaxesAndFees   float64
+	FreeCancelDate string
+	PropertyID     uuid.UUID
+}
+
+// RoomBooking represents the details of a room booked, including the room name and quantity.
+type RoomBooking struct {
+	RoomID   uuid.UUID
+	Name     string
+	Quantity uint8
+}
+
 // CreateBooking represents the details of a Booking creation details.
 type CreateBooking struct {
 	PropertyID   uuid.UUID
@@ -111,6 +132,11 @@ func (d *InventoryHold) FromDTO(dto *propertyclient.ReserveResponse) *InventoryH
 
 // Repository defines the data access contract for booking entities.
 type Repository interface {
+	GetByID(
+		ctx context.Context,
+		id uuid.UUID,
+		currencyCode string,
+	) (booking *Info, found bool, err error)
 	Create(
 		ctx context.Context,
 		tx pgx.Tx,
@@ -133,6 +159,81 @@ func NewRepositoryDB(
 	redisClient *redis.Client,
 ) Repository {
 	return &repositoryDB{logger: logger, db: db, redisClient: redisClient}
+}
+
+func (r *repositoryDB) GetByID(
+	ctx context.Context,
+	id uuid.UUID,
+	currencyCode string,
+) (*Info, bool, error) {
+	query := `
+	SELECT
+		check_in,
+		check_out,
+		adults,
+		children,
+		total_price_usd,
+		property_id
+	FROM bookings
+	WHERE id = $1
+	AND status = 'pending'
+	`
+
+	var info Info
+
+	var checkIn time.Time
+	var checkOut time.Time
+
+	if err := r.db.QueryRow(ctx, query, id).Scan(
+		&checkIn,
+		&checkOut,
+		&info.Guests.Adults,
+		&info.Guests.Children,
+		&info.TotalPrice,
+		&info.PropertyID,
+	); err != nil {
+		return nil, false, err
+	}
+
+	info.CheckIn = checkIn.Format(time.DateOnly)
+	info.CheckOut = checkOut.Format(time.DateOnly)
+
+	info.Nights = uint8(checkOut.Sub(checkIn).Hours() / 24)
+
+	roomQuery := `
+	SELECT
+		room_type_id,
+		room_name,
+		quantity
+	FROM booking_rooms
+	WHERE booking_id = $1
+	`
+
+	rows, err := r.db.Query(ctx, roomQuery, id)
+	if err != nil {
+		return nil, false, err
+	}
+	defer rows.Close()
+
+	var totalRooms uint8
+
+	for rows.Next() {
+		var room RoomBooking
+
+		if err := rows.Scan(&room.RoomID, &room.Name, &room.Quantity); err != nil {
+			return nil, false, err
+		}
+
+		totalRooms += room.Quantity
+		info.Rooms = append(info.Rooms, room)
+	}
+
+	info.TotalRooms = totalRooms
+
+	freeCancel := checkIn.AddDate(0, 0, -1)
+	info.FreeCancelDate = freeCancel.Format("2006-01-02")
+
+	return &info, true, nil
 }
 
 func (r *repositoryDB) Create(
