@@ -8,6 +8,7 @@ import { notFound, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { BookingDetailsCard } from '@/entities/booking/ui/booking-details-card/booking-details-card';
+import { CostToCancel } from '@/entities/booking/ui/cost-to-cancel/cost-to-cancel';
 import { YourPriceSummaryCard } from '@/entities/booking/ui/your-price-summary-card/your-price-summary-card';
 import { PropertySummaryCard } from '@/entities/property/ui/property-summary-card/property-summary-card';
 import { selectCurrency } from '@/features/user/store/user-preferences.selectors';
@@ -15,7 +16,7 @@ import { useAppSelector } from '@/shared/hooks/store';
 
 import { useBooking } from '../../hooks/use-booking';
 
-import { Sidebar, Wrapper } from './booking-detail.styled';
+import { Sidebar, Wrapper } from './booking-detail/booking-detail.styled';
 
 export const BookingDetail = () => {
   const params = useParams();
@@ -56,6 +57,11 @@ export const BookingDetail = () => {
         <YourPriceSummaryCard
           price={data?.booking.totalPrice}
           taxesAndFees={data?.booking.taxesAndFees}
+        />
+
+        <CostToCancel
+          cancelCost={data?.booking.totalPrice ?? 0}
+          freeCancelDate={data?.booking.freeCancelDate}
         />
       </Sidebar>
     </Wrapper>
