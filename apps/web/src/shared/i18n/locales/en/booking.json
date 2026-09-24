@@ -40,7 +40,9 @@
     },
 
     "cancellation": {
-      "freeBefore": "Free cancellation before {{date}}"
+      "title": "How much will it cost to cancel?",
+      "freeBefore": "Free cancellation before {{date}}",
+      "after": "After {{time}} on {{date}}"
     }
   },
 

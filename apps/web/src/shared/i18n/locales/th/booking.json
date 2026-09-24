@@ -40,7 +40,9 @@
     },
 
     "cancellation": {
-      "freeBefore": "ยกเลิกฟรีก่อน {{date}}"
+      "title": "หากยกเลิกจะมีค่าธรรมเนียมเท่าไร?",
+      "freeBefore": "ยกเลิกฟรีก่อน {{date}}",
+      "after": "ตั้งแต่ {{date}} เวลา {{time}}"
     }
   },
 
