@@ -6,6 +6,29 @@
   },
 
   "booking": {
+    "title": "รายละเอียดการจอง",
+
+    "dates": {
+      "checkIn": "เช็คอิน",
+      "checkOut": "เช็คเอาท์",
+      "lengthOfStay": "ระยะเวลาที่เข้าพักทั้งหมด",
+      "nights_one": "{{count, number}} คืน",
+      "nights_other": "{{count, number}} คืน"
+    },
+
+    "guests": {
+      "title": "ท่านเลือก",
+      "roomFor": "{{count, number}} ห้องสำหรับ",
+      "adults_one": " ผู้ใหญ่ {{count, number}} ท่าน",
+      "adults_other": " ผู้ใหญ่ {{count, number}} ท่าน",
+      "children_one": " เด็ก {{count, number}} ท่าน",
+      "children_other": " เด็ก {{count, number}} ท่าน"
+    },
+
+    "actions": {
+      "changeSelection": "เปลี่ยนห้องพักที่ท่านเลือก"
+    },
+
     "cancellation": {
       "freeBefore": "ยกเลิกฟรีก่อน {{date}}"
     }
