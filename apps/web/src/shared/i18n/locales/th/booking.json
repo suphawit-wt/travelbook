@@ -29,6 +29,16 @@
       "changeSelection": "เปลี่ยนห้องพักที่ท่านเลือก"
     },
 
+    "price": {
+      "summaryTitle": "สรุปราคาของท่าน",
+      "total": "ยอดรวม",
+      "amount": "{{currency}} {{price, number}}",
+      "includesTaxes": "รวมภาษีและค่าธรรมเนียมแล้ว",
+      "includesTaxesAmount": "รวมภาษีและค่าธรรมเนียม {{currency}} {{price, number}}",
+      "info": "ข้อมูลเกี่ยวกับราคา",
+      "vat": "ภาษีมูลค่าเพิ่ม {{vat}}%"
+    },
+
     "cancellation": {
       "freeBefore": "ยกเลิกฟรีก่อน {{date}}"
     }

@@ -29,6 +29,16 @@
       "changeSelection": "Change your selection"
     },
 
+    "price": {
+      "summaryTitle": "Your price summary",
+      "total": "Total",
+      "amount": "{{currency}} {{price, number}}",
+      "includesTaxes": "Includes taxes and fees",
+      "includesTaxesAmount": "Includes {{currency}} {{price, number}} in taxes and fees",
+      "info": "Price information",
+      "vat": "{{vat}} % VAT"
+    },
+
     "cancellation": {
       "freeBefore": "Free cancellation before {{date}}"
     }
