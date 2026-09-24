@@ -43,6 +43,11 @@
       "title": "How much will it cost to cancel?",
       "freeBefore": "Free cancellation before {{date}}",
       "after": "After {{time}} on {{date}}"
+    },
+
+    "availability": {
+      "limitedTitle": "Limited supply for your dates",
+      "limitedDescription": "{{count}} three-star resorts like this are already unavailable on our site"
     }
   },
 
