@@ -2,6 +2,7 @@
 // Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 // See LICENSE or https://creativecommons.org/licenses/by-nc-nd/4.0/ for details.
 
+import { BookingDetail } from '@/features/booking/ui/booking-detail';
 import { BookingFooter } from '@/features/booking/ui/booking-footer';
 import { getTranslation } from '@/shared/i18n/hooks/get-translation';
 import { Container } from '@/shared/ui';
@@ -35,6 +36,9 @@ const Booking = async () => {
           <div style={{ margin: '20px 0' }}>
             <Stepper activeStep={1} steps={steps} />
           </div>
+        </Container>
+        <Container $fluidMobile>
+          <BookingDetail />
         </Container>
       </main>
       <BookingFooter />
