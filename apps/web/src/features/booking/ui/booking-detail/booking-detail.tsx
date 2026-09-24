@@ -8,6 +8,7 @@ import { notFound, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { BookingDetailsCard } from '@/entities/booking/ui/booking-details-card/booking-details-card';
+import { YourPriceSummaryCard } from '@/entities/booking/ui/your-price-summary-card/your-price-summary-card';
 import { PropertySummaryCard } from '@/entities/property/ui/property-summary-card/property-summary-card';
 import { selectCurrency } from '@/features/user/store/user-preferences.selectors';
 import { useAppSelector } from '@/shared/hooks/store';
@@ -50,6 +51,11 @@ export const BookingDetail = () => {
           rooms={data?.booking.rooms}
           totalRooms={data?.booking.totalRooms}
           variants="change-details"
+        />
+
+        <YourPriceSummaryCard
+          price={data?.booking.totalPrice}
+          taxesAndFees={data?.booking.taxesAndFees}
         />
       </Sidebar>
     </Wrapper>
