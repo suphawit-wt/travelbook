@@ -21,6 +21,7 @@ import { useTranslation } from '@/shared/i18n/hooks/use-translation';
 import { Icon, Link, Text } from '@/shared/ui';
 
 import { useBooking } from '../../hooks/use-booking';
+import { BookingDetailsForm } from '../booking-details-form/booking-details-form';
 
 import {
   Card,
@@ -105,6 +106,12 @@ export const BookingDetail = () => {
             </SignInTextGroup>
           </Card>
         ) : null}
+
+        <BookingDetailsForm
+          booking={data?.booking}
+          bookingId={bookingId}
+          property={data?.property}
+        />
       </Main>
     </Wrapper>
   );
