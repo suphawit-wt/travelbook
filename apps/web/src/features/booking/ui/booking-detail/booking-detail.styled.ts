@@ -49,3 +49,19 @@ export const Main = styled.main`
     max-width: 68%;
   }
 `;
+
+export const Card = styled.div`
+  padding: 14px;
+  border: 1px solid ${colors.separator};
+  background-color: ${colors.background.base};
+
+  @media ${media.minLaptop} {
+    border-radius: 8px;
+  }
+`;
+
+export const SignInTextGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;

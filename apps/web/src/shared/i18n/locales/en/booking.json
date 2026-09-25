@@ -51,6 +51,13 @@
     }
   },
 
+  "user": {
+    "authPrompt": "<0>Sign in</0> to book with your saved details or <0>register</0> to manage your bookings on the go!",
+    "enterDetails": "Enter your details",
+    "almostDone": "Almost done! Just fill in the * required info",
+    "guests": "Guests"
+  },
+
   "payment": {
     "methods": {
       "online": "Pay online"
