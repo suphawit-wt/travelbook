@@ -137,6 +137,42 @@
     "cta": "Next: Final details"
   },
 
+  "policies": {
+    "title": "Booking Conditions",
+    "cta": "What are my booking conditions?",
+
+    "cancellation": {
+      "title": "Cancellation",
+      "free": {
+        "title": "<0>Free cancellation</0> before {{date}}",
+        "description": "You can cancel for free until 3 days before arrival. If you cancel within 3 days of arrival, the cancellation fee will be the total price of the reservation. If you don't show up, the no-show fee will be the same as the cancellation fee.",
+        "timezone": "(Cancellation deadlines are in the property's timezone - {{timezone}})"
+      },
+      "nonRefundable": {
+        "title": "Non-refundable",
+        "description": "If you cancel, modify, or don't show up, the total price will be charged."
+      }
+    },
+
+    "howToCancel": {
+      "title": "How to cancel",
+      "description": "You can use the link in the confirmation email to cancel your booking."
+    },
+
+    "prepayment": {
+      "title": "Prepayment",
+      "online": {
+        "title": "Pay online",
+        "description": "The total price of the reservation is charged at the time of booking."
+      }
+    },
+
+    "taxes": {
+      "title": "Taxes and service charges",
+      "description": "{{vat}} % VAT is included. A City tax is not applicable. A Property service charge is not applicable."
+    }
+  },
+
   "payment": {
     "methods": {
       "online": "Pay online"
