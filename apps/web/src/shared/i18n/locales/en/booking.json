@@ -58,6 +58,85 @@
     "guests": "Guests"
   },
 
+  "form": {
+    "fields": {
+      "firstName": {
+        "label": "First name"
+      },
+      "lastName": {
+        "label": "Last name"
+      },
+      "email": {
+        "label": "Email address",
+        "description": "Confirmation email sent to this address"
+      },
+      "country": {
+        "label": "Country/Region",
+        "placeholder": "Select country/region"
+      },
+      "phone": {
+        "label": "Phone number",
+        "description": "Needed by the property to validate your booking"
+      },
+      "paperless": {
+        "label": "Yes, I want free paperless confirmation (recommended)",
+        "description": "We'll text you a link to download our app"
+      }
+    },
+
+    "bookingFor": {
+      "label": "Who are you booking for?",
+      "self": "I'm the main guest",
+      "other": "I'm booking for someone else"
+    },
+
+    "travelPurpose": {
+      "label": "Are you traveling for work?"
+    },
+
+    "goodToKnow": {
+      "title": "Good to know",
+      "stayFlexible": "Stay flexible: You can cancel for free before {{cancelDate}} - lock in this great price today.",
+      "lastRoom": "You're booking the last available {{room}} we have at {{hotelName}} on our site."
+    },
+
+    "guestName": {
+      "label": "Full Guest Name",
+      "placeholder": "First name, last name"
+    },
+
+    "extras": {
+      "title": "Add to your stay",
+      "carRental": {
+        "label": "I'm interested in renting a car",
+        "description": "Make the most of your trip - check out car rental options in your booking confirmation."
+      },
+      "transport": {
+        "label": "Want to book a taxi or shuttle ride in advance?",
+        "description": "Avoid surprises - get from the airport to your accommodations without any hassle. We'll add taxi options to your booking confirmation."
+      }
+    },
+
+    "specialRequests": {
+      "label": "Special requests",
+      "description": "Special requests can't be guaranteed, but the property will do its best to meet your needs. You can always make a special request after your booking is complete.",
+      "placeholder": "Please write your requests in English or Thai."
+    },
+
+    "arrival": {
+      "label": "Your arrival time",
+      "description": "Your room will be ready for check-in between {{checkIn}} and {{checkOut}}",
+      "estimated": {
+        "label": "Add your estimated arrival time",
+        "placeholder": "Please select",
+        "unknown": "I don't know"
+      },
+      "timezone": "Time is for {{destination}} time zone"
+    },
+
+    "cta": "Next: Final details"
+  },
+
   "payment": {
     "methods": {
       "online": "Pay online"
