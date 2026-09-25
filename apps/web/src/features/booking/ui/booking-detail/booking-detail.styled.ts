@@ -65,3 +65,14 @@ export const SignInTextGroup = styled.div`
   align-items: center;
   gap: 10px;
 `;
+
+export const FormActionGroup = styled.div`
+  margin-top: 16px;
+
+  display: flex;
+  justify-content: center;
+
+  @media ${media.minLaptop} {
+    justify-content: flex-end;
+  }
+`;

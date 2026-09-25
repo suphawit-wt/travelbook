@@ -12,6 +12,7 @@ import { Trans } from 'react-i18next';
 import { BookingDetailsCard } from '@/entities/booking/ui/booking-details-card/booking-details-card';
 import { CostToCancel } from '@/entities/booking/ui/cost-to-cancel/cost-to-cancel';
 import { LimitedOffer } from '@/entities/booking/ui/limited-offer/limited-offer';
+import { MyBookingConditions } from '@/entities/booking/ui/my-booking-conditions/my-booking-conditions';
 import { YourPriceSummaryCard } from '@/entities/booking/ui/your-price-summary-card/your-price-summary-card';
 import { PropertySummaryCard } from '@/entities/property/ui/property-summary-card/property-summary-card';
 import { selectIsAuthenticated } from '@/features/auth/store/auth.selectors';
@@ -25,6 +26,7 @@ import { BookingDetailsForm } from '../booking-details-form/booking-details-form
 
 import {
   Card,
+  FormActionGroup,
   Main,
   Sidebar,
   SignInTextGroup,
@@ -112,6 +114,13 @@ export const BookingDetail = () => {
           bookingId={bookingId}
           property={data?.property}
         />
+
+        <FormActionGroup>
+          <MyBookingConditions
+            freeCancelDate={data?.booking.freeCancelDate}
+            rooms={data?.booking.rooms}
+          />
+        </FormActionGroup>
       </Main>
     </Wrapper>
   );
