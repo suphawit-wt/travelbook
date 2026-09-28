@@ -21,6 +21,7 @@ import (
 // Handler defines HTTP request handler methods for bookings.
 type Handler interface {
 	GetBookingByID(c *gin.Context)
+	GetTotalPriceCents(c *gin.Context)
 	CreateBooking(c *gin.Context)
 	UpdateBookingDetails(c *gin.Context)
 
@@ -86,6 +87,40 @@ func (h *handler) GetBookingByID(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Data:       bookingResponse.FromDomain(property, booking),
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *handler) GetTotalPriceCents(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri URI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	bookingID, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid booking ID format."))
+		return
+	}
+
+	totalPriceCents, err := h.bookingSvc.GetTotalPriceCents(ctx, bookingID)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponseWithData[GetTotalPriceCentsResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data: GetTotalPriceCentsResponse{
+			TotalPriceCents: totalPriceCents,
+		},
 	}
 
 	c.JSON(http.StatusOK, res)

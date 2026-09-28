@@ -87,6 +87,11 @@ func (r *GetBookingByIDResponse) FromDomain(
 	}
 }
 
+// GetTotalPriceCentsResponse defines the structure of the response for the GetTotalPriceCents endpoint.
+type GetTotalPriceCentsResponse struct {
+	TotalPriceCents int64 `json:"totalPriceCents"`
+}
+
 // CreateBookingResponse defines the structure of the response for the CreateBooking endpoint.
 type CreateBookingResponse struct {
 	BookingID string    `json:"bookingId"`

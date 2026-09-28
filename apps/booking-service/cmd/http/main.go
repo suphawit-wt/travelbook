@@ -165,5 +165,11 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, bookingHandler bo
 	bookingsV1.POST("", bookingHandler.CreateBooking)
 	bookingsV1.PATCH(":id/details", bookingHandler.UpdateBookingDetails)
 
+	// Internal API
+	internal := router.Group("internal")
+
+	internalV1 := internal.Group("v1")
+	internalV1.GET(":id/total-price-cents", bookingHandler.GetTotalPriceCents)
+
 	router.GET("/health", bookingHandler.HealthCheck)
 }
