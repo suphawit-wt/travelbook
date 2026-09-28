@@ -170,6 +170,7 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, bookingHandler bo
 
 	internalV1 := internal.Group("v1")
 	internalV1.GET(":id/total-price-cents", bookingHandler.GetTotalPriceCents)
+	internalV1.POST("confirm", bookingHandler.ConfirmBooking)
 
 	router.GET("/health", bookingHandler.HealthCheck)
 }

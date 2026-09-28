@@ -114,3 +114,8 @@ func (r *UpdateBookingRequest) ToDomain(id string) (*UpdateBooking, error) {
 		SpecialRequests: r.SpecialRequests,
 	}, nil
 }
+
+// ConfirmBookingRequest defines the expected payload for confirm a booking.
+type ConfirmBookingRequest struct {
+	BookingID string `json:"bookingId" binding:"required,uuid"`
+}

@@ -24,6 +24,7 @@ type Handler interface {
 	GetTotalPriceCents(c *gin.Context)
 	CreateBooking(c *gin.Context)
 	UpdateBookingDetails(c *gin.Context)
+	ConfirmBooking(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -228,6 +229,37 @@ func (h *handler) UpdateBookingDetails(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, res)
+}
+
+func (h *handler) ConfirmBooking(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var req ConfirmBookingRequest
+
+	if err := errs.GinBindAndValidate(c, &req, h.vdt); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	bookingID, err := uuid.Parse(req.BookingID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid booking ID format."))
+		return
+	}
+
+	if err := h.bookingSvc.ConfirmBooking(ctx, bookingID); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Booking Confirmed",
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // HealthCheck is a simple health check endpoint to verify that the service is running.
