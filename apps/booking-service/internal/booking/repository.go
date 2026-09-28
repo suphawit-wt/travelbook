@@ -7,6 +7,7 @@ package booking
 import (
 	"context"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/google/uuid"
@@ -149,6 +150,7 @@ type Repository interface {
 		id uuid.UUID,
 		currencyCode string,
 	) (booking *Info, found bool, err error)
+	GetTotalPriceCents(ctx context.Context, bookingID uuid.UUID) (int64, error)
 	Create(
 		ctx context.Context,
 		tx pgx.Tx,
@@ -250,6 +252,23 @@ func (r *repositoryDB) GetByID(
 	info.FreeCancelDate = freeCancel.Format("2006-01-02")
 
 	return &info, true, nil
+}
+
+func (r *repositoryDB) GetTotalPriceCents(
+	ctx context.Context,
+	bookingID uuid.UUID,
+) (int64, error) {
+	query := "SELECT total_price_usd FROM bookings WHERE id = $1"
+
+	var totalPriceUsd float64
+
+	if err := r.db.QueryRow(ctx, query, bookingID).Scan(&totalPriceUsd); err != nil {
+		return 0, err
+	}
+
+	totalPriceCents := int64(math.Round(totalPriceUsd * 100))
+
+	return totalPriceCents, nil
 }
 
 func (r *repositoryDB) Create(
