@@ -54,6 +54,7 @@ type Service interface {
 		id uuid.UUID,
 		currencyCode string,
 	) (*PropertyInfo, *Info, error)
+	GetTotalPriceCents(ctx context.Context, bookingID uuid.UUID) (int64, error)
 	CreateBooking(
 		ctx context.Context,
 		req *CreateBooking,
@@ -152,6 +153,23 @@ func (s *service) GetBookingByID(
 
 	logger.Debug("successfully retrieved booking and property info")
 	return &propertyInfo, booking, nil
+}
+
+func (s *service) GetTotalPriceCents(
+	ctx context.Context,
+	bookingID uuid.UUID,
+) (int64, error) {
+	logger := s.logger.Named("get_total_price_cents").With(
+		zap.Stringer("booking_id", bookingID),
+	)
+
+	totalPriceCents, err := s.bookingRepo.GetTotalPriceCents(ctx, bookingID)
+	if err != nil {
+		logger.Error("failed to fetch total price cents from repository", zap.Error(err))
+		return 0, err
+	}
+
+	return totalPriceCents, nil
 }
 
 func (s *service) CreateBooking(
