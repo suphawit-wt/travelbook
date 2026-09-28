@@ -60,6 +60,7 @@ type Service interface {
 		req *CreateBooking,
 	) (*Response, error)
 	UpdateBookingDetails(ctx context.Context, req *UpdateBooking) error
+	ConfirmBooking(ctx context.Context, bookingID uuid.UUID) error
 }
 
 type service struct {
@@ -257,6 +258,22 @@ func (s *service) UpdateBookingDetails(
 
 	if err := s.bookingRepo.UpdateDetails(ctx, req); err != nil {
 		logger.Error("failed to update booking details in repository", zap.Error(err))
+		return dberr.ValidatePostgresError(err)
+	}
+
+	return nil
+}
+
+func (s *service) ConfirmBooking(
+	ctx context.Context,
+	bookingID uuid.UUID,
+) error {
+	logger := s.logger.Named("confirm_booking").With(
+		zap.Stringer("booking_id", bookingID),
+	)
+
+	if err := s.bookingRepo.ConfirmBooking(ctx, bookingID); err != nil {
+		logger.Error("failed to confirm booking in repository", zap.Error(err))
 		return dberr.ValidatePostgresError(err)
 	}
 
