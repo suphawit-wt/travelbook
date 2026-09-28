@@ -16,6 +16,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/shopspring/decimal"
 
+	"github.com/suphawit-wt/travelbook/pkg/go-libs/security/secret"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
 	"github.com/suphawit-wt/travelbook/pkg/propertyclient"
 )
@@ -162,6 +163,7 @@ type Repository interface {
 		ctx context.Context,
 		req *UpdateBooking,
 	) error
+	ConfirmBooking(ctx context.Context, bookingID uuid.UUID) error
 }
 
 type repositoryDB struct {
@@ -359,6 +361,45 @@ func (r *repositoryDB) UpdateDetails(ctx context.Context, req *UpdateBooking) er
 		req.SpecialRequests,
 		time.Now().UTC(),
 		req.BookingID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repositoryDB) ConfirmBooking(ctx context.Context, bookingID uuid.UUID) error {
+	query := `
+	UPDATE bookings
+	SET
+		status = $1,
+		payment_status = $2,
+		confirmation_code = $3,
+		access_code = $4,
+		updated_at = $5
+	WHERE id = $6
+	`
+
+	confirmationCode, err := secret.NewDigits(6)
+	if err != nil {
+		return err
+	}
+
+	accessCode, err := secret.NewDigits(4)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.db.Exec(
+		ctx,
+		query,
+		"confirmed",
+		"paid",
+		confirmationCode,
+		accessCode,
+		time.Now().UTC(),
+		bookingID,
 	)
 	if err != nil {
 		return err
