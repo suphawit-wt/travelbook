@@ -20,6 +20,7 @@ import (
 
 	"github.com/suphawit-wt/travelbook/apps/payment-service/docs"
 	"github.com/suphawit-wt/travelbook/apps/payment-service/internal/payment"
+	"github.com/suphawit-wt/travelbook/pkg/bookingclient"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/config"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/database"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/server"
@@ -91,6 +92,8 @@ func run() error {
 		pgPool.Close()
 	}()
 
+	bookingClient := bookingclient.New()
+
 	srv, err := server.NewHTTPGin(cfg, serverLogger)
 	if err != nil {
 		return fmt.Errorf("init http server: %w", err)
@@ -98,7 +101,12 @@ func run() error {
 
 	stripe.Key = cfg.Payment.Stripe.SecretKey
 
-	paymentHandler := payment.NewHandler(srv.Validator)
+	paymentService := payment.NewService(
+		appLogger.Named("service"),
+		&cfg.Payment,
+		bookingClient,
+	)
+	paymentHandler := payment.NewHandler(srv.Validator, paymentService)
 
 	registerRoutes(srv.Router, &cfg.App, paymentHandler)
 
@@ -125,6 +133,7 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, paymentHandler pa
 
 		paymentsV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
+	paymentsV1.POST("/intents", paymentHandler.CreateBookingPaymentIntent)
 
 	router.GET("/health", paymentHandler.HealthCheck)
 }

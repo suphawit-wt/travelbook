@@ -1,6 +1,101 @@
+basePath: /
+definitions:
+  payment.ApiResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  payment.ApiResponseWithData:
+    properties:
+      status:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  payment.CreateBookingPaymentIntentRequest:
+    properties:
+      bookingId:
+        type: string
+    required:
+    - bookingId
+    type: object
+  payment.CreatePaymentIntentResponse:
+    properties:
+      clientSecret:
+        type: string
+    type: object
+  payment.ErrResponse:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: api.travelbook.localhost
 info:
-  contact: {}
-paths: {}
+  contact:
+    email: support@suphwit.dev
+    name: Suphawit Watthanataetakun
+    url: https://suphawit.dev/support
+  description: Payment Service. This service allows users to process payments securely.
+  license:
+    name: Creative Commons Attribution-NonCommercial-NoDerivatives 4.0
+    url: https://creativecommons.org/licenses/by-nc-nd/4.0
+  termsOfService: https://suphawit.dev/terms/
+  title: Payment Service - Travelbook API
+  version: 1.0.0
+paths:
+  /v1/payments/intents:
+    post:
+      consumes:
+      - application/json
+      description: Returns a client secret used to complete the payment.
+      parameters:
+      - description: Booking payments intent creation payload
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/payment.CreateBookingPaymentIntentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/payment.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/payment.CreatePaymentIntentResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/payment.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/payment.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/payment.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/payment.ApiResponse'
+      summary: Create booking payment intent
+      tags:
+      - Payments
 securityDefinitions:
   Bearer:
     description: Put **_ONLY_** your JWT Bearer token in textbox below
