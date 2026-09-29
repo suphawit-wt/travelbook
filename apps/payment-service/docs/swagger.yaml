@@ -1,0 +1,10 @@
+info:
+  contact: {}
+paths: {}
+securityDefinitions:
+  Bearer:
+    description: Put **_ONLY_** your JWT Bearer token in textbox below
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

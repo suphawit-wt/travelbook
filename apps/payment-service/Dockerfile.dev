@@ -1,0 +1,19 @@
+FROM golang:1.26-alpine
+
+WORKDIR /app
+
+ENV GOCACHE=/tmp/go-build
+
+RUN go install github.com/air-verse/air
+
+COPY go.mod go.sum* ./
+
+RUN go mod download
+
+COPY . .
+
+WORKDIR /app/apps/payment-service
+
+EXPOSE 8080
+
+CMD ["air", "-c", ".air.toml"]

@@ -30,3 +30,5 @@ requires:
     path: apps/booking-worker/skaffold.yaml
   - configs: ["booking-consumer"]
     path: apps/booking-consumer/skaffold.yaml
+  - configs: ["payment-service"]
+    path: apps/payment-service/skaffold.yaml
