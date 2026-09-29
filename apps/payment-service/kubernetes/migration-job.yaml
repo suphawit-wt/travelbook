@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: payment-db-migration-v1-0-0
+  namespace: travelbook
+  labels:
+    app.kubernetes.io/component: database-migration
+spec:
+  # Maximum retries before marking the Job as Failed
+  backoffLimit: 2
+  
+  # Total execution timeout (5 minutes)
+  activeDeadlineSeconds: 300
+  
+  # Automatically clean up completed Job and its Pods after 100 seconds
+  ttlSecondsAfterFinished: 100
+
+  template:
+    metadata:
+      labels:
+        app: payment-db-migrator
+    spec:
+      restartPolicy: Never # Never restart container internally; let Job controller handle retries
+      containers:
+      - name: goose-migrator
+        image: asia-southeast1-docker.pkg.dev/travelbook-prod-1a2b/travelbook/tb-payment-migrate:1.0.0
+        command: ["goose", "-dir", "/migrations", "postgres", "$(DB_CONN)", "up"]
+        env:
+        - name: DB_CONN
+          value: "postgres://travelbook_admin:f39af3b3d5a2904a41d34306e03cc725@travelbook-postgres-db.ctooy46y8azo.ap-southeast-1.rds.amazonaws.com:5432/tb_payment_db?sslmode=verify-full&sslrootcert=/etc/certs/rds-bundle.pem"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
