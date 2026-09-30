@@ -174,8 +174,27 @@
   },
 
   "payment": {
+    "title": "Your payment details",
+    "payNow": "Today you'll pay",
+    "payLater": "At the property, you'll pay",
+
+    "promo": {
+      "question": "Do you have a promo code?",
+      "placeholder": "Enter your promo code"
+    },
+
     "methods": {
-      "online": "Pay online"
-    }
+      "title": "How do you want to pay?",
+      "online": "Pay online",
+      "completeBooking": "You'll pay when you complete this booking."
+    },
+
+    "consents": {
+      "marketing": "I consent to receiving marketing emails from {{appName}}, including promotions, personalized recommendations, rewards, travel experiences, and updates about {{appName}}'s products and services.",
+      "privacy": "By signing up, you let us tailor offers and content to your interests by monitoring how you use {{appName}} through tracking technologies, Unsubscribe anytime. Read our <0>privacy policy</0>",
+      "terms": "Your booking is directly with {{hotelName}} and by completing this booking you agree to the booking <0>conditions</0>, <0>general terms</0>, and <0>privacy policy.</0>"
+    },
+
+    "cta": "Complete booking"
   }
 }
