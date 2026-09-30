@@ -101,9 +101,11 @@ func run() error {
 
 	stripe.Key = cfg.Payment.Stripe.SecretKey
 
+	paymentRepo := payment.NewRepositoryDB(pgPool)
 	paymentService := payment.NewService(
 		appLogger.Named("service"),
 		&cfg.Payment,
+		paymentRepo,
 		bookingClient,
 	)
 	paymentHandler := payment.NewHandler(srv.Validator, paymentService)

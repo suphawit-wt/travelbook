@@ -6,14 +6,17 @@ package payment
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/stripe/stripe-go/v86"
 	"github.com/stripe/stripe-go/v86/paymentintent"
+	"github.com/stripe/stripe-go/v86/webhook"
 	"go.uber.org/zap"
 
 	"github.com/suphawit-wt/travelbook/pkg/bookingclient"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/config"
+	"github.com/suphawit-wt/travelbook/pkg/go-libs/errs"
 	"github.com/suphawit-wt/travelbook/pkg/go-libs/zaplog"
 	"github.com/suphawit-wt/travelbook/pkg/shared/dberr"
 )
@@ -21,11 +24,13 @@ import (
 // Service defines the business logic for booking entities.
 type Service interface {
 	CreatePaymentIntent(ctx context.Context, bookingID uuid.UUID) (string, error)
+	StripeWebhook(ctx context.Context, payload []byte, signature string) error
 }
 
 type service struct {
 	logger        *zaplog.Logger
 	paymentCfg    *config.PaymentConfig
+	paymentRepo   Repository
 	bookingClient bookingclient.Client
 }
 
@@ -33,11 +38,13 @@ type service struct {
 func NewService(
 	logger *zaplog.Logger,
 	paymentCfg *config.PaymentConfig,
+	paymentRepo Repository,
 	bookingClient bookingclient.Client,
 ) Service {
 	return &service{
 		logger:        logger.Named("payment_service"),
 		paymentCfg:    paymentCfg,
+		paymentRepo:   paymentRepo,
 		bookingClient: bookingClient,
 	}
 }
@@ -82,4 +89,92 @@ func (s *service) CreatePaymentIntent(
 	)
 
 	return result.ClientSecret, nil
+}
+
+func (s *service) StripeWebhook(
+	ctx context.Context,
+	payload []byte,
+	signature string,
+) error {
+	logger := s.logger.With(zap.String("method", "StripeWebhook"))
+
+	event, err := webhook.ConstructEventWithOptions(
+		payload,
+		signature,
+		s.paymentCfg.Stripe.WebhookSecret,
+		webhook.ConstructEventOptions{
+			IgnoreAPIVersionMismatch: true,
+		},
+	)
+	if err != nil {
+		logger.Warn("invalid stripe webhook signature or payload", zap.Error(err))
+		return errs.NewBadRequestError("signature error")
+	}
+
+	logger = logger.With(
+		zap.String("event_id", event.ID),
+		zap.String("event_type", string(event.Type)),
+	)
+
+	//exhaustive:ignore
+	switch event.Type {
+	case stripe.EventTypePaymentIntentSucceeded:
+		var pi stripe.PaymentIntent
+		err := json.Unmarshal(event.Data.Raw, &pi)
+		if err != nil {
+			logger.Error("failed to unmarshal payment_intent.succeeded payload", zap.Error(err))
+			return errs.NewBadRequestError("invalid event data")
+		}
+
+		bID := pi.Metadata["booking_id"]
+		bookingID, err := uuid.Parse(bID)
+		if err != nil {
+			logger.Error("invalid or missing booking_id in payment intent metadata",
+				zap.String("raw_booking_id", bID),
+				zap.String("payment_intent_id", pi.ID),
+				zap.Error(err),
+			)
+			return errs.NewBadRequestError("Invalid Booking ID type")
+		}
+
+		evtLogger := logger.With(
+			zap.String("booking_id", bookingID.String()),
+			zap.String("payment_intent_id", pi.ID),
+		)
+
+		if err := s.bookingClient.ConfirmBooking(ctx, bookingID); err != nil {
+			evtLogger.Error("failed to confirm booking after payment", zap.Error(err))
+			return errs.NewUnexpectedError()
+		}
+
+		if err := s.paymentRepo.MarkAsPaid(
+			ctx,
+			bookingID,
+			pi.ID,
+			pi.Amount,
+			string(pi.Currency),
+			pi.PaymentMethod.ID,
+		); err != nil {
+			evtLogger.Error("failed to mark payment as paid in database", zap.Error(err))
+			return errs.NewUnexpectedError()
+		}
+
+		evtLogger.Info("payment successfully processed and booking confirmed")
+
+	case stripe.EventTypePaymentIntentPaymentFailed:
+		var pi stripe.PaymentIntent
+		if err := json.Unmarshal(event.Data.Raw, &pi); err == nil {
+			logger.Warn("stripe payment intent failed",
+				zap.String("payment_intent_id", pi.ID),
+				zap.String("booking_id", pi.Metadata["booking_id"]),
+			)
+		} else {
+			logger.Warn("stripe payment intent failed")
+		}
+
+	default:
+		logger.Debug("unhandled stripe webhook event received")
+	}
+
+	return nil
 }
