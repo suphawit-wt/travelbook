@@ -96,6 +96,38 @@ paths:
       summary: Create booking payment intent
       tags:
       - Payments
+  /v1/payments/webhooks/stripe:
+    post:
+      consumes:
+      - application/json
+      description: Returns a client secret used to complete the payment.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/payment.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/payment.ApiResponse'
+            - properties:
+                errors:
+                  $ref: '#/definitions/payment.ErrResponse'
+              type: object
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/payment.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/payment.ApiResponse'
+      summary: Create booking payment intent
+      tags:
+      - Payments
 securityDefinitions:
   Bearer:
     description: Put **_ONLY_** your JWT Bearer token in textbox below

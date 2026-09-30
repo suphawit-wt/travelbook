@@ -137,5 +137,8 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, paymentHandler pa
 	}
 	paymentsV1.POST("/intents", paymentHandler.CreateBookingPaymentIntent)
 
+	paymentsWebhooksV1 := paymentsV1.Group("webhooks")
+	paymentsWebhooksV1.POST("stripe", paymentHandler.StripeWebhook)
+
 	router.GET("/health", paymentHandler.HealthCheck)
 }

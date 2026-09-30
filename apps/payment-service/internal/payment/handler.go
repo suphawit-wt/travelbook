@@ -6,6 +6,8 @@ package payment
 
 import (
 	"context"
+	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -20,6 +22,7 @@ import (
 // Handler defines HTTP request handler methods for payment.
 type Handler interface {
 	CreateBookingPaymentIntent(c *gin.Context)
+	StripeWebhook(c *gin.Context)
 
 	HealthCheck(c *gin.Context)
 }
@@ -82,6 +85,50 @@ func (h *handler) CreateBookingPaymentIntent(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, res)
+}
+
+// StripeWebhook godoc
+//
+//	@Summary		Create booking payment intent
+//	@Description	Returns a client secret used to complete the payment.
+//	@Tags			Payments
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	ApiResponse
+//	@Failure		400	{object}	ApiResponse{errors=ErrResponse}
+//	@Failure		409	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/payments/webhooks/stripe [post]
+func (h *handler) StripeWebhook(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	const MaxBodyBytes = int64(65536)
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, MaxBodyBytes)
+
+	payload, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		log.Println("Error reading body:", err)
+		errs.GinHandleError(c, errs.NewBadRequestError("Error reading body"))
+		return
+	}
+
+	if err := h.paymentSvc.StripeWebhook(
+		ctx,
+		payload,
+		c.GetHeader("Stripe-Signature"),
+	); err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	res := ApiResponse{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Message:    "Stripe Webhook received",
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 // HealthCheck is a simple health check endpoint to verify that the service is running.
