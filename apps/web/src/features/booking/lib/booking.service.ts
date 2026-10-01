@@ -17,6 +17,7 @@ import type {
   CreateBookingRequest,
   CreateBookingResponse,
   GetBookingByIdResponse,
+  GetBookingConfirmationDetailsResponse,
   UpdateBookingDetailsRequest,
 } from './booking.service.types';
 
@@ -25,22 +26,18 @@ const API_PREFIX = 'bookings';
 export class BookingService implements BookingServiceInterface {
   constructor(private readonly axiosClient: AxiosInstance) {}
 
-  async createBooking(
-    req: CreateBookingRequest,
+  async getBookingById(
+    bookingId: string,
     currency: string,
-  ): Promise<CreateBookingResponse> {
+  ): Promise<GetBookingByIdResponse> {
     try {
-      const response = await this.axiosClient.post<
-        ApiResponseWithData<CreateBookingResponse>
-      >(
-        `v1/${API_PREFIX}`,
-        { ...req },
-        {
-          headers: {
-            'X-Currency': currency,
-          },
+      const response = await this.axiosClient.get<
+        ApiResponseWithData<GetBookingByIdResponse>
+      >(`v1/${API_PREFIX}/${bookingId}`, {
+        headers: {
+          'X-Currency': currency,
         },
-      );
+      });
       return response.data.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
@@ -60,18 +57,53 @@ export class BookingService implements BookingServiceInterface {
     }
   }
 
-  async getBookingById(
+  async getBookingConfirmationDetails(
     bookingId: string,
     currency: string,
-  ): Promise<GetBookingByIdResponse> {
+  ): Promise<GetBookingConfirmationDetailsResponse> {
     try {
       const response = await this.axiosClient.get<
-        ApiResponseWithData<GetBookingByIdResponse>
-      >(`v1/${API_PREFIX}/${bookingId}`, {
+        ApiResponseWithData<GetBookingConfirmationDetailsResponse>
+      >(`v1/${API_PREFIX}/${bookingId}/confirmation`, {
         headers: {
           'X-Currency': currency,
         },
       });
+      return response.data.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response) {
+        const { status, message } = error.response.data as ApiResponse;
+
+        switch (status) {
+          case ApiStatus.Unauthorized:
+            throw new UnauthorizedError(message);
+          case ApiStatus.NotFound:
+            throw new NotFoundError(message);
+          default:
+            throw new UnexpectedError();
+        }
+      }
+
+      throw new UnexpectedError();
+    }
+  }
+
+  async createBooking(
+    req: CreateBookingRequest,
+    currency: string,
+  ): Promise<CreateBookingResponse> {
+    try {
+      const response = await this.axiosClient.post<
+        ApiResponseWithData<CreateBookingResponse>
+      >(
+        `v1/${API_PREFIX}`,
+        { ...req },
+        {
+          headers: {
+            'X-Currency': currency,
+          },
+        },
+      );
       return response.data.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {

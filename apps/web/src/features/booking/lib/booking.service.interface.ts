@@ -6,18 +6,23 @@ import type {
   CreateBookingRequest,
   CreateBookingResponse,
   GetBookingByIdResponse,
+  GetBookingConfirmationDetailsResponse,
   UpdateBookingDetailsRequest,
 } from './booking.service.types';
 
 export interface BookingServiceInterface {
-  createBooking: (
-    req: CreateBookingRequest,
-    currency: string,
-  ) => Promise<CreateBookingResponse>;
   getBookingById: (
     bookingId: string,
     currency: string,
   ) => Promise<GetBookingByIdResponse>;
+  getBookingConfirmationDetails: (
+    bookingId: string,
+    currency: string,
+  ) => Promise<GetBookingConfirmationDetailsResponse>;
+  createBooking: (
+    req: CreateBookingRequest,
+    currency: string,
+  ) => Promise<CreateBookingResponse>;
   updateBookingDetails: (
     bookingId: string,
     req: UpdateBookingDetailsRequest,

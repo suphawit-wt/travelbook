@@ -71,3 +71,25 @@ export interface UpdateBookingDetailsRequest {
   guestName: string;
   specialRequests: string;
 }
+
+export interface GetBookingConfirmationDetailsResponse {
+  property: PropertyBookingConfirmResponse;
+  booking: BookingConfirmResponse;
+}
+
+export interface PropertyBookingConfirmResponse {
+  name: string;
+  area: string;
+  image: string;
+}
+
+export interface BookingConfirmResponse {
+  contactEmail: string;
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  rooms: RoomBookingInfoResponse[];
+  totalPrice: number;
+  confirmationNumber: string;
+  pinCode: string;
+}
