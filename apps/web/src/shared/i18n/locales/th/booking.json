@@ -196,5 +196,29 @@
     },
 
     "cta": "เสร็จสิ้นการจอง"
+  },
+
+  "confirmation": {
+    "title": "การจองของท่านใน {{destination}} ได้รับการยืนยันแล้ว",
+    "description": "การจองของท่านได้รับการยืนยันแล้ว ท่านจะได้รับอีเมลยืนยันการจองไปยังที่อยู่อีเมลนี้",
+    "email": "การยืนยันการจองของท่านจะถูกส่งไปยัง {{email}}",
+    "payment": "การชำระเงินของท่านจะดำเนินการโดยที่พัก",
+    "priceDetails": "ดูราคาข้อมูล",
+    "print": "พิมพ์รายละเอียดการจอง",
+    "saveToPhone": "บันทึกการยืนยันการจองไปยังสมาร์ทโฟน",
+    "bookingSumsmary": "สรุปการจองของท่าน",
+    "confirmed": "ยืนยันแล้ว",
+    "confirmationNumber": "หมายเลขยืนยัน: {{number}}",
+    "pinCode": "รหัส PIN: {{code}}",
+    "manageYourTripWithTheApp": "จัดการการจองของท่านผ่านแอป",
+    "makeChangesOnTheGo": "ทำการเปลี่ยนแปลงบนสมาร์ทโฟน",
+    "chatWithYourPropertyAnytime": "พูดคุยกับที่พักของท่านได้ทุกเวลา",
+    "getPaperlessConfirmation": "รับการยืนยันการจองแบบไม่ต้องพิมพ์",
+    "getTheApp": "ดาวน์โหลดแอป",
+    "youveUnlockedADealByBookingWithUs": "ท่านได้ปลดล็อกส่วนลดโดยการจองกับเรา",
+    "viewOrUpdateDetails": "ดูหรือแก้ไขข้อมูล",
+    "showYourOptions": "แสดงตัวเลือกของท่าน",
+    "totalPrice": "ราคารวม: ",
+    "getABetterRoomForJust": "รับห้องพักที่ดีกว่านี้เพียง "
   }
 }

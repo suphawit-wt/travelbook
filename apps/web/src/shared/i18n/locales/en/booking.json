@@ -196,5 +196,29 @@
     },
 
     "cta": "Complete booking"
+  },
+
+  "confirmation": {
+    "title": "Your booking in {{destination}} is confirmed.",
+    "description": "Your booking is confirmed. You will receive a confirmation email shortly.",
+    "email": "Your confirmation is on its way to {{email}}",
+    "payment": "Your payment will be handled by the property.",
+    "priceDetails": "View price details",
+    "print": "Print full version",
+    "saveToPhone": "Save confirmation to phone",
+    "bookingSumsmary": "Your booking summary",
+    "confirmed": "Confirmed",
+    "confirmationNumber": "Confirmation number: {{number}}",
+    "pinCode": "PIN Code: {{code}}",
+    "manageYourTripWithTheApp": "Manage your trip with the app",
+    "makeChangesOnTheGo": "Make changes on the go",
+    "chatWithYourPropertyAnytime": "Chat with your property anytime",
+    "getPaperlessConfirmation": "Get paperless confirmation",
+    "getTheApp": "Get the app",
+    "youveUnlockedADealByBookingWithUs": "You've unlocked a deal by booking with us",
+    "viewOrUpdateDetails": "View or update details",
+    "showYourOptions": "Show your options",
+    "totalPrice": "Total price: ",
+    "getABetterRoomForJust": "Get a better room for just "
   }
 }
