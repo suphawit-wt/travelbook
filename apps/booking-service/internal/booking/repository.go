@@ -42,6 +42,32 @@ type RoomBooking struct {
 	Quantity uint8
 }
 
+// ConfirmationDetails represents the details of a booking confirmation details.
+type ConfirmationDetails struct {
+	Property PropertyConfirmInfo
+	Booking  Confirm
+}
+
+// PropertyConfirmInfo represents the details of a property confirmation info.
+type PropertyConfirmInfo struct {
+	ID    uuid.UUID
+	Name  string
+	Area  string
+	Image *string
+}
+
+// Confirm represents the details of a booking confirmation.
+type Confirm struct {
+	ContactEmail       string        `json:"contactEmail"`
+	CheckIn            string        `json:"checkIn"`
+	CheckOut           string        `json:"checkOut"`
+	Nights             uint8         `json:"nights"`
+	Rooms              []RoomBooking `json:"rooms"`
+	TotalPrice         float64       `json:"totalPrice"`
+	ConfirmationNumber string        `json:"confirmationNumber"`
+	PinCode            string        `json:"pinCode"`
+}
+
 // CreateBooking represents the details of a Booking creation details.
 type CreateBooking struct {
 	PropertyID   uuid.UUID
@@ -151,6 +177,10 @@ type Repository interface {
 		id uuid.UUID,
 		currencyCode string,
 	) (booking *Info, found bool, err error)
+	GetConfirmationDetails(
+		ctx context.Context,
+		bookingID uuid.UUID, currencyCode string,
+	) (res *ConfirmationDetails, found bool, err error)
 	GetTotalPriceCents(ctx context.Context, bookingID uuid.UUID) (int64, error)
 	Create(
 		ctx context.Context,
@@ -254,6 +284,74 @@ func (r *repositoryDB) GetByID(
 	info.FreeCancelDate = freeCancel.Format("2006-01-02")
 
 	return &info, true, nil
+}
+
+func (r *repositoryDB) GetConfirmationDetails(
+	ctx context.Context,
+	bookingID uuid.UUID, currencyCode string,
+) (*ConfirmationDetails, bool, error) {
+	query := `
+	SELECT
+		property_id,
+		contact_email,
+		check_in,
+		check_out,
+		total_price_usd,
+		confirmation_code,
+		access_code
+	FROM bookings
+	WHERE id = $1
+	AND status = 'confirmed'
+	`
+
+	res := ConfirmationDetails{}
+
+	var checkIn time.Time
+	var checkOut time.Time
+
+	if err := r.db.QueryRow(ctx, query, bookingID).Scan(
+		&res.Property.ID,
+		&res.Booking.ContactEmail,
+		&checkIn,
+		&checkOut,
+		&res.Booking.TotalPrice,
+		&res.Booking.ConfirmationNumber,
+		&res.Booking.PinCode,
+	); err != nil {
+		return nil, false, err
+	}
+
+	res.Booking.CheckIn = checkIn.Format("2006-01-02")
+	res.Booking.CheckOut = checkOut.Format("2006-01-02")
+
+	res.Booking.Nights = uint8(checkOut.Sub(checkIn).Hours() / 24)
+
+	roomQuery := `
+	SELECT
+		room_type_id,
+		room_name,
+		quantity
+	FROM booking_rooms
+	WHERE booking_id = $1
+	`
+
+	rows, err := r.db.Query(ctx, roomQuery, bookingID)
+	if err != nil {
+		return nil, false, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var room RoomBooking
+
+		if err := rows.Scan(&room.RoomID, &room.Name, &room.Quantity); err != nil {
+			return nil, false, err
+		}
+
+		res.Booking.Rooms = append(res.Booking.Rooms, room)
+	}
+
+	return &res, true, nil
 }
 
 func (r *repositoryDB) GetTotalPriceCents(
