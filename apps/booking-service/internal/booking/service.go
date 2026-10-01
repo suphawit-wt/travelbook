@@ -54,6 +54,11 @@ type Service interface {
 		id uuid.UUID,
 		currencyCode string,
 	) (*PropertyInfo, *Info, error)
+	GetBookingConfirmationDetails(
+		ctx context.Context,
+		bookingID uuid.UUID,
+		currencyCode string,
+	) (*ConfirmationDetails, error)
 	GetTotalPriceCents(ctx context.Context, bookingID uuid.UUID) (int64, error)
 	CreateBooking(
 		ctx context.Context,
@@ -154,6 +159,61 @@ func (s *service) GetBookingByID(
 
 	logger.Debug("successfully retrieved booking and property info")
 	return &propertyInfo, booking, nil
+}
+
+func (s *service) GetBookingConfirmationDetails(
+	ctx context.Context,
+	bookingID uuid.UUID,
+	currencyCode string,
+) (*ConfirmationDetails, error) {
+	logger := s.logger.Named("get_booking_confirmation_details").With(
+		zap.Stringer("booking_id", bookingID),
+		zap.String("currency_code", currencyCode),
+	)
+
+	res, found, err := s.bookingRepo.GetConfirmationDetails(
+		ctx,
+		bookingID,
+		currencyCode,
+	)
+	if err != nil {
+		logger.Error("failed to fetch booking confirmation details from repository", zap.Error(err))
+		return nil, err
+	}
+
+	if !found {
+		logger.Warn("booking confirmation details not found")
+		return nil, errs.NewNotFoundError("Booking not found.")
+	}
+
+	propertyLogger := logger.With(zap.Stringer("property_id", res.Property.ID))
+
+	property, err := s.propertyClient.GetPropertyByID(ctx, res.Property.ID)
+	if err != nil {
+		propertyLogger.Error("failed to fetch property details", zap.Error(err))
+		return nil, err
+	}
+
+	res.Property.Name = property.Name
+	res.Property.Area = property.Area
+	res.Property.Image = property.CoverImageURL
+
+	exchangeResponse, err := s.propertyClient.GetExchangeRate(ctx, currencyCode)
+	if err != nil {
+		logger.Error("failed to fetch exchange rate", zap.Error(err))
+		return nil, err
+	}
+
+	rateDec := decimal.NewFromFloat(exchangeResponse.ExchangeRate)
+	totalUSD := decimal.NewFromFloat(res.Booking.TotalPrice)
+
+	totalLocal := totalUSD.
+		Mul(rateDec).
+		Round(int32(exchangeResponse.Precision))
+
+	res.Booking.TotalPrice, _ = totalLocal.Float64()
+
+	return res, nil
 }
 
 func (s *service) GetTotalPriceCents(
