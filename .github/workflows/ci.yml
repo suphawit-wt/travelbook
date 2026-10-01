@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+# Cancel redundant in-flight workflow runs on pull requests
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint-go:
+    name: Go Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Golangci-Lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14.0
+          args: --timeout=10m --enable gocognit
+          skip-cache: true
+
+      - name: Verify Go Module Tidiness
+        run: |
+          go mod tidy
+          git diff --exit-code || (echo "go.mod or go.sum is dirty. Run 'go mod tidy' locally." && exit 1)
+
+  lint-web:
+    name: Next.js Linting
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 12
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'pnpm'
+          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: ESLint Check
+        run: pnpm run lint
+
+      - name: Prettier Format Check
+        run: pnpm exec prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}"
+
+  test:
+    name: Unit Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Run Tests with Race Detector
+        run: |
+          go test -v -race -count=1 -coverprofile=coverage.out ./...
+
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: code-coverage
+          path: coverage.out
+          retention-days: 7
+
+  coverage:
+    name: Coverage Threshold Check
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Download Coverage Artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: code-coverage
+
+      - name: Display Coverage Summary
+        run: |
+          go tool cover -func=coverage.out
