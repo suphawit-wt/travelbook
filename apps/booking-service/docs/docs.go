@@ -156,6 +156,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/bookings/{id}/confirmation": {
+            "get": {
+                "description": "Retrieve booking confirmation details by booking ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Get Booking confirmation details by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Booking ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/booking.ApiResponseWithData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/booking.GetBookingConfirmationDetailsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/booking.ApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/booking.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/bookings/{id}/details": {
             "patch": {
                 "description": "Partially update booking details by booking ID",
@@ -311,6 +367,17 @@ const docTemplate = `{
                 }
             }
         },
+        "booking.GetBookingConfirmationDetailsResponse": {
+            "type": "object",
+            "properties": {
+                "booking": {
+                    "$ref": "#/definitions/booking.bookingConfirmResponse"
+                },
+                "property": {
+                    "$ref": "#/definitions/booking.propertyBookingConfirmResponse"
+                }
+            }
+        },
         "booking.UpdateBookingRequest": {
             "type": "object",
             "required": [
@@ -346,6 +413,38 @@ const docTemplate = `{
                 "specialRequests": {
                     "type": "string",
                     "maxLength": 1000
+                }
+            }
+        },
+        "booking.bookingConfirmResponse": {
+            "type": "object",
+            "properties": {
+                "checkIn": {
+                    "type": "string"
+                },
+                "checkOut": {
+                    "type": "string"
+                },
+                "confirmationNumber": {
+                    "type": "string"
+                },
+                "contactEmail": {
+                    "type": "string"
+                },
+                "nights": {
+                    "type": "integer"
+                },
+                "pinCode": {
+                    "type": "string"
+                },
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/booking.roomBookingInfoResponse"
+                    }
+                },
+                "totalPrice": {
+                    "type": "number"
                 }
             }
         },
@@ -408,6 +507,20 @@ const docTemplate = `{
                 },
                 "children": {
                     "type": "integer"
+                }
+            }
+        },
+        "booking.propertyBookingConfirmResponse": {
+            "type": "object",
+            "properties": {
+                "area": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

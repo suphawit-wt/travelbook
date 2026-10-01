@@ -87,6 +87,61 @@ func (r *GetBookingByIDResponse) FromDomain(
 	}
 }
 
+// GetBookingConfirmationDetailsResponse defines the structure of the response for the GetBookingConfirmationDetails endpoint.
+type GetBookingConfirmationDetailsResponse struct {
+	Property propertyBookingConfirmResponse `json:"property"`
+	Booking  bookingConfirmResponse         `json:"booking"`
+}
+
+type propertyBookingConfirmResponse struct {
+	Name  string  `json:"name"`
+	Area  string  `json:"area"`
+	Image *string `json:"image"`
+}
+
+type bookingConfirmResponse struct {
+	ContactEmail       string                    `json:"contactEmail"`
+	CheckIn            string                    `json:"checkIn"`
+	CheckOut           string                    `json:"checkOut"`
+	Nights             uint8                     `json:"nights"`
+	Rooms              []roomBookingInfoResponse `json:"rooms"`
+	TotalPrice         float64                   `json:"totalPrice"`
+	ConfirmationNumber string                    `json:"confirmationNumber"`
+	PinCode            string                    `json:"pinCode"`
+}
+
+// FromDomain maps domain entities to the GetBookingByIDResponse structure.
+func (r *GetBookingConfirmationDetailsResponse) FromDomain(
+	m *ConfirmationDetails,
+) *GetBookingConfirmationDetailsResponse {
+	return &GetBookingConfirmationDetailsResponse{
+		Property: propertyBookingConfirmResponse{
+			Name:  m.Property.Name,
+			Area:  m.Property.Area,
+			Image: m.Property.Image,
+		},
+		Booking: bookingConfirmResponse{
+			ContactEmail: m.Booking.ContactEmail,
+			CheckIn:      m.Booking.CheckIn,
+			CheckOut:     m.Booking.CheckOut,
+			Nights:       m.Booking.Nights,
+			Rooms: func() []roomBookingInfoResponse {
+				rooms := make([]roomBookingInfoResponse, len(m.Booking.Rooms))
+				for i, r := range m.Booking.Rooms {
+					rooms[i] = roomBookingInfoResponse{
+						Name:     r.Name,
+						Quantity: r.Quantity,
+					}
+				}
+				return rooms
+			}(),
+			TotalPrice:         m.Booking.TotalPrice,
+			ConfirmationNumber: m.Booking.ConfirmationNumber,
+			PinCode:            m.Booking.PinCode,
+		},
+	}
+}
+
 // GetTotalPriceCentsResponse defines the structure of the response for the GetTotalPriceCents endpoint.
 type GetTotalPriceCentsResponse struct {
 	TotalPriceCents int64 `json:"totalPriceCents"`

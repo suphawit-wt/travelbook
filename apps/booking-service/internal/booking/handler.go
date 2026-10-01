@@ -21,6 +21,7 @@ import (
 // Handler defines HTTP request handler methods for bookings.
 type Handler interface {
 	GetBookingByID(c *gin.Context)
+	GetBookingConfirmationDetails(c *gin.Context)
 	GetTotalPriceCents(c *gin.Context)
 	CreateBooking(c *gin.Context)
 	UpdateBookingDetails(c *gin.Context)
@@ -88,6 +89,57 @@ func (h *handler) GetBookingByID(c *gin.Context) {
 		Status:     api.StatusSuccess,
 		StatusCode: http.StatusOK,
 		Data:       bookingResponse.FromDomain(property, booking),
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// GetBookingConfirmationDetails godoc
+//
+//	@Summary		Get Booking confirmation details by ID
+//	@Description	Retrieve booking confirmation details by booking ID
+//	@Tags			Bookings
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Booking ID"
+//	@Success		200	{object}	ApiResponseWithData{data=GetBookingConfirmationDetailsResponse}
+//	@Failure		400	{object}	ApiResponse
+//	@Failure		500	{object}	ApiResponse
+//	@Router			/v1/bookings/{id}/confirmation [get]
+func (h *handler) GetBookingConfirmationDetails(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
+
+	var uri URI
+
+	if err := c.ShouldBindUri(&uri); err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid URI format."))
+		return
+	}
+
+	bookingID, err := uuid.Parse(uri.ID)
+	if err != nil {
+		errs.GinHandleError(c, errs.NewBadRequestError("Invalid booking ID format."))
+		return
+	}
+
+	currencyCode := c.GetHeader("X-Currency")
+	if currencyCode == "" {
+		currencyCode = constants.DefaultCurrency
+	}
+
+	booking, err := h.bookingSvc.GetBookingConfirmationDetails(ctx, bookingID, currencyCode)
+	if err != nil {
+		errs.GinHandleError(c, err)
+		return
+	}
+
+	var bookingResponse GetBookingConfirmationDetailsResponse
+
+	res := ApiResponseWithData[*GetBookingConfirmationDetailsResponse]{
+		Status:     api.StatusSuccess,
+		StatusCode: http.StatusOK,
+		Data:       bookingResponse.FromDomain(booking),
 	}
 
 	c.JSON(http.StatusOK, res)

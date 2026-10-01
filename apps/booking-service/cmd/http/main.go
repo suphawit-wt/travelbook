@@ -162,6 +162,7 @@ func registerRoutes(router *gin.Engine, cfg *config.AppConfig, bookingHandler bo
 	}
 
 	bookingsV1.GET(":id", bookingHandler.GetBookingByID)
+	bookingsV1.GET(":id/confirmation", bookingHandler.GetBookingConfirmationDetails)
 	bookingsV1.POST("", bookingHandler.CreateBooking)
 	bookingsV1.PATCH(":id/details", bookingHandler.UpdateBookingDetails)
 

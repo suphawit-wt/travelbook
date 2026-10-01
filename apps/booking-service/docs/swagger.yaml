@@ -58,6 +58,13 @@ definitions:
       property:
         $ref: '#/definitions/booking.propertyInfoResponse'
     type: object
+  booking.GetBookingConfirmationDetailsResponse:
+    properties:
+      booking:
+        $ref: '#/definitions/booking.bookingConfirmResponse'
+      property:
+        $ref: '#/definitions/booking.propertyBookingConfirmResponse'
+    type: object
   booking.UpdateBookingRequest:
     properties:
       countryCode:
@@ -85,6 +92,27 @@ definitions:
     - firstName
     - lastName
     - phone
+    type: object
+  booking.bookingConfirmResponse:
+    properties:
+      checkIn:
+        type: string
+      checkOut:
+        type: string
+      confirmationNumber:
+        type: string
+      contactEmail:
+        type: string
+      nights:
+        type: integer
+      pinCode:
+        type: string
+      rooms:
+        items:
+          $ref: '#/definitions/booking.roomBookingInfoResponse'
+        type: array
+      totalPrice:
+        type: number
     type: object
   booking.bookingInfoResponse:
     properties:
@@ -126,6 +154,15 @@ definitions:
         type: integer
       children:
         type: integer
+    type: object
+  booking.propertyBookingConfirmResponse:
+    properties:
+      area:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
     type: object
   booking.propertyInfoResponse:
     properties:
@@ -261,6 +298,40 @@ paths:
           schema:
             $ref: '#/definitions/booking.ApiResponse'
       summary: Get Booking by ID
+      tags:
+      - Bookings
+  /v1/bookings/{id}/confirmation:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve booking confirmation details by booking ID
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/booking.ApiResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/booking.GetBookingConfirmationDetailsResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/booking.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/booking.ApiResponse'
+      summary: Get Booking confirmation details by ID
       tags:
       - Bookings
   /v1/bookings/{id}/details:
