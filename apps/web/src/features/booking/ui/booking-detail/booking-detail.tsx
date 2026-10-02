@@ -95,7 +95,7 @@ export const BookingDetail = () => {
                   i18nKey="user.authPrompt"
                   t={t}
                   components={[
-                    // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content -- for translate
+                    // eslint-disable-next-line react/jsx-key -- for translate
                     <Link
                       $color="blue"
                       $size="sm"

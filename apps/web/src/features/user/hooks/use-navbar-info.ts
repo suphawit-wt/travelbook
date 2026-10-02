@@ -27,7 +27,6 @@ export const useNavbarInfo = () => {
         const res = await userService.getNavbarInfo();
         setNavbarInfo(res);
       } catch (err) {
-        // eslint-disable-next-line no-console -- for test
         console.error('Navbar info error', err);
       }
     };

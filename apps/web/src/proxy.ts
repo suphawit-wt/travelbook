@@ -21,7 +21,7 @@ const middlewares = [withI18n, withSearchDefaults, withAuth];
  * @param req - The incoming Next.js request object.
  * @returns A redirect response to abort execution, or the modified response to proceed.
  */
-export async function middleware(req: NextRequest): Promise<NextResponse> {
+export async function proxy(req: NextRequest): Promise<NextResponse> {
   let response: NextResponse | undefined;
 
   for (const handler of middlewares) {

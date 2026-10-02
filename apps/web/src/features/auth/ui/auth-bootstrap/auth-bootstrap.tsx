@@ -24,7 +24,6 @@ export const AuthBootstrap: FC<AuthBootstrapProps> = ({ hasAuthSession }) => {
         const token = await authService.userRefreshToken();
         dispatch(setAccessToken(token));
       } catch (err) {
-        // eslint-disable-next-line no-console -- for test
         console.error('Token refresh error', err);
       }
     };

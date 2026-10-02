@@ -158,7 +158,6 @@ export const PassportForm: FC<PassportFormProps> = ({
       setValue('issueCountry', null);
       setValue('expireDate', null);
     } catch (error: unknown) {
-      // eslint-disable-next-line no-console -- for debug
       console.error(error);
     }
   };
@@ -317,7 +316,7 @@ export const PassportForm: FC<PassportFormProps> = ({
                     t={t}
                     values={{ appName: APP.name }}
                     components={[
-                      // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content -- for translate
+                      // eslint-disable-next-line react/jsx-key -- for translate
                       <Link
                         $color="blue"
                         $size="sm"
@@ -363,44 +362,41 @@ export const PassportForm: FC<PassportFormProps> = ({
             </div>
           )}
         </AccountInputLabelAndInfo>
-        {
-          // eslint-disable-next-line no-nested-ternary -- for render button ui
-          getValues('passportNumber') &&
-          getValues('expireDate') &&
-          getValues('issueCountry') &&
-          getValues('firstName') &&
-          getValues('lastName') ? (
-            <Button
-              $color="blue"
-              $size="sm"
-              $variant="ghost"
-              disabled={editActive !== 'none'}
-              type="button"
-              onClick={deletePassportDetails}
-            >
-              {t('actions.delete', { ns: 'common' })}
-            </Button>
-          ) : editActive === 'passport' ? (
-            <Button
-              $color="blue"
-              $size="sm"
-              $variant="ghost"
-              onClick={() => setEditActive('none')}
-            >
-              {t('actions.cancel', { ns: 'common' })}
-            </Button>
-          ) : (
-            <Button
-              $color="blue"
-              $size="sm"
-              $variant="ghost"
-              disabled={editActive !== 'none'}
-              onClick={() => setEditActive('passport')}
-            >
-              {t('personalDetails.passport.add')}
-            </Button>
-          )
-        }
+        {getValues('passportNumber') &&
+        getValues('expireDate') &&
+        getValues('issueCountry') &&
+        getValues('firstName') &&
+        getValues('lastName') ? (
+          <Button
+            $color="blue"
+            $size="sm"
+            $variant="ghost"
+            disabled={editActive !== 'none'}
+            type="button"
+            onClick={deletePassportDetails}
+          >
+            {t('actions.delete', { ns: 'common' })}
+          </Button>
+        ) : editActive === 'passport' ? (
+          <Button
+            $color="blue"
+            $size="sm"
+            $variant="ghost"
+            onClick={() => setEditActive('none')}
+          >
+            {t('actions.cancel', { ns: 'common' })}
+          </Button>
+        ) : (
+          <Button
+            $color="blue"
+            $size="sm"
+            $variant="ghost"
+            disabled={editActive !== 'none'}
+            onClick={() => setEditActive('passport')}
+          >
+            {t('personalDetails.passport.add')}
+          </Button>
+        )}
       </AccountInputItemGroup>
       {isEditing ? (
         <SaveButtonWrapper>

@@ -12,7 +12,6 @@ import { i18nextInitOptions, languages } from './settings';
 
 const runsOnServerSide = typeof window === 'undefined';
 
-// eslint-disable-next-line import/no-named-as-default-member -- this is for i18next
 void i18next
   .use(initReactI18next)
   .use(LanguageDetector)
@@ -32,5 +31,4 @@ i18next.services.formatter?.add('lowercase', (value: string) => {
   return value.toLowerCase();
 });
 
-// eslint-disable-next-line import/no-default-export -- this is for i18next
 export default i18next;

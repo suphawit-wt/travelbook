@@ -10,7 +10,6 @@ import { ReviewInfo } from '@/entities/reviews/ui/review-info';
 import { selectCurrency } from '@/features/user/store/user-preferences.selectors';
 import { useAppSelector } from '@/shared/hooks/store';
 import { useTranslation } from '@/shared/i18n/hooks/use-translation';
-import type { CountryCode } from '@/shared/types/country';
 import {
   ButtonLink,
   Card,

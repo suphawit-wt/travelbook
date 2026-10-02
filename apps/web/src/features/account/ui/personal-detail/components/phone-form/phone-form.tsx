@@ -7,7 +7,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronDown } from 'lucide-react';
 import { type FC, useMemo } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import PhoneInput, {
   type Country,
@@ -69,7 +69,6 @@ export const PhoneForm: FC<PhoneFormProps> = ({
     handleSubmit,
     setError,
     getValues,
-    watch,
     formState: { errors },
   } = useForm<PhoneFormValues>({
     resolver: zodResolver(updatePhoneSchema),
@@ -79,7 +78,7 @@ export const PhoneForm: FC<PhoneFormProps> = ({
     },
   });
 
-  const selectedCountry = watch('phoneCountry');
+  const selectedCountry = useWatch({ control, name: 'phoneCountry' });
   const currentCountryLabel = useMemo(() => {
     const found = phoneCountryOptions.find(
       (opt) => opt.value === selectedCountry.toLowerCase(),

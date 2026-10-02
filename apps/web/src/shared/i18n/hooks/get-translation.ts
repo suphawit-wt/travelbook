@@ -16,7 +16,7 @@ export async function getTranslation(
   ns?: Namespace,
   options?: UseTranslationOptions<KeyPrefix<Namespace>>,
 ) {
-  const headerList = headers();
+  const headerList = await headers();
   const lng = headerList.get(i18nHeader);
 
   if (lng && i18next.resolvedLanguage !== lng) {
@@ -30,7 +30,7 @@ export async function getTranslation(
   return {
     t: i18next.getFixedT(
       lng ?? i18next.resolvedLanguage ?? '',
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- for i18next
+
       Array.isArray(ns) ? ns[0] : ns,
       options?.keyPrefix as string | undefined,
     ),

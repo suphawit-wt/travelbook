@@ -96,7 +96,6 @@ export const calculateNights = (startDate: string, endDate: string): number => {
   const end = new Date(endDate);
 
   if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    // eslint-disable-next-line no-console -- for debug
     console.error('Invalid date format provided to calculateNights');
     return -1;
   }

@@ -7,6 +7,7 @@
 import 'swiper/css/pagination';
 import 'swiper/css/thumbs';
 
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { ArrowLeft, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigation, Pagination, Thumbs } from 'swiper/modules';
@@ -87,9 +88,7 @@ export const PhotoGallery: FC<PhotoGalleryProps> = ({
   }, [activeIndex]);
 
   const displayPhotos = images.slice(0, 8);
-
   const hasMorePhotos = images.length >= 9;
-
   const seeMorePhotos = images.length - 8;
 
   const liveThumbs = useMemo(
@@ -127,21 +126,17 @@ export const PhotoGallery: FC<PhotoGalleryProps> = ({
     return () => cancelAnimationFrame(id);
   }, [imageViewerMode, pendingIndex, liveThumbs]);
 
-  useEffect(() => {
-    if (!modalOpen) {
+  const handleModalOpenChange = (open: boolean) => {
+    setModalOpen(open);
+    if (!open) {
       setImageViewerMode(false);
     }
-  }, [modalOpen]);
-
-  useEffect(() => {
-    if (!imageViewerMode) {
-      setThumbsSwiper(null);
-    }
-  }, [imageViewerMode]);
+  };
 
   return (
-    <Dialog.Root open={modalOpen} onOpenChange={setModalOpen}>
+    <Dialog.Root open={modalOpen} onOpenChange={handleModalOpenChange}>
       <GalleryGroup>
+        {/* ... component UI markup remains exactly the same ... */}
         <GalleryGroupTop>
           <GalleryTopLeft>
             <Dialog.Trigger asChild>
@@ -221,6 +216,9 @@ export const PhotoGallery: FC<PhotoGalleryProps> = ({
 
       <Dialog.Portal>
         <Dialog.Overlay />
+        <VisuallyHidden>
+          <Dialog.Title>Gallery Image Viewer Mode</Dialog.Title>
+        </VisuallyHidden>
         <Dialog.Content
           style={{
             overflow: 'hidden',
@@ -286,6 +284,9 @@ export const PhotoGallery: FC<PhotoGalleryProps> = ({
                     onSwiper={(swiper) => {
                       swiperRef.current = swiper;
                     }}
+                    onDestroy={() => {
+                      swiperRef.current = null;
+                    }}
                   >
                     {images.map((img, i) => (
                       <Swiper.Slide key={img.id}>
@@ -310,6 +311,9 @@ export const PhotoGallery: FC<PhotoGalleryProps> = ({
                     spaceBetween={10}
                     style={{ padding: '40px 70px 10px 70px' }}
                     onSwiper={setThumbsSwiper}
+                    onDestroy={() => {
+                      setThumbsSwiper(null);
+                    }}
                   >
                     {images.map((img) => (
                       <Swiper.Slide key={img.id}>

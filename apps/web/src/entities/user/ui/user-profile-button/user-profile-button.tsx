@@ -93,7 +93,6 @@ export const UserProfileButton: FC = () => {
       dispatch(clearAuth());
       router.refresh();
     } catch (err) {
-      // eslint-disable-next-line no-console -- for debug
       console.error('Signout failed', err);
     }
   };

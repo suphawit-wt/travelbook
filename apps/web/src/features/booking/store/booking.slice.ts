@@ -56,6 +56,7 @@ const bookingSlice = createSlice({
       const { roomTypeId, ratePlanId, quantity, price } = action.payload;
 
       if (quantity === 0) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- for remove room out of list
         const { [ratePlanId]: _, ...remainingRooms } = state.selectedRooms;
         state.selectedRooms = remainingRooms;
         return;

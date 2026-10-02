@@ -13,7 +13,6 @@ import type { FC, PropsWithChildren } from 'react';
 export const StyledComponentsRegistry: FC<PropsWithChildren> = ({
   children,
 }) => {
-  // eslint-disable-next-line react/hook-use-state -- `useState` is used to maintain a single instance of ServerStyleSheet without using the setter
   const [styledComponentsStyleSheet] = useState(() => new ServerStyleSheet());
 
   useServerInsertedHTML(() => {

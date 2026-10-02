@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Trans } from 'react-i18next';
 import PhoneInput, { type Country } from 'react-phone-number-input/input';
 import { z } from 'zod';
@@ -102,7 +102,6 @@ export const BookingDetailsForm = ({
     },
 
     onError: (err: unknown) => {
-      // eslint-disable-next-line no-console -- for debug
       console.error(err);
     },
   });
@@ -160,7 +159,6 @@ export const BookingDetailsForm = ({
     control,
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<BookingDetailsFormValues>({
     defaultValues: {
@@ -176,7 +174,7 @@ export const BookingDetailsForm = ({
     resolver: zodResolver(bookingDetailsSchema),
   });
 
-  const selectedCountry = watch('phoneCountry');
+  const selectedCountry = useWatch({ control, name: 'phoneCountry' });
   const currentCountryLabel = useMemo(() => {
     const found = phoneCountryOptions.find(
       (opt) => opt.value === selectedCountry.toLowerCase(),

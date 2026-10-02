@@ -50,6 +50,7 @@ export const DatePicker: FC<DatePickerProps> = ({
   }, [value, placeholder, t, currentLanguage]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- for client render
     setMounted(true);
   }, []);
 

@@ -10,6 +10,7 @@ import { ThemeProvider } from 'next-themes';
 import { AuthBootstrap } from '@/features/auth/ui/auth-bootstrap/auth-bootstrap';
 import { APP } from '@/shared/constants';
 import {
+  CookiesProvider,
   GoogleAuthProvider,
   ReactQueryProvider,
   StoreProvider,
@@ -61,36 +62,39 @@ export const metadata: Metadata = {
 };
 
 interface RootLayoutProps {
-  params: {
+  params: Promise<{
     lng: string;
-  };
+  }>;
 }
 
-const RootLayout: FC<PropsWithChildren<RootLayoutProps>> = ({
+const RootLayout: FC<PropsWithChildren<RootLayoutProps>> = async ({
   params,
   children,
 }) => {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const hasAuthSession = cookieStore.get('user_refresh_token');
+  const { lng } = await params;
 
   return (
-    <html suppressHydrationWarning dir={dir(params.lng)} lang={params.lng}>
+    <html suppressHydrationWarning dir={dir(lng)} lang={lng}>
       <body>
-        <StoreProvider>
-          <ReactQueryProvider>
-            <GoogleAuthProvider>
-              <AuthBootstrap hasAuthSession={Boolean(hasAuthSession)} />
-              <StyledComponentsRegistry>
-                <GlobalStyles />
-                <ThemeProvider enableSystem={false}>
-                  <TooltipProvider delayDuration={500} skipDelayDuration={0}>
-                    {children}
-                  </TooltipProvider>
-                </ThemeProvider>
-              </StyledComponentsRegistry>
-            </GoogleAuthProvider>
-          </ReactQueryProvider>
-        </StoreProvider>
+        <CookiesProvider>
+          <StoreProvider>
+            <ReactQueryProvider>
+              <GoogleAuthProvider>
+                <AuthBootstrap hasAuthSession={Boolean(hasAuthSession)} />
+                <StyledComponentsRegistry>
+                  <GlobalStyles />
+                  <ThemeProvider enableSystem={false}>
+                    <TooltipProvider delayDuration={500} skipDelayDuration={0}>
+                      {children}
+                    </TooltipProvider>
+                  </ThemeProvider>
+                </StyledComponentsRegistry>
+              </GoogleAuthProvider>
+            </ReactQueryProvider>
+          </StoreProvider>
+        </CookiesProvider>
       </body>
     </html>
   );

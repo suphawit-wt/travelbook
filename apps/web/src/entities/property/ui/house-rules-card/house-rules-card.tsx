@@ -87,7 +87,7 @@ export const HouseRulesCard: FC<HouseRulesCardProps> = ({
               i18nKey="houseRules.cancellation.description"
               t={t}
               components={[
-                // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content -- for translate
+                // eslint-disable-next-line react/jsx-key -- for translate
                 <Link
                   $enableHoverColor
                   $color="blue"

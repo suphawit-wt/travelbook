@@ -9,7 +9,7 @@ import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import Countdown from 'react-countdown';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Trans } from 'react-i18next';
 import { z } from 'zod';
 
@@ -52,6 +52,7 @@ export const AuthFlow = () => {
   const [formPosition, setFormPosition] = useState('0');
   const [otpCountDown, setOTPCountDown] = useState<number>(0);
   const [verifiedMessage, setVerifiedMessage] = useState<string>('');
+  const now = new Date().getTime();
 
   const formStepSlide = (slideTo: number) => {
     switch (slideTo) {
@@ -111,13 +112,13 @@ export const AuthFlow = () => {
     resolver: zodResolver(verifyEmailSchema),
   });
 
-  const otpWatch = verifyEmailForm.watch('otp');
+  const otpWatch = useWatch({ control: verifyEmailForm.control, name: 'otp' });
 
   const signInSubmit = async (data: SignInFormValues) => {
     try {
       await authService.userSignIn(data.email);
 
-      setOTPCountDown(Date.now() + otpResendTime);
+      setOTPCountDown(now + otpResendTime);
       formStepSlide(2);
     } catch (error: unknown) {
       if (error instanceof UnexpectedError) {
@@ -173,7 +174,7 @@ export const AuthFlow = () => {
     try {
       await authService.userSignIn(signInForm.getValues('email'));
 
-      setOTPCountDown(Date.now() + otpResendTime);
+      setOTPCountDown(now + otpResendTime);
       verifyEmailForm.resetField('otp');
     } catch (error: unknown) {
       if (error instanceof UnexpectedError) {

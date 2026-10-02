@@ -20,6 +20,7 @@ export const PropertyType: FC<PropertyTypeProps> = ({ propertyTypes }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- for client render
     setMounted(true);
   }, []);
 

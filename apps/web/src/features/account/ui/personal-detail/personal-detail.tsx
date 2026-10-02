@@ -112,7 +112,6 @@ export const PersonalDetail: FC = () => {
         const data = await userService.getUserInfo();
         setUser(data);
       } catch (error) {
-        // eslint-disable-next-line no-console -- for debug
         console.error('Failed to fetch user info:', error);
       }
     };

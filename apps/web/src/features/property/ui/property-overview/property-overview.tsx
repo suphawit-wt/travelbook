@@ -158,7 +158,7 @@ export const PropertyOverview: FC<PropertyOverviewProps> = ({
                   t={t}
                   values={{ hotelName: propertyDetails?.name }}
                   components={[
-                    // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content -- for translate
+                    // eslint-disable-next-line react/jsx-key -- for translate
                     <Link
                       $color="blue"
                       $underline="always"

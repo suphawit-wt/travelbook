@@ -28,7 +28,6 @@ export const InputOTP = forwardRef<HTMLInputElement, InputOTPProps>(
               <SlotGroup>
                 {slots.map((slot, index) => (
                   <Slot
-                    // eslint-disable-next-line react/no-array-index-key -- for otp slot
                     key={index}
                     $isActive={slot.isActive}
                     $isError={$isError}

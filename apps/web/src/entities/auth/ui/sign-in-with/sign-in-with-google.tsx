@@ -31,7 +31,6 @@ export const SignInWithGoogleButton = () => {
           dispatch(setAccessToken(accessToken));
           router.replace(next ?? '/');
         } catch (error) {
-          // eslint-disable-next-line no-console -- Console is used here for debugging purposes in development
           console.error('Google sign-in failed:', error);
         }
       };

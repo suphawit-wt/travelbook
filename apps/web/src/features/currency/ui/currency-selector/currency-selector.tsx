@@ -25,6 +25,7 @@ export const CurrencySelector: FC<CurrencySelectorProps> = (props) => {
   const { t } = useTranslation('common');
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- for client render
     setMounted(true);
   }, []);
 

@@ -60,7 +60,6 @@ export const AvatarUpload: FC<AvatarUploadProps> = ({ disabled = false }) => {
       try {
         await filePondRef.current.processFile();
       } catch (err) {
-        // eslint-disable-next-line no-console -- for debug
         console.error('FilePond processing error:', err);
       }
     }
@@ -173,7 +172,7 @@ export const AvatarUpload: FC<AvatarUploadProps> = ({ disabled = false }) => {
                           dispatch(setAvatar(avatarUrl));
                         } catch (err) {
                           error('Upload failed');
-                          // eslint-disable-next-line no-console -- for debug
+
                           console.error(err);
                         }
                       };

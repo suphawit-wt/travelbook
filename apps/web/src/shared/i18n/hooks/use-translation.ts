@@ -31,21 +31,23 @@ export function useTranslation(
 
   if (runsOnServerSide && i18next.resolvedLanguage !== lng) {
     i18next.changeLanguage(lng).catch((err: unknown) => {
-      // eslint-disable-next-line no-console -- Console is used here for debugging purposes in development
       console.error('Failed to change language:', err);
     });
   } else {
-    const [activeLng, setActiveLng] = useState(i18next.resolvedLanguage);
+    const [, setTick] = useState(0);
 
     useEffect(() => {
-      if (activeLng === i18next.resolvedLanguage) return;
-      setActiveLng(i18next.resolvedLanguage);
-    }, [activeLng]);
+      const handleLanguageChanged = () => {
+        setTick((t) => t + 1); // Safely force a re-render when language changes externally
+      };
+
+      i18next.on('languageChanged', handleLanguageChanged);
+      return () => i18next.off('languageChanged', handleLanguageChanged);
+    }, []);
 
     useEffect(() => {
       if (!lng || i18next.resolvedLanguage === lng) return;
       i18next.changeLanguage(lng).catch((err: unknown) => {
-        // eslint-disable-next-line no-console -- Console is used here for debugging purposes in development
         console.error('Failed to change language:', err);
       });
     }, [lng]);

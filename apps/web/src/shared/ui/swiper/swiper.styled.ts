@@ -54,6 +54,16 @@ export const Root = styled(Swiper)`
     left: -16px;
   }
 
+  .swiper-button-next > svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .swiper-button-prev > svg {
+    width: 18px;
+    height: 18px;
+  }
+
   .swiper-button-disabled {
     display: none;
   }

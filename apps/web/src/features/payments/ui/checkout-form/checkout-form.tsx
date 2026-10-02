@@ -48,7 +48,6 @@ export const CheckoutForm: FC<CheckoutFormProps> = ({ propertyName }) => {
       },
     });
 
-    // eslint-disable-next-line no-console -- for debug
     console.error(error.message);
   };
 
@@ -91,7 +90,7 @@ export const CheckoutForm: FC<CheckoutFormProps> = ({ propertyName }) => {
               t={t}
               values={{ appName: APP.name }}
               components={[
-                // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content -- for translate
+                // eslint-disable-next-line react/jsx-key -- for translate
                 <Link
                   $enableHoverColor
                   $color="blue"
@@ -110,21 +109,21 @@ export const CheckoutForm: FC<CheckoutFormProps> = ({ propertyName }) => {
               t={t}
               values={{ hotelName: propertyName }}
               components={[
-                // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content -- for translate
+                // eslint-disable-next-line react/jsx-key -- for translate
                 <Link
                   $enableHoverColor
                   $color="blue"
                   $underline="always"
                   href="conditions"
                 />,
-                // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content -- for translate
+                // eslint-disable-next-line react/jsx-key -- for translate
                 <Link
                   $enableHoverColor
                   $color="blue"
                   $underline="always"
                   href="terms"
                 />,
-                // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content -- for translate
+                // eslint-disable-next-line react/jsx-key -- for translate
                 <Link
                   $enableHoverColor
                   $color="blue"

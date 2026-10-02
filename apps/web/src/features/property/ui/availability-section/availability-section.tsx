@@ -168,7 +168,6 @@ export const AvailabilitySection: FC<AvailabilitySectionProps> = ({
     },
 
     onError: (err: unknown) => {
-      // eslint-disable-next-line no-console -- for debug
       console.error(err);
     },
   });

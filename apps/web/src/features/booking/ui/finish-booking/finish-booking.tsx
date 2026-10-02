@@ -69,7 +69,6 @@ export const FinishBooking = () => {
 
         setStripeClientSecret(data.clientSecret);
       } catch (err) {
-        // eslint-disable-next-line no-console -- for test
         console.error('fetch booking payments error', err);
       }
     };

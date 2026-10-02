@@ -24,9 +24,9 @@ export const AuthSignIn = async () => {
             i18nKey="footer.legal.agreement"
             t={t}
             components={[
-              // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content -- for translate
+              // eslint-disable-next-line react/jsx-key -- for translate
               <Link $color="blue" $underline="hover" href="content/terms" />,
-              // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content -- for translate
+              // eslint-disable-next-line react/jsx-key -- for translate
               <Link $color="blue" $underline="hover" href="content/privacy" />,
             ]}
           />
