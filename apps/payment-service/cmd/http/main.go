@@ -13,7 +13,7 @@ import (
 	"syscall"
 
 	"github.com/gin-gonic/gin"
-	"github.com/stripe/stripe-go/v86"
+	"github.com/stripe/stripe-go/v87"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"

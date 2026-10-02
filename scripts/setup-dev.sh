@@ -3,10 +3,10 @@ set -euo pipefail
 
 # Infrastructure & Component Versions
 CLUSTER_NAME="travelbook-cluster"
-GATEWAY_API_VERSION="v1.5.1"
-ISTIO_VERSION="1.29.2"
-PROMETHEUS_CHART_VERSION="29.2.1"
-KIALI_CHART_VERSION="2.25.0"
+GATEWAY_API_VERSION="v1.6.2"
+ISTIO_VERSION="1.30.5"
+PROMETHEUS_CHART_VERSION="29.35.0"
+KIALI_CHART_VERSION="2.32.0"
 
 echo "🚀 Step 1: Provisioning k3d Cluster..."
 if k3d cluster list | grep -q "${CLUSTER_NAME}"; then

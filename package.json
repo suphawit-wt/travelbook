@@ -1,6 +1,6 @@
 {
   "name": "travelbook",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Travelbook - Booking Hotels for Travel Web App",
   "license": "CC-BY-NC-ND-4.0",
@@ -16,8 +16,8 @@
     }
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.0",
-    "@commitlint/config-conventional": "^20.5.0",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "cz-conventional-changelog": "^3.3.0"
   }
 }
