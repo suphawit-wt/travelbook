@@ -1,0 +1,124 @@
+services:
+  kafka:
+    container_name: tb-kafka
+    image: apache/kafka:4.3.1
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./kafka/data:/var/lib/kafka/data
+      - ./kafka/secrets:/etc/kafka/secrets
+      - ./kafka_server_jaas.conf:/etc/kafka/kafka_server_jaas.conf:ro
+    environment:
+      - KAFKA_OPTS=-Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf
+      
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      
+      - KAFKA_LISTENERS=INTERNAL://0.0.0.0:9093,EXTERNAL://0.0.0.0:9092,CONTROLLER://localhost:9094
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka:9093,EXTERNAL://kafzium.suphawit.dev:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT,CONTROLLER:PLAINTEXT
+
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      
+      - KAFKA_SASL_ENABLED_MECHANISMS=PLAIN
+      - KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN
+      
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9094
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+      - KAFKA_NUM_PARTITIONS=3
+      
+      - KAFKA_JVM_PERFORMANCE_OPTS=-Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+    deploy:
+      resources:
+        limits:
+          cpus: "0.80"
+          memory: "768M"
+        reservations:
+          memory: "384M"
+
+  debezium:
+    container_name: tb-debezium
+    image: quay.io/debezium/connect:3.6.0
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    depends_on:
+      - kafka
+    volumes:
+      - ./debezium/kafka/data:/kafka/data
+      - ./debezium/kafka/config:/kafka/config
+      - ./debezium/kafka/logs:/kafka/logs
+      - ./rds-bundle.pem:/certs/rds-bundle.pem:ro
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9093
+      - GROUP_ID=travelbook-cdc-group
+
+      - CONFIG_STORAGE_TOPIC=debezium_configs
+      - OFFSET_STORAGE_TOPIC=debezium_offsets
+      - STATUS_STORAGE_TOPIC=debezium_statuses
+
+      - CONFIG_STORAGE_REPLICATION_FACTOR=1
+      - OFFSET_STORAGE_REPLICATION_FACTOR=1
+      - STATUS_STORAGE_REPLICATION_FACTOR=1
+      
+      - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1
+
+      - CONNECT_SECURITY_PROTOCOL=SASL_PLAINTEXT
+      - CONNECT_SASL_MECHANISM=PLAIN
+      - CONNECT_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="DJBYPYMNCKCG6IQH" password="cfltuKZcMBJzl9WJfTgYQRLLzlEU/WPo3GEOAf4Od4fQqvZptpJ4vT5AKmNxv5yw";
+
+      - CONNECT_PRODUCER_SECURITY_PROTOCOL=SASL_PLAINTEXT
+      - CONNECT_PRODUCER_SASL_MECHANISM=PLAIN
+      - CONNECT_PRODUCER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="DJBYPYMNCKCG6IQH" password="cfltuKZcMBJzl9WJfTgYQRLLzlEU/WPo3GEOAf4Od4fQqvZptpJ4vT5AKmNxv5yw";
+
+      - CONNECT_CONSUMER_SECURITY_PROTOCOL=SASL_PLAINTEXT
+      - CONNECT_CONSUMER_SASL_MECHANISM=PLAIN
+      - CONNECT_CONSUMER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="DJBYPYMNCKCG6IQH" password="cfltuKZcMBJzl9WJfTgYQRLLzlEU/WPo3GEOAf4Od4fQqvZptpJ4vT5AKmNxv5yw";
+
+      - KAFKA_JVM_PERFORMANCE_OPTS=-Xms512m -Xmx768m -XX:MaxDirectMemorySize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "1280M"
+        reservations:
+          memory: "512M"
+
+  kafbat-ui:
+      container_name: tb-kafbat-ui
+      image: kafbat/kafka-ui:v1.5.0
+      restart: unless-stopped
+      ports:
+        - "8080:8080"
+      depends_on:
+        - kafka
+      environment:
+        - AUTH_TYPE=LOGIN_FORM
+        - SPRING_SECURITY_USER_NAME=kbmin
+        - SPRING_SECURITY_USER_PASSWORD=kbminPass0123
+
+        - KAFKA_CLUSTERS_0_NAME=travelbook-cluster
+        - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9093
+        - KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL=SASL_PLAINTEXT
+        - KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM=PLAIN
+        - KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="DJBYPYMNCKCG6IQH" password="cfltuKZcMBJzl9WJfTgYQRLLzlEU/WPo3GEOAf4Od4fQqvZptpJ4vT5AKmNxv5yw";
+
+        - KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME=debezium-cdc
+        - KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS=http://debezium:8083
+
+        - JAVA_OPTS=-Xms128m -Xmx256m
+      deploy:
+        resources:
+          limits:
+            cpus: "0.50"
+            memory: "512M"
+          reservations:
+            memory: "256M"
