@@ -28,6 +28,7 @@ A modular backend built with Go, implementing a highly scalable microservices ar
 - [🛠️ Development](#development)
     - [📦 Local Development Setup](#local-development-setup)
     - [🌐 URL Routing](#url-routing)
+- [🖼️ Images](#images)
 - [📜 License](#license)
 
 
@@ -65,6 +66,11 @@ docker build \
 - **Kafbat:** [https://kafbat.travelbook.localhost](https://kafbat.travelbook.localhost)
 - **Debezium:** [http://localhost:8083](http://localhost:8083)
 
+
+## <span id="images">🖼️ Images</span>
+![Travelbook Home Page screenshot](./images/travelbook_home_page.png)
+![Travelbook Cloud Stack](./images/travelbook_cloud_stack.png)
+![Travelbook ER Diagram](./images/travelbook_er_diagram.png)
 
 ## <span id="license">📜 License</span>
 
